@@ -34,7 +34,7 @@ ClassID_GroupID_StudentID/
 │   ├── schema.sql          ← tables, constraints, triggers, grants
 │   ├── seed-data.sql       ← roles, permissions, demo accounts and data
 │   └── init/               ← creates the least-privilege DB role
-├── tests/                  ← 58 automated security tests (pytest) + screenshot script
+├── tests/                  ← 62 automated security tests (pytest) + screenshot script
 ├── evidence/               ← test results, HTTP traces, screenshots
 ├── contribution/           ← member-a.pdf, member-b.pdf, member-c.pdf (+ editable .md sources)
 ├── docker-compose.yml      ← starts the database and the web application
@@ -126,8 +126,8 @@ least-privilege application account `uni_app`, whose passwords are the values yo
 | Role | Main duties in the system | Explicitly not allowed |
 |---|---|---|
 | **Student** | View own profile, enrollments, the four grade components, course totals and overall average; update own e-mail/phone/address; join a class with free seats or leave it before grades exist | Other students' records, changing grades, creating classes |
-| **Lecturer** | See the classes they teach, their rosters and students; enter process 1 (10 %), process 2 (20 %), midterm (20 %) and final (50 %); take a class that has no lecturer | Grading classes they do not teach or their own enrollment; arranging other people |
-| **Registrar** | Academic office: create/update student records, **create classes** (≤ 30 students), assign/replace/remove the class lecturer, add/remove students, manage enrollments, view grades | Modifying grades |
+| **Lecturer** | See the classes they teach, their rosters and students; enter process 1 (10 %), process 2 (20 %), midterm (20 %) and final (50 %); take a class that has no lecturer; **close/reopen enrollment and start** their class; leave the class before it starts; remove students once it has started | Grading classes they do not teach or their own enrollment; leaving a class after it has started; arranging other classes |
+| **Registrar** | Academic office: create/update student records, **create classes** (≤ 30 students), assign/replace/remove the class lecturer, add/remove students **at any time** (even when enrollment is closed), lock/unlock/start any class, manage enrollments, view grades | Modifying grades |
 | **Security Auditor** | Read the audit log, verify its hash chain, read the access-control configuration | Changing any data |
 | **System Administrator** | Create/disable/enable/unlock accounts, assign/remove roles, **answer forgotten-password requests** | Any academic data; viewing passwords; changing own roles; approving own reset |
 | **Every role** | **My account**: change own password (current password required). Students and lecturers can also change their name | Registrar, Auditor and Administrator cannot rename themselves |
@@ -165,6 +165,10 @@ see the recorded event.
 | 22 | (no login) | **Forgot password?** for `student02` → note the reference code | "Request received" with a one-time reference code |
 | 23 | `admin01` | **Password requests** → Approve with a reply | Request approved; no password is shown to the admin |
 | 24 | (no login) | **I already have a reference code** → Reveal temporary password → sign in with it | Shown once; sign-in leads to a forced password change |
+| 25 | `student01` | **Class catalog**: DB201 shows *Closed* (the class has started) | No Join button; a forced join request returns **403** |
+| 26 | `lecturer02` | **Class catalog → Teach this class** on AI305 → open the class → **Leave this class** | Allowed, because AI305 has not started |
+| 27 | `lecturer01` | **My courses → IS101 → Class status**: Open/Close enrollment; on a started class try **Leave** (not shown) | Enrollment toggles; leaving a started class is impossible (only the registrar can remove the lecturer) |
+| 28 | `lecturer01` | In IS101 (started) click the bin icon next to a student | Student removed (DROPPED); not possible before a class starts |
 
 Scenarios 3–6 use the seed ids: student01 = `/students/1`, student02 = `/students/2`, IS101 = course 1,
 DB201 = course 2, NW301 = course 3, SE202 = course 4, AI305 = course 5.
@@ -183,7 +187,7 @@ python -m pip install -r tests/requirements.txt
 python -m pytest tests
 ```
 
-The suite has 58 tests (mandatory T01–T20 plus original T21–T58). The results are written to
+The suite has 62 tests (mandatory T01–T20 plus original T21–T62). The results are written to
 `evidence/test-results.html`, one request/response trace per test to `evidence/http/`, and the
 screenshots to `evidence/screenshots/`. To regenerate the screenshots (Microsoft Edge must be installed),
 run:

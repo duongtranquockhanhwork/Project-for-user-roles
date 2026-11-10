@@ -57,6 +57,7 @@ This is the technical documentation of the source code. For running the system a
 │   ├── test_5_database.py         T43–T44
 │   ├── test_6_features.py         T45–T52 (registration, weighted grades, classes)
 │   ├── test_7_account.py          T53–T58 (password change, rename rules, reset workflow)
+│   ├── test_8_class_status.py     T59–T62 (lock/unlock, start, lecturer leave, student removal)
 │   ├── capture_screenshots.py  53 evidence screenshots + index.json (section, caption, test id)
 │   └── requirements.txt
 ├── evidence/                   generated: test-results.html/.md, http/Txx.txt, screenshots/ (+ index.json)
@@ -132,6 +133,10 @@ Permissions and their scopes are data in the database (`role_permissions`, see `
 * **Classes** (`routes/courses.py`): `course.manage` (registrar) creates classes and assigns/replaces/removes the
   single lecturer; `class.join` (student, OWN) joins or leaves a class (leave only while ungraded); `class.teach`
   (lecturer, OWN) takes a class without a lecturer in which the lecturer is not enrolled.
+* **Class status:** `courses.is_locked` closes self-enrollment; `class.lock` (lecturer ASSIGNED, registrar ALL)
+  locks, unlocks and starts a class. Starting sets `started_at` and locks the class; from then on the lecturer
+  cannot leave (`/classes/<id>/stop-teaching` → 403, only the registrar can remove them) and may remove students
+  (`class.remove_student`, ASSIGNED). The registrar can add or remove students at any time.
 * **Roles** (`routes/admin.py`): administrators cannot change their own roles or disable themselves; pairs in
   `role_conflicts` (ADMIN+AUDITOR, LECTURER+REGISTRAR, STUDENT+REGISTRAR) are rejected, also by the trigger
   `user_roles_conflict_guard`; the last active administrator cannot be removed.
@@ -166,7 +171,8 @@ Permissions and their scopes are data in the database (`role_permissions`, see `
 | USER_REGISTER, COURSE_CREATE, COURSE_LECTURER_ASSIGN / _REMOVE, CLASS_JOIN, CLASS_LEAVE | SUCCESS |
 | PASSWORD_CHANGE, NAME_CHANGE, PASSWORD_RESET_REQUEST / _APPROVE / _REJECT / _DELIVERED | SUCCESS |
 | PASSWORD_CHANGE_FAILURE / NAME_CHANGE_DENIED / PASSWORD_RESET_REVEAL_DENIED / PASSWORD_RESET_APPROVE_DENIED | FAILURE / DENIED |
-| CLASS_JOIN_DENIED, CLASS_TEACH_DENIED | DENIED |
+| CLASS_LOCK / CLASS_UNLOCK / CLASS_START, CLASS_TEACH_LEAVE | SUCCESS |
+| CLASS_JOIN_DENIED, CLASS_TEACH_DENIED, CLASS_LOCK_DENIED, CLASS_TEACH_LEAVE_DENIED, ENROLLMENT_DROP_DENIED | DENIED |
 
 Each entry stores the timestamp, actor id and username, event type, target resource, result, JSON details and
 source IP. `audit.py` removes keys such as `password`, `token` and `csrf_token`. Successful changes are logged in

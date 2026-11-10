@@ -15,6 +15,7 @@
     <div class="class-top"><span class="chip">{{ c.code }}</span><span class="muted">{{ c.credits }} credits · {{ c.semester }}</span></div>
     <b class="class-title">{{ c.title }}</b>
     <span class="class-meta">{{ ui.icon('user', 'icon-sm') }} {{ c.lecturer_name or 'No lecturer yet' }}</span>
+    <span class="status-row">{% if c.started_at %}<span class="badge info">Started</span>{% endif %}{% if c.is_locked %}<span class="badge bad">Closed</span>{% else %}<span class="badge ok">Open</span>{% endif %}</span>
     <div class="seats"><div class="seat-bar"><span class="fill w{{ ((c.enrolled / c.capacity * 10)|round(0, 'ceil'))|int }}"></span></div><span>{{ c.enrolled }}/{{ c.capacity }} students</span></div>
   </a>
   {% else %}

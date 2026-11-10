@@ -1,15 +1,15 @@
-Evidence for T41 - generated 2026-11-10 20:34:11
+Evidence for T41 - generated 2026-11-10 23:39:11
 Target: http://localhost:8000
 
 ### One example per required event type
-#91 2026-11-10 13:34:11 lecturer01 GRADE_CREATE enrollment:11/grade SUCCESS {'total': '6.78', 'course': 'DB201', 'midterm': '7', 'process1': '7', 'process2': '6.5', 'final_exam': '6.75', 'student_code': 'S2026006'}
-#83 2026-11-10 13:34:03 registrar01 GRADE_MODIFY_DENIED /grades DENIED {'method': 'POST', 'required_permission': 'grade.write'}
-#33 2026-11-10 13:32:57 lecturer01 GRADE_UPDATE enrollment:1/grade SUCCESS {'total': '3.22', 'course': 'IS101', 'midterm': '0.86', 'process1': '9.52', 'process2': '2.69', 'final_exam': '3.12', 'old_midterm': '8.00', 'old_process1': '9.00', 'old_process2': '8.50', 'student_code': 'S2026001', 'old_final_exam': '8.50'}
-#73 2026-11-10 13:33:33 (anonymous) LOGIN_FAILURE user:(invalid format) FAILURE {'reason': 'invalid_input_format'}
-#90 2026-11-10 13:34:11 lecturer01 LOGIN_SUCCESS user:lecturer01 SUCCESS {}
-#92 2026-11-10 13:34:11 lecturer01 LOGOUT user:lecturer01 SUCCESS {}
-#64 2026-11-10 13:33:25 student01 RECORD_ACCESS_DENIED student:2/contact DENIED {'method': 'POST', 'permission': 'profile.update_contact'}
-#88 2026-11-10 13:34:09 admin01 ROLE_ASSIGN user:rm18b9b4 SUCCESS {'role': 'STUDENT'}
-#89 2026-11-10 13:34:09 admin01 ROLE_REMOVE user:rm18b9b4 SUCCESS {'role': 'STUDENT'}
-#87 2026-11-10 13:34:09 admin01 USER_CREATE user:rm18b9b4 SUCCESS {'user_id': 15}
-#23 2026-11-10 13:32:44 admin01 USER_DISABLE user:disbe7235 SUCCESS {'user_id': 13}
+#91 2026-11-10 16:39:11 lecturer01 GRADE_CREATE enrollment:11/grade SUCCESS {'total': '6.78', 'course': 'DB201', 'midterm': '7', 'process1': '7', 'process2': '6.5', 'final_exam': '6.75', 'student_code': 'S2026006'}
+#83 2026-11-10 16:39:02 registrar01 GRADE_MODIFY_DENIED /grades DENIED {'method': 'POST', 'required_permission': 'grade.write'}
+#33 2026-11-10 16:37:56 lecturer01 GRADE_UPDATE enrollment:1/grade SUCCESS {'total': '3.54', 'course': 'IS101', 'midterm': '6.6', 'process1': '1.55', 'process2': '3.5', 'final_exam': '2.73', 'old_midterm': '8.00', 'old_process1': '9.00', 'old_process2': '8.50', 'student_code': 'S2026001', 'old_final_exam': '8.50'}
+#73 2026-11-10 16:38:33 (anonymous) LOGIN_FAILURE user:(invalid format) FAILURE {'reason': 'invalid_input_format'}
+#90 2026-11-10 16:39:11 lecturer01 LOGIN_SUCCESS user:lecturer01 SUCCESS {}
+#92 2026-11-10 16:39:11 lecturer01 LOGOUT user:lecturer01 SUCCESS {}
+#64 2026-11-10 16:38:24 student01 RECORD_ACCESS_DENIED student:2/contact DENIED {'method': 'POST', 'permission': 'profile.update_contact'}
+#88 2026-11-10 16:39:08 admin01 ROLE_ASSIGN user:rmaf60c2 SUCCESS {'role': 'STUDENT'}
+#89 2026-11-10 16:39:08 admin01 ROLE_REMOVE user:rmaf60c2 SUCCESS {'role': 'STUDENT'}
+#87 2026-11-10 16:39:08 admin01 USER_CREATE user:rmaf60c2 SUCCESS {'user_id': 15}
+#23 2026-11-10 16:37:43 admin01 USER_DISABLE user:disd4a327 SUCCESS {'user_id': 13}

@@ -422,3 +422,6 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .request-card.is-pending { border-color: #f6d39a; box-shadow: 0 0 0 3px rgba(199, 119, 0, .08), var(--shadow); }
 .request-form { margin-top: 12px; }
 @media (max-width: 880px) { .kv-3 { grid-template-columns: 1fr; } }
+
+.status-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.class-status-card .card-body { gap: 10px; }

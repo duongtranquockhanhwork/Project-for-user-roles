@@ -1,4 +1,4 @@
-Evidence for T53 - generated 2026-11-10 20:36:23
+Evidence for T53 - generated 2026-11-10 23:41:22
 Target: http://localhost:8000
 
 ### Wrong current password
@@ -6,7 +6,7 @@ Target: http://localhost:8000
 > body: current_password=[REDACTED]&new_password=[REDACTED]&confirm_password=[REDACTED]&csrf_token=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: My account · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Faculty of Information Technology UniRecords My account AT Account Test accb890d1 · Student My account Account Test Username accb890d1 · member since 10 Nov 2026 The current password is incorrect. Profile Your name as shown in the system. AT Account Test Student Full name Save name Change password At least 12 characters, not containing your username. Current password New password Confirm new password Change password You will stay signed in here; sessions on other devi
+< page text: My account · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Faculty of Information Technology UniRecords My account AT Account Test accaad8e8 · Student My account Account Test Username accaad8e8 · member since 10 Nov 2026 The current password is incorrect. Profile Your name as shown in the system. AT Account Test Student Full name Save name Change password At least 12 characters, not containing your username. Current password New password Confirm new password Change password You will stay signed in here; sessions on other devi
 
 ### Correct change
 > POST /account/password

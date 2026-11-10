@@ -28,9 +28,11 @@
 
 ## 2. Repository commits
 
-My commits are recorded in the group repository: **[repository link to be added]**.
-They can be listed with the author filter **Nguyen Vo Thanh Tu**, for example
-`git log --author="Nguyen Vo Thanh Tu" --date=short`.
+My commits are recorded in the group repository:
+**https://github.com/duongtranquockhanhwork/Project-for-user-roles**
+(commit author **Nguyen Vo Thanh Tu**). They can be listed with `git log --author="Nguyen Vo Thanh Tu" --date=short` or on the
+repository's *Commits* page. The first version of the project was imported into the repository by
+Duong Tran Quoc Khanh; my own commits follow in the repository history.
 
 ## 3. Technical decisions made
 

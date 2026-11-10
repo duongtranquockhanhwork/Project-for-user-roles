@@ -1,9 +1,9 @@
-Evidence for T50 - generated 2026-11-10 20:34:51
+Evidence for T50 - generated 2026-11-10 23:39:51
 Target: http://localhost:8000
 
 ### Enroll S2026001
 > POST /enrollments
-> body: student_code=S2026001&course_code=TZU3357&csrf_token=[REDACTED]
+> body: student_code=S2026001&course_code=TUJ6551&csrf_token=[REDACTED]
 < HTTP 302
 < Location: /enrollments?notice=enrollment_created
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
@@ -11,7 +11,7 @@ Target: http://localhost:8000
 
 ### Enroll S2026002
 > POST /enrollments
-> body: student_code=S2026002&course_code=TZU3357&csrf_token=[REDACTED]
+> body: student_code=S2026002&course_code=TUJ6551&csrf_token=[REDACTED]
 < HTTP 302
 < Location: /enrollments?notice=enrollment_created
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
@@ -19,7 +19,7 @@ Target: http://localhost:8000
 
 ### Enroll S2026003
 > POST /enrollments
-> body: student_code=S2026003&course_code=TZU3357&csrf_token=[REDACTED]
+> body: student_code=S2026003&course_code=TUJ6551&csrf_token=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
 < page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My account Academic Courses Students Enrollments Faculty of Information Technology UniRecords Error 400 RR Rita Registrar registrar01 · Registrar Error 400 Invalid request The request was invalid. This class is full (2 students). Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026

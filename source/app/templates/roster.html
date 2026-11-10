@@ -2,12 +2,17 @@
 {% import "_macros.html" as ui with context %}
 {% block title %}{{ course.code }}{% endblock %}
 {% block crumb %}{{ course.code }} class{% endblock %}
+{% macro status_chips(c) -%}
+{% if c.started_at %}<span class="badge info">Started</span>{% else %}<span class="badge muted">Not started</span>{% endif %}
+{% if c.is_locked %}<span class="badge bad">Enrollment closed</span>{% else %}<span class="badge ok">Enrollment open</span>{% endif %}
+{%- endmacro %}
 {% block content %}
 {% set active = rows|selectattr('status', 'eq', 'ENROLLED')|list %}
 {% set scored = active|selectattr('score', 'ne', none)|list %}
 <div class="page-head">
   <div><div class="eyebrow">{{ ui.icon('layers') }} Class</div><h1>{{ course.code }} · {{ course.title }}</h1>
-  <p>{{ course.credits }} credits · semester {{ course.semester }} · lecturer: <b>{{ course.lecturer_name or 'not assigned' }}</b></p></div>
+  <p>{{ course.credits }} credits · semester {{ course.semester }} · lecturer: <b>{{ course.lecturer_name or 'not assigned' }}</b></p>
+  <p class="status-row" id="class-status">{{ status_chips(course) }}</p></div>
   <div class="actions"><a class="btn btn-ghost" href="{{ url_for('courses.list_courses') }}">{{ ui.icon('layers') }} All classes</a></div>
 </div>
 {% if notice %}<span id="saved" class="sr-only">{{ notice }}</span>{% endif %}
@@ -19,6 +24,29 @@
   {% endif %}
 </div>
 <br>
+{% if can_lock or can_leave_teaching %}
+<div class="card class-status-card">
+  <div class="card-head"><div><h2>{{ ui.icon('lock') }} Class status</h2>
+    <p>{% if course.started_at %}Started on {{ course.started_at.strftime('%d %b %Y') }}. The lecturer can no longer leave this class{% if can_lock %}; enrollment can still be opened or closed{% endif %}.{% else %}Not started yet. Starting the class closes enrollment and keeps the lecturer in the class.{% endif %}</p></div></div>
+  <div class="card-body row-form">
+    {% if can_lock %}
+    <form method="post" action="{{ url_for('courses.set_status', course_id=course.id) }}" class="inline-form">
+      {{ ui.csrf() }}
+      {% if course.is_locked %}<button name="action" value="unlock" class="btn btn-ghost btn-sm">{{ ui.icon('unlock', 'icon-sm') }} Open enrollment</button>
+      {% else %}<button name="action" value="lock" class="btn btn-ghost btn-sm">{{ ui.icon('lock', 'icon-sm') }} Close enrollment</button>{% endif %}
+      {% if not course.started_at %}<button name="action" value="start" class="btn btn-sm" data-confirm="Start {{ course.code }}? Enrollment will be closed and the lecturer can no longer leave the class.">{{ ui.icon('check', 'icon-sm') }} Start class</button>{% endif %}
+    </form>
+    {% endif %}
+    {% if can_leave_teaching %}
+    <form method="post" action="{{ url_for('courses.stop_teaching', course_id=course.id) }}" class="inline-form">
+      {{ ui.csrf() }}
+      <button type="submit" class="btn btn-danger btn-sm" data-confirm="Leave {{ course.code }} as its lecturer?">{{ ui.icon('logout', 'icon-sm') }} Leave this class</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+<br>
+{% endif %}
 {% if manage %}
 <div class="grid grid-2">
   <div class="card">
@@ -54,7 +82,7 @@
   <table id="roster" class="grade-table">
     <thead><tr><th>Student</th><th>Status</th>
       {% if show_grades %}{% for name, label, weight in components %}<th class="num">{{ label }}<br><span class="weight">{{ weight }} %</span></th>{% endfor %}<th class="num">Total</th>{% endif %}
-      {% if can_grade or manage %}<th></th>{% endif %}</tr></thead>
+      {% if can_grade or manage or can_remove_student %}<th></th>{% endif %}</tr></thead>
     <tbody>
     {% for r in rows %}
       {% set editable = can_grade and r.status == 'ENROLLED' and r.user_id != current_user.id %}
@@ -66,14 +94,14 @@
             {% else %}{{ '%.2f'|format(r[name]) if r[name] is not none else '—' }}{% endif %}</td>{% endfor %}
           <td class="num">{{ ui.score(r.score) }}</td>
         {% endif %}
-        {% if can_grade or manage %}<td class="num nowrap">
+        {% if can_grade or manage or can_remove_student %}<td class="num nowrap">
           {% if editable %}
           <form method="post" id="g{{ r.enrollment_id }}" action="{{ url_for('courses.save_grade') }}" class="inline-form">
             {{ ui.csrf() }}<input type="hidden" name="enrollment_id" value="{{ r.enrollment_id }}">
             <button type="submit" class="btn btn-sm">{{ ui.icon('save', 'icon-sm') }} Save</button>
           </form>
           {% elif can_grade and r.user_id == current_user.id %}<span class="badge warn">Own enrollment</span>{% endif %}
-          {% if manage and can_enroll and r.status == 'ENROLLED' %}
+          {% if can_remove_student and r.status == 'ENROLLED' and r.user_id != current_user.id %}
           <form method="post" action="{{ url_for('enrollments.drop_enrollment', enrollment_id=r.enrollment_id) }}" class="inline-form">
             {{ ui.csrf() }}<input type="hidden" name="return_to" value="course">
             <button type="submit" class="btn btn-danger btn-sm" data-confirm="Remove {{ r.student_code }} from {{ course.code }}?">{{ ui.icon('trash', 'icon-sm') }}</button>

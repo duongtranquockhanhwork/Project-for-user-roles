@@ -1,4 +1,4 @@
-Evidence for T28 - generated 2026-11-10 20:33:18
+Evidence for T28 - generated 2026-11-10 23:38:18
 Target: http://localhost:8000
 
 ### Own grades
@@ -11,7 +11,7 @@ Target: http://localhost:8000
 > GET /courses/4/roster
 < HTTP 200
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: SE202 · University Records System UniRecords University Records System Overview Dashboard My account My studies My profile My enrollments My grades Classes Class catalog Academic My courses Faculty of Information Technology UniRecords SE202 class TA Tuan Teaching-Assistant ta01 · Lecturer, Student Class SE202 · Software Engineering 3 credits · semester 2026-1 · lecturer: Tuan Teaching-Assistant All classes 2 Students (max 30) 1 Final totals published 4.89 Class average Students and grades Weights: process 1 – 10 %, process 2 – 20 %, midterm – 20 %, final – 50 %. The total appears when all four
+< page text: SE202 · University Records System UniRecords University Records System Overview Dashboard My account My studies My profile My enrollments My grades Classes Class catalog Academic My courses Faculty of Information Technology UniRecords SE202 class TA Tuan Teaching-Assistant ta01 · Lecturer, Student Class SE202 · Software Engineering 3 credits · semester 2026-1 · lecturer: Tuan Teaching-Assistant Started Enrollment closed All classes 2 Students (max 30) 1 Final totals published 4.07 Class average Class status Started on 10 Nov 2026. The lecturer can no longer leave this class; enrollment can sti
 
 ### DB201 roster
 > GET /courses/2/roster

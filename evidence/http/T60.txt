@@ -1,0 +1,17 @@
+Evidence for T60 - generated 2026-11-10 23:42:59
+Target: http://localhost:8000
+
+### Lecturer leaves an unstarted class
+> POST /classes/12/stop-teaching
+> body: csrf_token=[REDACTED]
+< HTTP 302
+< Location: /classes?notice=teaching_left
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Redirecting... Redirecting... You should be redirected automatically to the target URL: /classes?notice=teaching_left . If not, click the link.
+
+### Lecturer leaves a started class
+> POST /classes/13/stop-teaching
+> body: csrf_token=[REDACTED]
+< HTTP 403
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 403 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026

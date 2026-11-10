@@ -1,4 +1,4 @@
-Evidence for T20 - generated 2026-11-10 20:34:05
+Evidence for T20 - generated 2026-11-10 23:39:04
 Target: http://localhost:8000
 
 ### Auditor view filtered on DENIED
@@ -8,4 +8,4 @@ Target: http://localhost:8000
 < page text: Audit log · University Records System UniRecords University Records System Overview Dashboard My account Security Audit log Integrity check Access policy Secure session · server-side RBAC UniRecords Audit log OA Oscar Auditor auditor01 · Auditor Security Security audit log Append-only, SHA-256 hash-chained record of security-relevant events. Verify integrity All events ACCESS_DENIED ACCOUNT_LOCKED CONTACT_UPDATE CSRF_REJECTED ENROLLMENT_CREATE GRADE_CREATE GRADE_MODIFY_DENIED GRADE_UPDATE LOGIN_FAILURE LOGIN_SUCCESS LOGOUT RECORD_ACCESS_DENIED ROLE_ASSIGN ROLE_ASSIGN_DENIED STUDENT_CREATE SYST
 
 ### Audit row
-{'id': 83, 'ts': datetime.datetime(2026, 11, 10, 13, 34, 3, 241001, tzinfo=datetime.timezone.utc), 'actor_username': 'registrar01', 'event_type': 'GRADE_MODIFY_DENIED', 'target_resource': '/grades', 'result': 'DENIED', 'details': {'method': 'POST', 'required_permission': 'grade.write'}}
+{'id': 83, 'ts': datetime.datetime(2026, 11, 10, 16, 39, 2, 516465, tzinfo=datetime.timezone.utc), 'actor_username': 'registrar01', 'event_type': 'GRADE_MODIFY_DENIED', 'target_resource': '/grades', 'result': 'DENIED', 'details': {'method': 'POST', 'required_permission': 'grade.write'}}

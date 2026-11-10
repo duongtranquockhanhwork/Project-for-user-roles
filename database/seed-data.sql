@@ -34,7 +34,9 @@ INSERT INTO permissions (code, description) VALUES
     ('enrollment.manage',      'Create or drop enrollments'),
     ('course.manage',          'Create classes and assign or remove their lecturer'),
     ('class.join',             'Browse the class catalog and join or leave a class as a student'),
-    ('class.teach',            'Browse the class catalog and take an unassigned class as its lecturer'),
+    ('class.teach',            'Browse the class catalog and take an unassigned class as its lecturer, or leave it before it starts'),
+    ('class.lock',             'Lock or unlock enrollment of a class and start the class'),
+    ('class.remove_student',   'Remove a student from a class that has started'),
     ('grade.read',             'View grades'),
     ('grade.write',            'Create or update grades'),
     ('audit.read',             'Read security audit logs and verify their integrity'),
@@ -60,6 +62,8 @@ INSERT INTO role_permissions (role_id, permission_code, scope) VALUES
     (2, 'grade.read',             'ASSIGNED'),
     (2, 'grade.write',            'ASSIGNED'),
     (2, 'class.teach',            'OWN'),
+    (2, 'class.lock',             'ASSIGNED'),
+    (2, 'class.remove_student',   'ASSIGNED'),
     (2, 'account.rename',         'OWN'),
     -- REGISTRAR: all student records, no grade.write
     (3, 'student.search',         'ALL'),
@@ -71,6 +75,7 @@ INSERT INTO role_permissions (role_id, permission_code, scope) VALUES
     (3, 'enrollment.read',        'ALL'),
     (3, 'enrollment.manage',      'ALL'),
     (3, 'course.manage',          'ALL'),
+    (3, 'class.lock',             'ALL'),
     (3, 'grade.read',             'ALL'),
     -- AUDITOR: read-only security data
     (4, 'audit.read',             'ALL'),
@@ -133,6 +138,12 @@ SELECT c.id, u.id
                ('NW301', 'lecturer02'), ('SE202', 'ta01')) AS v (course_code, username)
   JOIN courses c ON c.code = v.course_code
   JOIN users u   ON u.username = v.username;
+
+-- Classes that already have grades are running: started by their lecturer and
+-- locked for enrollment. AI305 stays open.
+UPDATE courses c SET is_locked = true, started_at = now(), started_by = cl.lecturer_id
+  FROM course_lecturers cl
+ WHERE cl.course_id = c.id AND c.code IN ('IS101', 'DB201', 'NW301', 'SE202');
 
 -- -----------------------------------------------------------------------------
 -- Student profiles

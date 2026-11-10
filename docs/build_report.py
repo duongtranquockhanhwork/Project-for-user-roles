@@ -369,7 +369,7 @@ ABSTRACT = (
     "lecturer, and course totals are computed by the database from four weighted grade components. Every user "
     "can change their password, and forgotten passwords are reset through an administrator-approved workflow "
     "in which no one, not even the administrator, ever sees a stored password. "
-    "An automated suite of 58 security tests, including the 20 mandatory tests, passed completely. The report "
+    "An automated suite of 62 security tests, including the 20 mandatory tests, passed completely. The report "
     "closes with seven remaining risks and the improvements recommended for each.")
 
 
@@ -456,8 +456,8 @@ def chapters(bld, results, img, group):
          "logged."],
         ["TH11", "Abuse of self-service (registration, classes)", "A3–A6", "Sign-up with a forged role or by "
          "claiming another student's record; over-filling a class; a 2nd lecturer taking a class.", "M", "H",
-         "Sign-up always STUDENT with a NEW profile; class capacity ≤ 30 and one lecturer enforced in app and DB "
-         "(trigger, UNIQUE); self-service limited to oneself; all actions logged."],
+         "Sign-up always STUDENT with a NEW profile; capacity ≤ 30, one lecturer (app + DB); no joining a locked "
+         "class; self-service limited to oneself; all actions logged."],
         ["TH12", "Account takeover via password reset", "A1, A2", "Forged reset request; an administrator "
          "reading users' passwords.", "M", "H", "Uniform response; secret code; admin check and approval; one-time "
          "24 h temp password shown only to the requester; forced change."],
@@ -481,8 +481,11 @@ def chapters(bld, results, img, group):
         ["Create / drop enrollment", D, D, A, D, D],
         ["Create class (capacity ≤ 30)", D, D, A, D, D],
         ["Assign / replace / remove class lecturer (max. 1)", D, D, A, D, D],
-        ["Join / leave a class (free seat; leave only if ungraded)", "Own", D, "via enrollment", D, D],
-        ["Take an unassigned class as its lecturer", D, "Own, only if no lecturer", D, D, D],
+        ["Join / leave a class (open, free seat; leave only if ungraded)", "Own", D, "via enrollment", D, D],
+        ["Take a class without lecturer / leave it", D, "Own; leave only before start", "Remove lecturer any time",
+         D, D],
+        ["Lock / unlock enrollment, start class", D, "Assigned course", A, D, D],
+        ["Remove a student from a class", D, "Assigned, after start", A, D, D],
         ["View another student's grade", D, "Assigned course only", A, D, D],
         ["Create / modify grade components", D, "Assigned course only, not own enrollment", D, D, D],
         ["Change own password (current password required)", "Own", "Own", "Own", "Own", "Own"],
@@ -519,7 +522,8 @@ def chapters(bld, results, img, group):
           "so it cannot be used to read another student's grades. Self-service class actions act only on the "
           "user's own enrollment or teaching assignment; arranging other people remains a registrar duty "
           "(`course.manage`, `enrollment.manage`). A lecturer may take only a class without a lecturer and in which "
-          "they are not enrolled. Renaming is denied to holders of ADMIN, AUDITOR or REGISTRAR (deny overrides); "
+          "they are not enrolled; once the class is started (which closes enrollment) only the registrar can remove "
+          "the lecturer, and the lecturer may remove students. Renaming is denied to holders of ADMIN, AUDITOR or REGISTRAR (deny overrides); "
           "the administrator answers reset requests but never learns the new password.")
     bld.p("**Ownership and course-assignment checks.** Handlers load the object and call `can_access_student()` "
           "or `can_access_course()`: OWN requires `students.user_id` = session user, ASSIGNED a `course_lecturers` "
@@ -552,7 +556,8 @@ def chapters(bld, results, img, group):
     bld.p("A grade row holds four components; the course total `score` is a generated column "
           "(0.1·P1 + 0.2·P2 + 0.2·Mid + 0.5·Final), so it cannot be written by any client and stays empty until all "
           "components exist. The student page shows every component and a credit-weighted overall average. "
-          "Class handlers check capacity and the single-lecturer rule before writing; the database repeats both.")
+          "Class handlers check capacity and the single-lecturer rule (both repeated by the database) and the class "
+          "status: `is_locked` blocks self-enrollment, `started_at` keeps the lecturer and enables student removal.")
     bld.h2("5.4 Input Validation and Output Encoding")
     bld.p("`validators.py` applies allow-list rules (formats, lengths, no control characters, scores 0–10 with two "
           "decimals); bodies over 64 KB are rejected. Templates are auto-escaped and use only inline SVG, one "
@@ -597,7 +602,7 @@ def chapters(bld, results, img, group):
     bld.h2("7.1 Test Plan")
     bld.p("The suite in `tests/` is automated and repeatable (pytest + requests against the running system, plus "
           "database checks). Each test declares ID, preconditions, role, action and expected result; the run records "
-          "the actual result, PASS/FAIL and an evidence trace in `evidence/http/`. T01–T20 are mandatory; T21–T58 "
+          "the actual result, PASS/FAIL and an evidence trace in `evidence/http/`. T01–T20 are mandatory; T21–T62 "
           "are original tests covering every additional control and feature.")
     bld.h2("7.2 Results")
     cats = {}
@@ -608,7 +613,7 @@ def chapters(bld, results, img, group):
         c[2].append(r["id"])
     summary = [[k, v[0], v[1], v[0] - v[1], ", ".join(v[2])] for k, v in cats.items()]
     summary.append(["**Total**", f"**{results['total']}**", f"**{results['passed']}**",
-                    f"**{results['total'] - results['passed']}**", "T01–T20 mandatory, T21–T58 original"])
+                    f"**{results['total'] - results['passed']}**", "T01–T20 mandatory, T21–T62 original"])
     bld.p(f"The final run on {results['run_at']} passed **{results['passed']} of {results['total']}** tests "
           "(Table 7.1); all 20 mandatory tests T01–T20 passed. The complete table with preconditions, actions, "
           "actual results and evidence for every test is given in Appendix B.")
@@ -717,14 +722,17 @@ def chapters(bld, results, img, group):
     bld.p("Lecturers see only their assigned classes. The roster has one input per grade component with its weight "
           "and the computed total. After saving, a toast confirms the change, which is audited with old and new "
           "values. For the multi-role account `ta01`, the own SE202 enrollment shows \"Own enrollment\" instead "
-          "of inputs; the server and the database trigger reject such a request anyway (T27). In the catalog a "
+          "of inputs; the server and the database trigger reject such a request anyway (T27). A Class status card "
+          "lets the lecturer close or reopen enrollment and start the class; before the start the lecturer may "
+          "leave it, afterwards the attempt is rejected (T60) and students can be removed (T61). In the catalog a "
           "lecturer can take a class that has no lecturer.")
     gallery("lecturer")
     bld.h2("A.6 Registrar Workspace")
     bld.p("The registrar works with all student records (searchable list, creation form) and all classes. A new "
           "class gets a code, title, credits, semester, a capacity of at most 30 and optionally its lecturer. The "
           "class page lets the registrar replace or remove the single lecturer, add students by code while seats "
-          "remain, and remove students. The registrar can view grades but has no grade input anywhere.")
+          "remain, and remove students, at any time and even when enrollment is closed; the registrar can also lock, "
+          "unlock or start any class. The registrar can view grades but has no grade input anywhere.")
     gallery("registrar")
     bld.h2("A.7 Administrator Console")
     bld.p("The administrator's dashboard contains account statistics only, with no academic figures. The Users & "
@@ -801,7 +809,8 @@ def chapters(bld, results, img, group):
         ["SR13", "Self-registration creates only STUDENT accounts with a new profile and validates input.", "TH11",
          "T45, T46"],
         ["SR14", "Classes are created only by the registrar; one lecturer and at most 30 students per class; "
-         "self-service limited to oneself.", "TH11, TH3", "T48, T49, T50, T51, T52"],
+         "self-service limited to oneself; locked classes refuse joins; a started class keeps its lecturer.",
+         "TH11, TH3", "T48–T52, T59–T62"],
         ["SR15", "Every user can change their password (current password, policy, other sessions revoked); only "
          "students and lecturers can rename.", "TH1, TH2", "T53, T54"],
         ["SR16", "Password reset: uniform request response, secret code, admin approval, one-time 24 h temporary "

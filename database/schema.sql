@@ -143,6 +143,13 @@ CREATE TABLE courses (
     semester varchar(10)  NOT NULL CHECK (semester ~ '^[0-9]{4}-[1-3]$'),
     -- Each class holds at most 30 students (enforced by enrollments_capacity_guard).
     capacity smallint     NOT NULL DEFAULT 30 CHECK (capacity BETWEEN 1 AND 30),
+    -- Enrollment lock: a locked class accepts no self-enrollment by students.
+    is_locked  boolean     NOT NULL DEFAULT false,
+    -- Set when the lecturer (or registrar) starts teaching; the class is locked
+    -- at that moment and its lecturer can no longer leave it.
+    started_at timestamptz,
+    started_by integer    REFERENCES users (id),
+    CHECK (started_at IS NULL OR started_by IS NOT NULL),
     created_at timestamptz NOT NULL DEFAULT now(),
     created_by integer    REFERENCES users (id)
 );
@@ -411,7 +418,7 @@ GRANT UPDATE (full_name, date_of_birth, program, email, phone, address, updated_
     ON students TO uni_app;
 -- Classes are created by the registrar; code, id and audit columns cannot be changed.
 GRANT SELECT, INSERT ON courses TO uni_app;
-GRANT UPDATE (title, capacity) ON courses TO uni_app;
+GRANT UPDATE (title, capacity, is_locked, started_at, started_by) ON courses TO uni_app;
 GRANT SELECT, INSERT, DELETE ON course_lecturers TO uni_app;
 GRANT SELECT, INSERT ON enrollments TO uni_app;
 GRANT UPDATE (status) ON enrollments TO uni_app;

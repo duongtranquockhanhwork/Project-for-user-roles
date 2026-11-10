@@ -1,0 +1,24 @@
+Evidence for T61 - generated 2026-11-10 23:43:06
+Target: http://localhost:8000
+
+### Remove before start
+> POST /enrollments/18/drop
+> body: return_to=course&csrf_token=[REDACTED]
+< HTTP 403
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 403 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+
+### Remove after start
+> POST /enrollments/18/drop
+> body: return_to=course&csrf_token=[REDACTED]
+< HTTP 302
+< Location: /courses/14/roster?notice=enrollment_dropped
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Redirecting... Redirecting... You should be redirected automatically to the target URL: /courses/14/roster?notice=enrollment_dropped . If not, click the link.
+
+### Another lecturer removes a student
+> POST /enrollments/19/drop
+> body: return_to=course&csrf_token=[REDACTED]
+< HTTP 403
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 403 DL Dr. Minh Lecturer lecturer02 · Lecturer Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026

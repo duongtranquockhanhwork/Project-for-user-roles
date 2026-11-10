@@ -3,6 +3,9 @@
 Rules enforced here and again in the database:
 * a class has at most ONE lecturer (UNIQUE course_lecturers.course_id),
 * a class holds at most its capacity (<= 30) of active students (trigger),
+* a locked class accepts no self-enrollment; starting a class locks it, and
+  from then on its lecturer cannot leave it (only the registrar can remove
+  the lecturer) but may remove students,
 * grades are written only by the class's lecturer, never for the lecturer's
   own enrollment (application check + grades_guard trigger),
 * the course total is computed by the database from four weighted components.
@@ -28,8 +31,8 @@ def _lecturers():
 
 def _course(course_id):
     return db.query_one(
-        "SELECT c.id, c.code, c.title, c.credits, c.semester, c.capacity, cl.lecturer_id, "
-        "       u.full_name AS lecturer_name, u.username AS lecturer_username, "
+        "SELECT c.id, c.code, c.title, c.credits, c.semester, c.capacity, c.is_locked, c.started_at, "
+        "       cl.lecturer_id, u.full_name AS lecturer_name, u.username AS lecturer_username, "
         "       (SELECT count(*) FROM enrollments e WHERE e.course_id = c.id AND e.status = 'ENROLLED') AS enrolled "
         "  FROM courses c LEFT JOIN course_lecturers cl ON cl.course_id = c.id "
         "  LEFT JOIN users u ON u.id = cl.lecturer_id WHERE c.id = %s", (course_id,))
@@ -44,7 +47,8 @@ def _course(course_id):
 def list_courses():
     sees_all = "ALL" in g.user.scopes("course.read")
     rows = db.query_all(
-        "SELECT c.id, c.code, c.title, c.credits, c.semester, c.capacity, u.full_name AS lecturer_name, "
+        "SELECT c.id, c.code, c.title, c.credits, c.semester, c.capacity, c.is_locked, c.started_at, "
+        "       u.full_name AS lecturer_name, "
         "       (SELECT count(*) FROM enrollments e "
         "         WHERE e.course_id = c.id AND e.status = 'ENROLLED') AS enrolled "
         "  FROM courses c LEFT JOIN course_lecturers cl ON cl.course_id = c.id "
@@ -145,10 +149,44 @@ def roster(course_id):
         "  LEFT JOIN grades gr ON gr.enrollment_id = e.id "
         " WHERE e.course_id = %s ORDER BY e.status, s.student_code", (course_id,))
     manage = g.user.has("course.manage")
+    is_lecturer = course["lecturer_id"] == g.user.id
     return render_template("roster.html", course=course, rows=rows, show_grades=show_grades,
                            can_grade=can_grade, manage=manage, components=COMPONENTS,
                            can_enroll=g.user.has("enrollment.manage"),
+                           can_lock=can_access_course("class.lock", course_id),
+                           can_leave_teaching=is_lecturer and course["started_at"] is None,
+                           can_remove_student=g.user.has("enrollment.manage") or (
+                               course["started_at"] is not None
+                               and can_access_course("class.remove_student", course_id)),
                            lecturers=_lecturers() if manage else [])
+
+
+@bp.post("/courses/<int:course_id>/status")
+@require_permission("class.lock", deny_event="CLASS_LOCK_DENIED")
+def set_status(course_id):
+    """Lock or unlock enrollment, or start the class (which also locks it)."""
+    course = _course(course_id) or abort(404)
+    target = f"course:{course_id}/status"
+    if not can_access_course("class.lock", course_id):
+        deny("CLASS_LOCK_DENIED", target, {"reason": "course_not_assigned", "course": course["code"]})
+    v = Validator(request.form)
+    v.choice("action", "Action", ("lock", "unlock", "start"))
+    action = v.done()["action"]
+    if action == "start":
+        if course["started_at"] is not None:
+            raise ValidationError(["This class has already started."])
+        if course["lecturer_id"] is None:
+            raise ValidationError(["Assign a lecturer before starting the class."])
+        db.execute("UPDATE courses SET is_locked = true, started_at = now(), started_by = %s WHERE id = %s",
+                   (g.user.id, course_id))
+        event, notice = "CLASS_START", "class_started"
+    else:
+        locked = action == "lock"
+        db.execute("UPDATE courses SET is_locked = %s WHERE id = %s", (locked, course_id))
+        event, notice = ("CLASS_LOCK", "class_locked") if locked else ("CLASS_UNLOCK", "class_unlocked")
+    audit.log_event(event, audit.SUCCESS, target, {"course": course["code"]}, in_request_tx=True)
+    db.commit()
+    return redirect(url_for("courses.roster", course_id=course_id, notice=notice))
 
 
 @bp.post("/grades")
@@ -211,8 +249,8 @@ def save_grade():
 @require_any_permission("class.join", "class.teach")
 def catalog():
     rows = db.query_all(
-        "SELECT c.id, c.code, c.title, c.credits, c.semester, c.capacity, cl.lecturer_id, "
-        "       u.full_name AS lecturer_name, "
+        "SELECT c.id, c.code, c.title, c.credits, c.semester, c.capacity, c.is_locked, c.started_at, "
+        "       cl.lecturer_id, u.full_name AS lecturer_name, "
         "       (SELECT count(*) FROM enrollments e WHERE e.course_id = c.id AND e.status = 'ENROLLED') AS enrolled, "
         "       (SELECT e.status FROM enrollments e WHERE e.course_id = c.id AND e.student_id = %s) AS my_status, "
         "       (SELECT count(*) FROM enrollments e JOIN grades gr ON gr.enrollment_id = e.id "
@@ -237,6 +275,8 @@ def join_class(course_id):
                             (g.user.student_id, course_id))
     if existing and existing["status"] == "ENROLLED":
         raise ValidationError(["You are already enrolled in this class."])
+    if course["is_locked"]:
+        deny("CLASS_JOIN_DENIED", f"course:{course_id}", {"reason": "class_locked", "course": course["code"]})
     if course["enrolled"] >= course["capacity"]:
         raise ValidationError([f"This class is full ({course['capacity']} students)."])
     if existing:
@@ -270,6 +310,22 @@ def leave_class(course_id):
                     {"course": course["code"]}, in_request_tx=True)
     db.commit()
     return redirect(url_for("courses.catalog", notice="class_left"))
+
+
+@bp.post("/classes/<int:course_id>/stop-teaching")
+@require_permission("class.teach")
+def stop_teaching(course_id):
+    """The lecturer leaves their own class - only before it has started."""
+    course = _course(course_id) or abort(404)
+    target = f"course:{course_id}/lecturer"
+    if course["lecturer_id"] != g.user.id:
+        deny("CLASS_TEACH_LEAVE_DENIED", target, {"reason": "not_the_lecturer", "course": course["code"]})
+    if course["started_at"] is not None:
+        deny("CLASS_TEACH_LEAVE_DENIED", target, {"reason": "class_started", "course": course["code"]})
+    db.execute("DELETE FROM course_lecturers WHERE course_id = %s AND lecturer_id = %s", (course_id, g.user.id))
+    audit.log_event("CLASS_TEACH_LEAVE", audit.SUCCESS, target, {"course": course["code"]}, in_request_tx=True)
+    db.commit()
+    return redirect(url_for("courses.catalog", notice="teaching_left"))
 
 
 @bp.post("/classes/<int:course_id>/teach")

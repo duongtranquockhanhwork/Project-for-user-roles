@@ -13,7 +13,7 @@
   {% set mine_teach = c.lecturer_id == current_user.id %}
   <div class="card class-card">
     <div class="class-top"><span class="chip">{{ c.code }}</span>
-      {% if c.my_status == 'ENROLLED' %}<span class="badge ok">Enrolled</span>{% elif mine_teach %}<span class="badge info">You teach</span>{% elif full %}<span class="badge bad">Full</span>{% else %}<span class="badge muted">Open</span>{% endif %}</div>
+      {% if c.my_status == 'ENROLLED' %}<span class="badge ok">Enrolled</span>{% elif mine_teach %}<span class="badge info">You teach</span>{% elif c.is_locked %}<span class="badge bad">Closed</span>{% elif full %}<span class="badge bad">Full</span>{% else %}<span class="badge muted">Open</span>{% endif %}</div>
     <b class="class-title">{{ c.title }}</b>
     <span class="class-meta">{{ ui.icon('user', 'icon-sm') }} {{ c.lecturer_name or 'No lecturer yet' }} · {{ c.credits }} credits</span>
     <div class="seats"><div class="seat-bar"><span class="fill w{{ ((c.enrolled / c.capacity * 10)|round(0, 'ceil'))|int }}"></span></div><span>{{ c.enrolled }}/{{ c.capacity }} seats</span></div>
@@ -23,6 +23,7 @@
           {% if c.my_graded %}<span class="muted small">Grades recorded</span>{% else %}
           <form method="post" action="{{ url_for('courses.leave_class', course_id=c.id) }}" class="inline-form">{{ ui.csrf() }}
             <button type="submit" class="btn btn-ghost btn-sm" data-confirm="Leave {{ c.code }}?">{{ ui.icon('logout', 'icon-sm') }} Leave</button></form>{% endif %}
+        {% elif c.is_locked %}<span class="muted small">{{ ui.icon('lock', 'icon-sm') }} Enrollment closed{% if c.started_at %} · class started{% endif %}</span>
         {% elif not full %}
           <form method="post" action="{{ url_for('courses.join_class', course_id=c.id) }}" class="inline-form">{{ ui.csrf() }}
             <button type="submit" class="btn btn-sm">{{ ui.icon('plus', 'icon-sm') }} Join class</button></form>

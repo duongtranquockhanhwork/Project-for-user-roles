@@ -21,7 +21,8 @@
   `can_access_course`) in `source/app/authz.py`.
 - **Application features:** student records, enrollments, administration of users and roles, the auditor views,
   student self-registration, the class catalog (join, leave, take a class), class creation with at most one
-  lecturer and 30 students, and grade entry with four weighted components.
+  lecturer and 30 students, class locking and starting (after the start the lecturer cannot leave and may remove
+  students), and grade entry with four weighted components.
 - **Account self-service:** password change for every role, renaming for students and lecturers, and the
   administrator-approved forgot-password workflow (`source/app/routes/account.py`).
 - **User interface:** the responsive UniRecords design (`static/style.css`, `static/app.js`, the templates), with

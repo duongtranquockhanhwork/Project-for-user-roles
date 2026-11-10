@@ -1,4 +1,4 @@
-Evidence for T55 - generated 2026-11-10 20:36:42
+Evidence for T55 - generated 2026-11-10 23:41:41
 Target: http://localhost:8000
 
 ### Existing username
@@ -6,11 +6,11 @@ Target: http://localhost:8000
 > body: username=student02&email=binh.tran%40student.example.edu&message=Lost+my+password
 < HTTP 200
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Request sent · University Records System UniRecords University Records System Request received If an account named student02 exists, the administrator will review your request. Your reference code pKVx4db4o6ZZY1Fc Write this code down now — it is shown only once and is required to read the administrator's reply. Check my request Back to sign in
+< page text: Request sent · University Records System UniRecords University Records System Request received If an account named student02 exists, the administrator will review your request. Your reference code vCMzNT2AOSYqCMK6 Write this code down now — it is shown only once and is required to read the administrator's reply. Check my request Back to sign in
 
 ### Unknown username
 > POST /forgot-password
 > body: username=ghostuser&email=&message=Lost+my+password
 < HTTP 200
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Request sent · University Records System UniRecords University Records System Request received If an account named ghostuser exists, the administrator will review your request. Your reference code sIWiQ4eyauCdM7vI Write this code down now — it is shown only once and is required to read the administrator's reply. Check my request Back to sign in
+< page text: Request sent · University Records System UniRecords University Records System Request received If an account named ghostuser exists, the administrator will review your request. Your reference code -g_8XDA-iSFrNmD6 Write this code down now — it is shown only once and is required to read the administrator's reply. Check my request Back to sign in

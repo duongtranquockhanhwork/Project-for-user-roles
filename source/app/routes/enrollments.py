@@ -2,7 +2,7 @@
 from flask import Blueprint, abort, g, redirect, render_template, request, url_for
 
 from .. import audit, db
-from ..authz import require_permission
+from ..authz import can_access_course, deny, require_any_permission, require_permission
 from ..validators import COURSE_CODE_RE, STUDENT_CODE_RE, ValidationError, Validator
 
 bp = Blueprint("enrollments", __name__)
@@ -68,8 +68,20 @@ def create_enrollment():
 
 
 @bp.post("/enrollments/<int:enrollment_id>/drop")
-@require_permission("enrollment.manage")
+@require_any_permission("enrollment.manage", "class.remove_student", deny_event="ENROLLMENT_DROP_DENIED")
 def drop_enrollment(enrollment_id):
+    """Registrar: always. Lecturer: only students of their own class, and only after it has started."""
+    if not g.user.has("enrollment.manage"):
+        info = db.query_one(
+            "SELECT e.course_id, c.started_at, s.user_id FROM enrollments e JOIN courses c ON c.id = e.course_id "
+            "  JOIN students s ON s.id = e.student_id WHERE e.id = %s", (enrollment_id,))
+        target = f"enrollment:{enrollment_id}"
+        if info is None or not can_access_course("class.remove_student", info["course_id"]):
+            deny("ENROLLMENT_DROP_DENIED", target, {"reason": "course_not_assigned"})
+        if info["started_at"] is None:
+            deny("ENROLLMENT_DROP_DENIED", target, {"reason": "class_not_started"})
+        if info["user_id"] == g.user.id:
+            deny("ENROLLMENT_DROP_DENIED", target, {"reason": "own_enrollment"})
     row = db.query_one(
         "UPDATE enrollments SET status = 'DROPPED' WHERE id = %s AND status = 'ENROLLED' "
         "RETURNING id, course_id", (enrollment_id,))

@@ -80,8 +80,8 @@
   {
     "file": "14-student-class-catalog.png",
     "section": "student",
-    "caption": "Class catalog seen by student01 (enrolled, open and full classes)",
-    "test": ""
+    "caption": "Class catalog seen by student01 (enrolled, closed and open classes)",
+    "test": "T59"
   },
   {
     "file": "15-lecturer-dashboard.png",
@@ -98,7 +98,7 @@
   {
     "file": "17-lecturer-assigned-roster.png",
     "section": "lecturer",
-    "caption": "Roster of IS101 with the four grade components and totals",
+    "caption": "IS101: class status (started, enrollment closed) and the four grade components",
     "test": "T09"
   },
   {
@@ -240,81 +240,87 @@
     "test": "T11"
   },
   {
-    "file": "41-registrar-grade-modification-denied.png",
+    "file": "41-lecturer-leave-started-class-denied.png",
+    "section": "rejections",
+    "caption": "lecturer01 tries to leave IS101 after the class has started: HTTP 403",
+    "test": "T60"
+  },
+  {
+    "file": "42-registrar-grade-modification-denied.png",
     "section": "rejections",
     "caption": "registrar01 modifies a grade: HTTP 403",
     "test": "T13"
   },
   {
-    "file": "42-auditor-modify-student-denied.png",
+    "file": "43-auditor-modify-student-denied.png",
     "section": "rejections",
     "caption": "auditor01 modifies a student record: HTTP 403",
     "test": "T15"
   },
   {
-    "file": "43-admin-view-grades-denied.png",
+    "file": "44-admin-view-grades-denied.png",
     "section": "rejections",
     "caption": "admin01 (ADMIN only) opens a grade page: HTTP 403",
     "test": "T17"
   },
   {
-    "file": "44-admin-role-conflict-denied.png",
+    "file": "45-admin-role-conflict-denied.png",
     "section": "rejections",
     "caption": "Assigning AUDITOR to an administrator violates separation of duties: HTTP 403",
     "test": "T30"
   },
   {
-    "file": "45-xss-payload-rendered-as-text.png",
+    "file": "46-xss-payload-rendered-as-text.png",
     "section": "input",
     "caption": "Stored <script> payload is displayed as plain text and does not execute",
     "test": "T19"
   },
   {
-    "file": "46-session-invalid-after-logout.png",
+    "file": "47-session-invalid-after-logout.png",
     "section": "input",
     "caption": "After logout the old session is rejected: HTTP 401",
     "test": "T04"
   },
   {
-    "file": "47-auditor-dashboard.png",
+    "file": "48-auditor-dashboard.png",
     "section": "auditor",
     "caption": "Security Auditor dashboard: audit volume, denials and failed logins",
     "test": ""
   },
   {
-    "file": "48-audit-log-entries.png",
+    "file": "49-audit-log-entries.png",
     "section": "auditor",
     "caption": "Security audit log with timestamp, actor, event, target, result and details",
     "test": "T14"
   },
   {
-    "file": "49-audit-log-rejected-actions.png",
+    "file": "50-audit-log-rejected-actions.png",
     "section": "auditor",
     "caption": "Audit log filtered on rejected actions",
     "test": "T20"
   },
   {
-    "file": "50-audit-log-hash-chain-verified.png",
+    "file": "51-audit-log-hash-chain-verified.png",
     "section": "auditor",
     "caption": "Integrity check: the SHA-256 hash chain is intact",
     "test": "T42"
   },
   {
-    "file": "51-auditor-access-control-configuration.png",
+    "file": "52-auditor-access-control-configuration.png",
     "section": "auditor",
     "caption": "Read-only view of the access-control configuration",
     "test": "T14"
   },
   {
-    "file": "52-hashed-password-records.png",
+    "file": "53-hashed-password-records.png",
     "section": "database",
     "caption": "users.password_hash contains only Argon2id hashes",
     "test": "T05"
   },
   {
-    "file": "53-security-test-results.png",
+    "file": "54-security-test-results.png",
     "section": "database",
     "caption": "Automated security test results (pytest)",
-    "test": "T01–T58"
+    "test": "T01–T62"
   }
 ]

@@ -170,7 +170,7 @@ def main():
         s.shot(page, "student-own-grades", S,
                "Own grades: four components, course totals and the credit-weighted overall average", "T06")
         page.goto(BASE_URL + "/classes")
-        s.shot(page, "student-class-catalog", S, "Class catalog seen by student01 (enrolled, open and full classes)")
+        s.shot(page, "student-class-catalog", S, "Class catalog seen by student01 (enrolled, closed and open classes)", "T59")
 
         # ---------------------------------------------------------- lecturer
         L = "lecturer"
@@ -179,7 +179,7 @@ def main():
         page.goto(BASE_URL + "/courses")
         s.shot(page, "lecturer-courses", L, "Lecturer sees only the classes assigned to them")
         page.goto(f"{BASE_URL}/courses/{cid['IS101']}/roster")
-        s.shot(page, "lecturer-assigned-roster", L, "Roster of IS101 with the four grade components and totals", "T09")
+        s.shot(page, "lecturer-assigned-roster", L, "IS101: class status (started, enrollment closed) and the four grade components", "T09")
         row = page.locator("#roster tr", has_text="S2026002")
         for field, value in (("process1", "8.50"), ("process2", "7.75"), ("midterm", "7.00"), ("final_exam", "8.25")):
             row.locator(f"input[name={field}]").fill(value)
@@ -299,6 +299,9 @@ def main():
         page = s.new_page("lecturer01")
         post_form(page, "/grades", {"enrollment_id": enr("S2026001", "NW301"), "final_exam": "0"})
         s.shot(page, "lecturer-unassigned-course-denied", X, "lecturer01 modifies a grade in unassigned NW301: HTTP 403", "T11", height=600)
+        post_form(page, f"/classes/{cid['IS101']}/stop-teaching", {})
+        s.shot(page, "lecturer-leave-started-class-denied", X,
+               "lecturer01 tries to leave IS101 after the class has started: HTTP 403", "T60", height=600)
         page = s.new_page("registrar01")
         post_form(page, "/grades", {"enrollment_id": enr("S2026002", "DB201"), "final_exam": "10"})
         s.shot(page, "registrar-grade-modification-denied", X, "registrar01 modifies a grade: HTTP 403", "T13", height=600)
@@ -362,7 +365,7 @@ def main():
         if report.exists():
             page = s.new_page()
             page.goto(report.resolve().as_uri())
-            s.shot(page, "security-test-results", B, "Automated security test results (pytest)", "T01–T58", full_page=False)
+            s.shot(page, "security-test-results", B, "Automated security test results (pytest)", "T01–T62", full_page=False)
 
         browser.close()
     (OUT / "index.json").write_text(json.dumps(s.index, indent=2, ensure_ascii=False), encoding="utf-8")
