@@ -27,7 +27,7 @@ or build the archive with `tools/package_submission.py`, see Section 7):
 ```
 ClassID_GroupID_StudentID/
 ├── README.md               ← this file (how to run and grade the project)
-├── report.pdf              ← written report (faculty format)
+├── report/               ← report.pdf (written report), report.docx, Kich_ban_demo.docx (demo script), assignment PDF
 ├── demo-video-link.txt     ← link to the demonstration video
 ├── source/                 ← Flask application (source/README.md = technical documentation)
 ├── database/
@@ -39,7 +39,7 @@ ClassID_GroupID_StudentID/
 ├── contribution/           ← member-a.pdf, member-b.pdf, member-c.pdf (+ editable .md sources)
 ├── docker-compose.yml      ← starts the database and the web application
 ├── .env.example            ← template for the secrets file
-├── docs/                   ← DFD, report builder, report.docx, demo-video script (Kich_ban_demo.docx)
+├── docs/                   ← DFD, report and contribution builders, group information
 └── tools/                  ← package_submission.py (creates the submission .zip)
 ```
 <!-- tree:end -->
@@ -196,15 +196,23 @@ python tests/capture_screenshots.py
 
 ## 6. Report and video
 
-* Written report: [`report.pdf`](report.pdf). Chapters 1–9 are the main body (10 pages);
+* Written report: [`report/report.pdf`](report/report.pdf). Chapters 1–9 are the main body (10 pages);
   Appendix A is the system demonstration (every screen, by role), Appendix B the complete test table and
   Appendix C the requirement traceability; References are the last section.
-* Demonstration video: see [`demo-video-link.txt`](demo-video-link.txt); the recording script is `docs/Kich_ban_demo.docx`.
+* Demonstration video: see [`demo-video-link.txt`](demo-video-link.txt); the recording script is `report/Kich_ban_demo.docx`.
 * Individual contribution statements: `contribution/member-a.pdf`, `member-b.pdf` and `member-c.pdf`.
 
 ---
 
 ## 7. Build the submission package
+
+Add the repository link to `contribution/member-*.md` (section 2, "Repository commits") and rebuild the
+statements:
+
+```bash
+python docs/build_contributions.py
+```
+
 
 Fill in `class_id` and `group_id` in `docs/group.json`, then run:
 

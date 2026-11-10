@@ -1,2 +1,2 @@
 Demo video (max. 8 minutes): <paste the video link here, e.g. a YouTube unlisted or Google Drive link with view access>
-Script (Vietnamese, 3 members): docs/Kich_ban_demo.docx
+Script (Vietnamese, 3 members): report/Kich_ban_demo.docx

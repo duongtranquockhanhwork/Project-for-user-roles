@@ -65,11 +65,9 @@ This is the technical documentation of the source code. For running the system a
 └── docs/
     ├── dfd.svg                 system and data-flow diagram
     ├── group.json              group information used in the report
-    ├── build_report.py         builds report.pdf (+ docs/report/report.docx) from the faculty template
+    ├── build_report.py         builds report/report.pdf (+ report.docx) from the faculty template in report/template/
     ├── build_contributions.py  converts contribution/*.md to PDF
-    ├── report/                 report.docx (editable) and template/Midterm_Report.docx (faculty template)
-    ├── Kich_ban_demo.docx      demo-video script (Vietnamese, three members)
-    └── demo-script.md          pointer to the demo-video script
+    └── demo-script.md          pointer to the demo-video script (report/Kich_ban_demo.docx)
 ```
 
 ## 3. Request pipeline

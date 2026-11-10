@@ -1,6 +1,6 @@
-"""Build report.pdf (and docs/report/report.docx) in the faculty report format.
+"""Build report/report.pdf (and report/report.docx) in the faculty report format.
 
-The faculty template (docs/report/template/Midterm_Report.docx) is used as the base
+The faculty template (report/template/Midterm_Report.docx) is used as the base
 document, so the cover pages, header logo, fonts, margins, page numbering,
 acknowledgement / declaration pages and table of contents keep exactly the
 template's format. Only the content is replaced.
@@ -27,9 +27,9 @@ from docx.oxml.ns import nsdecls
 from docx.shared import Cm, Pt
 
 SRC = pathlib.Path(__file__).resolve().parent.parent          # submission root
-TEMPLATE = SRC / "docs" / "report" / "template" / "Midterm_Report.docx"   # faculty template
-OUT_DOCX = SRC / "docs" / "report" / "report.docx"             # editable copy
-OUT_PDF = SRC / "report.pdf"                                   # submitted report
+TEMPLATE = SRC / "report" / "template" / "Midterm_Report.docx"   # faculty template
+OUT_DOCX = SRC / "report" / "report.docx"             # editable copy
+OUT_PDF = SRC / "report" / "report.pdf"                                   # submitted report
 SHOTS = SRC / "evidence" / "screenshots"
 BUILD = SRC / "docs" / "build"
 
@@ -386,7 +386,7 @@ def chapters(bld, results, img, group):
           "access-control policy, implement it on the server and in the database, verify it with repeatable "
           "tests, and review the remaining risks.")
     bld.h2("1.2 Scope and Group Organization")
-    lead = "; ".join(f"{m['label']} ({m['name']}): {m['responsibility'].lower()}" for m in group["members"])
+    lead = "; ".join(f"{m['name']}: {m['responsibility'].lower()}" for m in group["members"])
     bld.p("The scope covers authentication, sessions, roles, server-side and record-level authorization, the "
           "academic features, database security, validation, output encoding and audit logging. Primary "
           "responsibilities were " + lead + ". All members reviewed the complete submission.")
@@ -655,7 +655,7 @@ def chapters(bld, results, img, group):
           "`contribution/member-a.pdf`, `member-b.pdf` and `member-c.pdf`. All members reviewed the complete "
           "submission.")
     bld.table("Individual contribution summary", ["Member", "Primary responsibility", "Summary of contribution"],
-              [[f"{m['label']}\n{m['name']}", m["responsibility"],
+              [[f"{m['name']}\n{m['student_id']}", m["responsibility"],
                 m.get("summary") or "<to be completed by the member>"] for m in group["members"]],
               [3.6, 4.4, 7.5], size=20)
 
@@ -887,9 +887,12 @@ def main():
     results = json.loads((SRC / "tests" / "results" / "results.json").read_text(encoding="utf-8"))
     group = json.loads((SRC / "docs" / "group.json").read_text(encoding="utf-8"))
     img = prepare_images()
-    if not TEMPLATE.exists():
-        raise SystemExit(f"Faculty template not found: {TEMPLATE.relative_to(SRC)} - copy Midterm_Report.docx there.")
-    doc = Document(str(TEMPLATE))
+    template = TEMPLATE
+    if "--template" in sys.argv:                 # e.g. --template C:/path/Midterm_Report.docx
+        template = pathlib.Path(sys.argv[sys.argv.index("--template") + 1])
+    if not template.exists():
+        raise SystemExit(f"Faculty template not found: {template} - pass --template <path to Midterm_Report.docx>.")
+    doc = Document(str(template))
     add_caption_styles(doc)
     front_matter(doc, group)
     chapters(Builder(doc), results, img, group)

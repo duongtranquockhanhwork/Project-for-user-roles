@@ -4,7 +4,7 @@ The project folder already follows the layout required by the assignment:
 
     ClassID_GroupID_StudentID/
     ├── README.md
-    ├── report.pdf
+    ├── report/report.pdf
     ├── source/
     ├── database/  (schema.sql, seed-data.sql)
     ├── tests/
@@ -27,7 +27,7 @@ import pathlib
 import zipfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-REQUIRED = ["README.md", "report.pdf", "source", "database/schema.sql", "database/seed-data.sql", "tests",
+REQUIRED = ["README.md", "report/report.pdf", "source", "database/schema.sql", "database/seed-data.sql", "tests",
             "evidence", "contribution/member-a.pdf", "contribution/member-b.pdf", "contribution/member-c.pdf",
             "demo-video-link.txt"]
 SKIP_DIRS = {".git", "__pycache__", ".pytest_cache", "dist", "build", "results", ".venv", "venv", "template"}
