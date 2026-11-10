@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Temporary password{% endblock %}
+{% block standalone %}
+<div class="auth auth-single">
+  <section class="auth-panel">
+    <div class="card auth-card wide-auth">
+      <a class="brand brand-dark" href="{{ url_for('auth.login') }}"><span class="brand-mark">{{ ui.icon('shield-check') }}</span>
+        <span><span class="brand-name">UniRecords</span><br><span class="brand-sub">University Records System</span></span></a>
+      <h2>Your temporary password</h2>
+      <p class="sub">Account <b>{{ username }}</b> · valid until {{ expires.strftime('%d %b %Y, %H:%M') }} UTC.</p>
+      <div class="code-box" id="temp-password"><span>Temporary password</span><b class="mono">{{ temp_password }}</b></div>
+      <div class="alert info">{{ ui.icon('lock') }}<span>This password is displayed only now and is not stored anywhere in readable form. Sign in with it — you will be asked to choose a new password immediately.</span></div>
+      <br><a class="btn btn-block" href="{{ url_for('auth.login') }}">{{ ui.icon('login') }} Go to sign in</a>
+    </div>
+  </section>
+</div>
+{% endblock %}

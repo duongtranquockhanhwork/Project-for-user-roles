@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Request sent{% endblock %}
+{% block standalone %}
+<div class="auth auth-single">
+  <section class="auth-panel">
+    <div class="card auth-card wide-auth">
+      <a class="brand brand-dark" href="{{ url_for('auth.login') }}"><span class="brand-mark">{{ ui.icon('shield-check') }}</span>
+        <span><span class="brand-name">UniRecords</span><br><span class="brand-sub">University Records System</span></span></a>
+      <h2>Request received</h2>
+      <p class="sub">If an account named <b>{{ username }}</b> exists, the administrator will review your request.</p>
+      <div class="code-box" id="reference-code"><span>Your reference code</span><b class="mono">{{ code }}</b></div>
+      <div class="alert info">{{ ui.icon('alert') }}<span>Write this code down now — it is shown only once and is required to read the administrator's reply.</span></div>
+      <br><a class="btn btn-block" href="{{ url_for('account.reset_status') }}">{{ ui.icon('search') }} Check my request</a>
+      <p class="switch"><a href="{{ url_for('auth.login') }}">Back to sign in</a></p>
+    </div>
+  </section>
+</div>
+{% endblock %}

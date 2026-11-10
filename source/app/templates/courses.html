@@ -3,19 +3,22 @@
 {% block title %}Courses{% endblock %}
 {% block crumb %}Courses{% endblock %}
 {% block content %}
+{% set all = 'ALL' in current_user.scopes('course.read') %}
 <div class="page-head">
-  <div><div class="eyebrow">{{ ui.icon('layers') }} Academic</div><h1>{{ 'All courses' if 'ALL' in current_user.scopes('course.read') else 'My courses' }}</h1>
-  <p>{{ 'Every course offered this semester.' if 'ALL' in current_user.scopes('course.read') else 'Courses assigned to you. Only these rosters and grades are accessible.' }}</p></div>
+  <div><div class="eyebrow">{{ ui.icon('layers') }} Academic</div><h1>{{ 'All classes' if all else 'My classes' }}</h1>
+  <p>{{ 'Every class of the semester, with its lecturer and seats.' if all else 'The classes you teach.' }}</p></div>
+  {% if current_user.has('course.manage') %}<div class="actions"><a class="btn" href="{{ url_for('courses.new_course') }}">{{ ui.icon('plus') }} New class</a></div>{% endif %}
 </div>
 <div class="grid grid-3 stagger" id="courses">
   {% for c in courses %}
-  <a class="card tile" href="{{ url_for('courses.roster', course_id=c.id) }}">
-    <span class="stat-icon {{ loop.cycle('', 'violet', 'ok') }}">{{ ui.icon('book') }}</span>
-    <div><b>{{ c.code }} · {{ c.title }}</b><span>{{ c.credits }} credits · semester {{ c.semester }} · {{ c.enrolled }} enrolled</span></div>
-    {{ ui.icon('arrow-right', 'go') }}
+  <a class="card class-card" href="{{ url_for('courses.roster', course_id=c.id) }}">
+    <div class="class-top"><span class="chip">{{ c.code }}</span><span class="muted">{{ c.credits }} credits · {{ c.semester }}</span></div>
+    <b class="class-title">{{ c.title }}</b>
+    <span class="class-meta">{{ ui.icon('user', 'icon-sm') }} {{ c.lecturer_name or 'No lecturer yet' }}</span>
+    <div class="seats"><div class="seat-bar"><span class="fill w{{ ((c.enrolled / c.capacity * 10)|round(0, 'ceil'))|int }}"></span></div><span>{{ c.enrolled }}/{{ c.capacity }} students</span></div>
   </a>
   {% else %}
-  <div class="card">{{ ui.empty('layers', 'No courses.', 'You are not assigned to any course.') }}</div>
+  <div class="card">{{ ui.empty('layers', 'No classes yet.') }}</div>
   {% endfor %}
 </div>
 {% endblock %}

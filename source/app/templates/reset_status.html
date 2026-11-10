@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Request status{% endblock %}
+{% block standalone %}
+<div class="auth auth-single">
+  <section class="auth-panel">
+    <div class="card auth-card wide-auth">
+      <a class="brand brand-dark" href="{{ url_for('auth.login') }}"><span class="brand-mark">{{ ui.icon('shield-check') }}</span>
+        <span><span class="brand-name">UniRecords</span><br><span class="brand-sub">University Records System</span></span></a>
+      <h2>Password request status</h2>
+      <p class="sub">Enter your username and the reference code you received.</p>
+      {% if looked_up and not req %}<div class="alert bad" role="alert">{{ ui.icon('alert') }}<span>No request matches this username and code.</span></div><br>{% endif %}
+      {% if req %}
+        <div class="status-card" id="request-status">
+          {% if req.status == 'PENDING' %}<span class="badge warn">Pending</span><p>Your request from {{ req.created_at.strftime('%d %b %Y, %H:%M') }} is waiting for the administrator.</p>
+          {% elif req.status == 'REJECTED' %}<span class="badge bad">Rejected</span><p>The administrator could not approve this request.</p>
+          {% elif req.status == 'APPROVED' %}<span class="badge ok">Approved</span><p>Your request was approved. Reveal your temporary password below — it is shown <b>only once</b>, is valid for 24 hours and must be changed when you sign in.</p>
+          {% else %}<span class="badge muted">Completed</span><p>The temporary password for this request has already been revealed.</p>{% endif %}
+          {% if req.reply_message %}<div class="reply"><span>Reply from the administrator</span>{{ req.reply_message }}</div>{% endif %}
+        </div>
+        {% if req.status == 'APPROVED' %}
+        <form method="post" action="{{ url_for('account.reveal_temporary_password') }}" class="form">
+          <input type="hidden" name="username" value="{{ username }}"><input type="hidden" name="code" value="{{ code }}">
+          <button type="submit" class="btn btn-block">{{ ui.icon('key') }} Reveal temporary password</button>
+        </form><br>
+        {% endif %}
+      {% endif %}
+      <form method="post" action="{{ url_for('account.reset_status') }}" class="form">
+        <div class="form-row">
+          <div class="field"><label for="username">Username</label><input id="username" name="username" maxlength="32" required value="{{ username }}"></div>
+          <div class="field"><label for="code">Reference code</label><input id="code" name="code" maxlength="64" required autocomplete="off" class="mono"></div>
+        </div>
+        <button type="submit" class="btn btn-ghost btn-block">{{ ui.icon('search') }} Check status</button>
+      </form>
+      <p class="switch"><a href="{{ url_for('account.forgot_password') }}">New request</a> · <a href="{{ url_for('auth.login') }}">Back to sign in</a></p>
+    </div>
+  </section>
+</div>
+{% endblock %}

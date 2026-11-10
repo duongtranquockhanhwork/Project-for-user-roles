@@ -1,0 +1,39 @@
+Evidence for T54 - generated 2026-11-10 19:47:46
+Target: http://localhost:8000
+
+### student03 renames
+> POST /account/name
+> body: full_name=Renamed+student03&csrf_token=[REDACTED]
+< HTTP 302
+< Location: /account?notice=name_changed
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Redirecting... Redirecting... You should be redirected automatically to the target URL: /account?notice=name_changed . If not, click the link.
+
+### lecturer02 renames
+> POST /account/name
+> body: full_name=Renamed+lecturer02&csrf_token=[REDACTED]
+< HTTP 302
+< Location: /account?notice=name_changed
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Redirecting... Redirecting... You should be redirected automatically to the target URL: /account?notice=name_changed . If not, click the link.
+
+### registrar01 renames
+> POST /account/name
+> body: full_name=Renamed+registrar01&csrf_token=[REDACTED]
+< HTTP 403
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My account Academic Courses Students Enrollments Faculty of Information Technology UniRecords Error 403 RR Rita Registrar registrar01 · Registrar Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+
+### auditor01 renames
+> POST /account/name
+> body: full_name=Renamed+auditor01&csrf_token=[REDACTED]
+< HTTP 403
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My account Security Audit log Integrity check Access policy Secure session · server-side RBAC UniRecords Error 403 OA Oscar Auditor auditor01 · Auditor Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+
+### admin01 renames
+> POST /account/name
+> body: full_name=Renamed+admin01&csrf_token=[REDACTED]
+< HTTP 403
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My account Administration Users & roles Password requests Secure session · server-side RBAC UniRecords Error 403 AA Alice Admin admin01 · Admin Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026

@@ -1,65 +1,65 @@
-Evidence for T36 - generated 2026-11-10 18:03:04
+Evidence for T36 - generated 2026-11-10 19:44:56
 Target: http://localhost:8000
 
-### score='11'
+### process1='11'
 > POST /grades
-> body: enrollment_id=4&score=11&csrf_token=[REDACTED]
+> body: enrollment_id=4&process1=11&csrf_token=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard Academic My courses Secure session · server-side RBAC UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Score must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Process 1 must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
 
-### score='-1'
+### process2='-1'
 > POST /grades
-> body: enrollment_id=4&score=-1&csrf_token=[REDACTED]
+> body: enrollment_id=4&process1=5&process2=-1&csrf_token=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard Academic My courses Secure session · server-side RBAC UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Score must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Process 2 must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
 
-### score='abc'
+### midterm='abc'
 > POST /grades
-> body: enrollment_id=4&score=abc&csrf_token=[REDACTED]
+> body: enrollment_id=4&process1=5&midterm=abc&csrf_token=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard Academic My courses Secure session · server-side RBAC UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Score must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Midterm must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
 
-### score='8.555'
+### final_exam='8.555'
 > POST /grades
-> body: enrollment_id=4&score=8.555&csrf_token=[REDACTED]
+> body: enrollment_id=4&process1=5&final_exam=8.555&csrf_token=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard Academic My courses Secure session · server-side RBAC UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Score must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Final exam must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
 
-### score='NaN'
+### process1='NaN'
 > POST /grades
-> body: enrollment_id=4&score=NaN&csrf_token=[REDACTED]
+> body: enrollment_id=4&process1=NaN&csrf_token=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard Academic My courses Secure session · server-side RBAC UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Score must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Process 1 must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
 
-### score='1e1'
+### final_exam='1e1'
 > POST /grades
-> body: enrollment_id=4&score=1e1&csrf_token=[REDACTED]
+> body: enrollment_id=4&process1=5&final_exam=1e1&csrf_token=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard Academic My courses Secure session · server-side RBAC UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Score must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Final exam must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
 
-### score=''
+### midterm='10.01'
 > POST /grades
-> body: enrollment_id=4&score=&csrf_token=[REDACTED]
+> body: enrollment_id=4&process1=5&midterm=10.01&csrf_token=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard Academic My courses Secure session · server-side RBAC UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Score must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Midterm must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
 
-### score='10.01'
+### all components empty
 > POST /grades
-> body: enrollment_id=4&score=10.01&csrf_token=[REDACTED]
+> body: enrollment_id=4&process1=&process2=&midterm=&final_exam=&csrf_token=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard Academic My courses Secure session · server-side RBAC UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Score must be a number between 0 and 10 with at most 2 decimals. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Enter at least one grade component. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
 
 ### enrollment_id='1 OR 1=1'
 > POST /grades
-> body: enrollment_id=1+OR+1%3D1&score=5&csrf_token=[REDACTED]
+> body: enrollment_id=1+OR+1%3D1&final_exam=5&csrf_token=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard Academic My courses Secure session · server-side RBAC UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Enrollment is invalid. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 400 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 400 Invalid request The request was invalid. Enrollment is invalid. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026

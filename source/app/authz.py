@@ -34,6 +34,7 @@ class CurrentUser:
     roles: set = field(default_factory=set)
     perms: dict = field(default_factory=dict)   # permission code -> {scopes}
     student_id: int | None = None
+    must_change: bool = False
 
     def has(self, permission):
         return permission in self.perms
@@ -51,7 +52,8 @@ def load_current_user(session_row):
         " WHERE ur.user_id = %s", (session_row["user_id"],))
     user = CurrentUser(id=session_row["user_id"], username=session_row["username"],
                        full_name=session_row["full_name"],
-                       csrf_token=session_row["csrf_token"])
+                       csrf_token=session_row["csrf_token"],
+                       must_change=bool(session_row.get("must_change_password")))
     for row in rows:
         user.roles.add(row["role"])
         if row["permission_code"]:
@@ -85,6 +87,20 @@ def require_permission(permission, deny_event="ACCESS_DENIED"):
                      {"required_permission": permission, "method": request.method})
             return view(*args, **kwargs)
         setattr(wrapper, ACCESS_ATTR, ("permission", permission))
+        return wrapper
+    return decorator
+
+
+def require_any_permission(*permissions, deny_event="ACCESS_DENIED"):
+    """Allow the request if the user holds at least one of the permissions."""
+    def decorator(view):
+        @wraps(view)
+        def wrapper(*args, **kwargs):
+            if not any(g.user.has(p) for p in permissions):
+                deny(deny_event, request.path,
+                     {"required_permission": " or ".join(permissions), "method": request.method})
+            return view(*args, **kwargs)
+        setattr(wrapper, ACCESS_ATTR, ("permission", permissions))
         return wrapper
     return decorator
 

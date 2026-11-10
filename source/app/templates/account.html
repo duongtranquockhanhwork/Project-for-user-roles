@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}My account{% endblock %}
+{% block crumb %}My account{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('user') }} My account</div><h1>{{ current_user.full_name }}</h1>
+  <p>Username <b>{{ info.username }}</b> · member since {{ info.created_at.strftime('%d %b %Y') }}</p></div>
+</div>
+{% if current_user.must_change %}<div class="alert warn-alert" id="must-change">{{ ui.icon('alert') }}<span><b>Choose a new password.</b> You signed in with a temporary password{% if info.password_expires_at %} (valid until {{ info.password_expires_at.strftime('%d %b %Y, %H:%M') }} UTC){% endif %}. Other pages are available after the change.</span></div><br>{% endif %}
+{% if errors %}<div class="alert bad" id="account-errors" role="alert">{{ ui.icon('alert') }}<span>{% for e in errors %}{{ e }}{% if not loop.last %}<br>{% endif %}{% endfor %}</span></div><br>{% endif %}
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-head"><div><h2>{{ ui.icon('user') }} Profile</h2><p>{% if can_rename %}Your name as shown in the system.{% else %}Staff names are maintained by the administration.{% endif %}</p></div></div>
+    <div class="card-body">
+      <div class="profile-head flat"><span class="avatar avatar-lg">{{ current_user.full_name|initials }}</span>
+        <div><h2>{{ current_user.full_name }}</h2><p>{% for r in current_user.roles|sort %}{{ ui.role_chip(r) }} {% endfor %}</p></div></div>
+      {% if can_rename and not current_user.must_change %}
+      <form method="post" action="{{ url_for('account.change_name') }}" class="form">
+        {{ ui.csrf() }}
+        <div class="field"><label for="full_name">Full name</label><input id="full_name" name="full_name" maxlength="100" required value="{{ current_user.full_name }}"></div>
+        <button type="submit" class="btn btn-ghost">{{ ui.icon('save') }} Save name</button>
+      </form>
+      {% elif not can_rename %}
+      <p class="muted small">{{ ui.icon('lock', 'icon-sm') }} Names of Registrar, Auditor and Administrator accounts cannot be changed here.</p>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div><h2>{{ ui.icon('lock') }} Change password</h2><p>At least 12 characters, not containing your username.</p></div></div>
+    <div class="card-body">
+      <form method="post" action="{{ url_for('account.change_password') }}" class="form" autocomplete="off">
+        {{ ui.csrf() }}
+        <div class="field"><label for="current_password">{{ 'Temporary password' if current_user.must_change else 'Current password' }}</label>
+          <div class="input-wrap">{{ ui.icon('lock') }}<input id="current_password" name="current_password" type="password" maxlength="128" required autocomplete="current-password"></div></div>
+        <div class="field"><label for="new_password">New password</label>
+          <div class="input-wrap">{{ ui.icon('key') }}<input id="new_password" name="new_password" type="password" maxlength="128" required autocomplete="new-password">
+            <button type="button" class="btn btn-icon toggle-pass" data-toggle-password="new_password" aria-label="Show password">{{ ui.icon('eye') }}</button></div></div>
+        <div class="field"><label for="confirm_password">Confirm new password</label>
+          <div class="input-wrap">{{ ui.icon('key') }}<input id="confirm_password" name="confirm_password" type="password" maxlength="128" required autocomplete="new-password"></div></div>
+        <button type="submit" class="btn">{{ ui.icon('check') }} Change password</button>
+        <p class="muted small">You will stay signed in here; sessions on other devices are signed out.</p>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Create account{% endblock %}
+{% block standalone %}
+<div class="auth">
+  <section class="auth-art">
+    <span class="orb o1"></span><span class="orb o2"></span>
+    <a class="brand" href="{{ url_for('auth.login') }}"><span class="brand-mark">{{ ui.icon('shield-check') }}</span>
+      <span><span class="brand-name">UniRecords</span><br><span class="brand-sub">University Records System</span></span></a>
+    <h1>Your academic life, in one place.</h1>
+    <p class="lead">Follow your classes, see every grade component and your averages, and keep your contact details up to date.</p>
+    <div>
+      <div class="feature"><span class="fi">{{ ui.icon('graduation') }}</span><div><b>Grades &amp; averages</b><span>Process, midterm and final scores with your course totals.</span></div></div>
+      <div class="feature"><span class="fi">{{ ui.icon('layers') }}</span><div><b>Class catalog</b><span>Browse open classes and join them in one click.</span></div></div>
+      <div class="feature"><span class="fi">{{ ui.icon('users') }}</span><div><b>For the whole faculty</b><span>Students, lecturers and the registrar's office.</span></div></div>
+    </div>
+    <div class="legal">Faculty of Information Technology · Ton Duc Thang University</div>
+  </section>
+  <section class="auth-panel">
+    <div class="card auth-card">
+      <h2>Create your student account</h2>
+      <p class="sub">A new student profile with its own student code is created for you.</p>
+      {% if errors %}<div class="alert bad" id="register-errors" role="alert">{{ ui.icon('alert') }}<span>{% for e in errors %}{{ e }}{% if not loop.last %}<br>{% endif %}{% endfor %}</span></div><br>{% endif %}
+      <form method="post" action="{{ url_for('auth.register') }}" class="form">
+        <div class="field"><label for="full_name">Full name</label>
+          <div class="input-wrap">{{ ui.icon('user') }}<input id="full_name" name="full_name" maxlength="100" required autocomplete="name" value="{{ form.full_name or '' }}" placeholder="Nguyen Van A"></div></div>
+        <div class="form-row">
+          <div class="field"><label for="username">Username</label>
+            <input id="username" name="username" maxlength="32" required autocomplete="username" value="{{ form.username or '' }}" placeholder="3–32 lowercase"></div>
+          <div class="field"><label for="email">Email</label>
+            <input id="email" name="email" type="email" maxlength="254" required autocomplete="email" value="{{ form.email or '' }}" placeholder="you@student.edu"></div>
+        </div>
+        <div class="field"><label for="password">Password</label>
+          <div class="input-wrap">{{ ui.icon('lock') }}<input id="password" name="password" type="password" maxlength="128" required autocomplete="new-password" placeholder="At least 12 characters">
+            <button type="button" class="btn btn-icon toggle-pass" data-toggle-password="password" aria-label="Show password">{{ ui.icon('eye') }}</button></div></div>
+        <div class="field"><label for="confirm_password">Confirm password</label>
+          <div class="input-wrap">{{ ui.icon('lock') }}<input id="confirm_password" name="confirm_password" type="password" maxlength="128" required autocomplete="new-password" placeholder="Repeat the password"></div></div>
+        <button type="submit" class="btn btn-block">{{ ui.icon('user-plus') }} Create account</button>
+      </form>
+      <p class="switch">Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+    </div>
+  </section>
+</div>
+{% endblock %}

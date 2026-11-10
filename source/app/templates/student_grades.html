@@ -4,26 +4,35 @@
 {% block crumb %}Grades{% endblock %}
 {% block content %}
 {% set scored = grades|selectattr('score', 'ne', none)|list %}
+{% set credits = scored|sum(attribute='credits') %}
+{% set weighted = namespace(total=0) %}
+{% for gr in scored %}{% set weighted.total = weighted.total + gr.score * gr.credits %}{% endfor %}
 <div class="page-head">
   <div><div class="eyebrow">{{ ui.icon('graduation') }} Academic results</div><h1>Grades of {{ student.full_name }}</h1><p>Student {{ student.student_code }} · scores on a 0–10 scale.</p></div>
   <div class="actions"><a class="btn btn-ghost" href="{{ url_for('students.view_student', student_id=student.id) }}">{{ ui.icon('user') }} Profile</a></div>
 </div>
 <div class="grid grid-3 stagger">
-  {{ ui.stat('layers', grades|length, 'Courses shown') }}
-  {{ ui.stat('check-circle', scored|length, 'Grades published', 'ok') }}
-  {{ ui.stat('trending', ((scored|sum(attribute='score')) / scored|length)|float if scored else '—', 'Average score', 'warn', 2) }}
+  {{ ui.stat('layers', grades|length, 'Courses') }}
+  {{ ui.stat('check-circle', scored|length, 'Courses completed', 'ok') }}
+  {{ ui.stat('trending', (weighted.total / credits)|float if credits else '—', 'Overall average (by credits)', 'warn', 2) }}
 </div>
 <br>
-<div class="card"><div class="table-wrap">
-  <table id="grades">
-    <thead><tr><th>Course</th><th>Title</th><th>Semester</th><th>Status</th><th class="num">Score</th><th>Last updated</th></tr></thead>
+<div class="card">
+  <div class="card-head"><div><h2>{{ ui.icon('graduation') }} Grade components</h2>
+    <p>Total = 10 % process 1 + 20 % process 2 + 20 % midterm + 50 % final exam.</p></div></div>
+  <div class="table-wrap">
+  <table id="grades" class="grade-table">
+    <thead><tr><th>Course</th><th>Status</th><th class="num">Process 1<br><span class="weight">10 %</span></th><th class="num">Process 2<br><span class="weight">20 %</span></th>
+      <th class="num">Midterm<br><span class="weight">20 %</span></th><th class="num">Final<br><span class="weight">50 %</span></th><th class="num">Total</th></tr></thead>
     <tbody>
     {% for gr in grades %}
-      <tr><td><span class="chip">{{ gr.code }}</span></td><td><b>{{ gr.title }}</b></td><td>{{ gr.semester }}</td><td>{{ ui.status_badge(gr.status) }}</td>
-          <td class="num">{{ ui.score(gr.score) }}</td>
-          <td class="nowrap">{{ gr.updated_at.strftime('%d %b %Y, %H:%M') if gr.updated_at else '—' }}</td></tr>
-    {% else %}<tr><td colspan="6">{{ ui.empty('graduation', 'No grades visible.') }}</td></tr>{% endfor %}
+      <tr><td><span class="chip">{{ gr.code }}</span> <b>{{ gr.title }}</b><br><span class="muted small">{{ gr.credits }} credits · {{ gr.semester }}</span></td>
+          <td>{{ ui.status_badge(gr.status) }}</td>
+          {% for c in ['process1', 'process2', 'midterm', 'final_exam'] %}<td class="num">{{ '%.2f'|format(gr[c]) if gr[c] is not none else '—' }}</td>{% endfor %}
+          <td class="num">{{ ui.score(gr.score) }}</td></tr>
+    {% else %}<tr><td colspan="7">{{ ui.empty('graduation', 'No grades visible.') }}</td></tr>{% endfor %}
     </tbody>
   </table>
-</div></div>
+  </div>
+</div>
 {% endblock %}

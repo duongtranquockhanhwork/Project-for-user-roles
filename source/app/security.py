@@ -68,7 +68,7 @@ def load_session(token, config):
         return None
     row = db.query_one(
         "SELECT s.token_hash, s.user_id, s.csrf_token, s.last_seen_at, "
-        "       u.username, u.full_name, u.is_active "
+        "       u.username, u.full_name, u.is_active, u.must_change_password "
         "  FROM sessions s JOIN users u ON u.id = s.user_id "
         " WHERE s.token_hash = %s AND s.revoked_at IS NULL "
         "   AND s.expires_at > now() "

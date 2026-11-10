@@ -93,17 +93,23 @@ def test_t35_sqli_search(login_as, record):
 
 @case(id="T36", category="Injection / validation", role="Lecturer (lecturer01)",
       pre="lecturer01 assigned to IS101",
-      action="POST /grades with score = 11, -1, abc, 8.555, NaN, 1e1, empty, and enrollment_id = 1 OR 1=1",
+      action="POST /grades with a component = 11, -1, abc, 8.555, NaN, 1e1, 10.01, all components empty, "
+             "and enrollment_id = 1 OR 1=1",
       expected="Each rejected with 400 by server-side validation; grade unchanged")
 def test_t36_score_validation(login_as, record, lookup):
     c = login_as("lecturer01")
     enr = lookup.enrollment("S2026002", "IS101")
     before = lookup.score(enr)
-    for score in ("11", "-1", "abc", "8.555", "NaN", "1e1", "", "10.01"):
-        r = c.post("/grades", {"enrollment_id": enr, "score": score})
-        record.http(f"score={score!r}", r)
+    for field, value in (("process1", "11"), ("process2", "-1"), ("midterm", "abc"), ("final_exam", "8.555"),
+                         ("process1", "NaN"), ("final_exam", "1e1"), ("midterm", "10.01")):
+        r = c.post("/grades", {"enrollment_id": enr, "process1": "5", field: value})
+        record.http(f"{field}={value!r}", r)
         assert r.status_code == 400
-    r = c.post("/grades", {"enrollment_id": "1 OR 1=1", "score": "5"})
+    r = c.post("/grades", {"enrollment_id": enr, "process1": "", "process2": "", "midterm": "",
+                           "final_exam": ""})
+    record.http("all components empty", r)
+    assert r.status_code == 400
+    r = c.post("/grades", {"enrollment_id": "1 OR 1=1", "final_exam": "5"})
     record.http("enrollment_id='1 OR 1=1'", r)
     assert r.status_code == 400
     assert lookup.score(enr) == before

@@ -1,44 +1,86 @@
 {% extends "base.html" %}
 {% import "_macros.html" as ui with context %}
-{% block title %}{{ course.code }} roster{% endblock %}
-{% block crumb %}{{ course.code }} roster{% endblock %}
+{% block title %}{{ course.code }}{% endblock %}
+{% block crumb %}{{ course.code }} class{% endblock %}
 {% block content %}
-{% set scored = rows|selectattr('score', 'ne', none)|list %}
+{% set active = rows|selectattr('status', 'eq', 'ENROLLED')|list %}
+{% set scored = active|selectattr('score', 'ne', none)|list %}
 <div class="page-head">
-  <div><div class="eyebrow">{{ ui.icon('layers') }} Course roster</div><h1>{{ course.code }} · {{ course.title }}</h1><p>Semester {{ course.semester }}{% if can_grade %} · you can record grades for this course{% endif %}.</p></div>
-  <div class="actions"><a class="btn btn-ghost" href="{{ url_for('courses.list_courses') }}">{{ ui.icon('layers') }} All courses</a></div>
+  <div><div class="eyebrow">{{ ui.icon('layers') }} Class</div><h1>{{ course.code }} · {{ course.title }}</h1>
+  <p>{{ course.credits }} credits · semester {{ course.semester }} · lecturer: <b>{{ course.lecturer_name or 'not assigned' }}</b></p></div>
+  <div class="actions"><a class="btn btn-ghost" href="{{ url_for('courses.list_courses') }}">{{ ui.icon('layers') }} All classes</a></div>
 </div>
 {% if notice %}<span id="saved" class="sr-only">{{ notice }}</span>{% endif %}
 <div class="grid grid-3 stagger">
-  {{ ui.stat('users', rows|selectattr('status', 'eq', 'ENROLLED')|list|length, 'Enrolled students') }}
+  {{ ui.stat('users', active|length, 'Students (max ' ~ course.capacity ~ ')') }}
   {% if show_grades %}
-  {{ ui.stat('check-circle', scored|length, 'Graded', 'ok') }}
-  {{ ui.stat('trending', ((scored|sum(attribute='score')) / scored|length)|float if scored else '—', 'Course average', 'warn', 2) }}
+  {{ ui.stat('check-circle', scored|length, 'Final totals published', 'ok') }}
+  {{ ui.stat('trending', ((scored|sum(attribute='score')) / scored|length)|float if scored else '—', 'Class average', 'warn', 2) }}
   {% endif %}
 </div>
 <br>
+{% if manage %}
+<div class="grid grid-2">
+  <div class="card">
+    <div class="card-head"><div><h2>{{ ui.icon('graduation') }} Lecturer</h2><p>One lecturer per class.</p></div></div>
+    <div class="card-body">
+      <form method="post" action="{{ url_for('courses.set_lecturer', course_id=course.id) }}" class="row-form">
+        {{ ui.csrf() }}
+        <select name="lecturer" aria-label="Lecturer">{% for l in lecturers %}<option value="{{ l.username }}" {% if l.id == course.lecturer_id %}selected{% endif %}>{{ l.full_name }} ({{ l.username }})</option>{% endfor %}</select>
+        <button name="action" value="assign" class="btn btn-sm">{{ 'Replace' if course.lecturer_id else 'Assign' }}</button>
+        {% if course.lecturer_id %}<button name="action" value="remove" class="btn btn-danger btn-sm" data-confirm="Remove the lecturer from {{ course.code }}?">Remove</button>{% endif %}
+      </form>
+    </div>
+  </div>
+  {% if can_enroll %}
+  <div class="card">
+    <div class="card-head"><div><h2>{{ ui.icon('user-plus') }} Add a student</h2><p>{{ active|length }}/{{ course.capacity }} seats used.</p></div></div>
+    <div class="card-body">
+      <form method="post" action="{{ url_for('enrollments.create_enrollment') }}" class="row-form">
+        {{ ui.csrf() }}<input type="hidden" name="course_code" value="{{ course.code }}"><input type="hidden" name="return_to" value="course">
+        <div class="input-wrap">{{ ui.icon('user') }}<input name="student_code" maxlength="12" required placeholder="Student code, e.g. S2026006"></div>
+        <button type="submit" class="btn btn-sm" {% if active|length >= course.capacity %}disabled{% endif %}>Add</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+</div>
+<br>
+{% endif %}
 <div class="card">
-  <div class="card-head"><div><h2>{{ ui.icon('users') }} Students</h2><p>{% if can_grade %}Enter a score between 0 and 10 (max. 2 decimals) and press Save.{% else %}Read-only view.{% endif %}</p></div></div>
+  <div class="card-head"><div><h2>{{ ui.icon('users') }} Students and grades</h2>
+    <p>Weights: process 1 – 10 %, process 2 – 20 %, midterm – 20 %, final – 50 %. The total appears when all four are recorded.</p></div></div>
   <div class="table-wrap">
-  <table id="roster">
-    <thead><tr><th>Student</th><th>Status</th>{% if show_grades %}<th class="num">Score</th>{% endif %}{% if can_grade %}<th>Set grade</th>{% endif %}</tr></thead>
+  <table id="roster" class="grade-table">
+    <thead><tr><th>Student</th><th>Status</th>
+      {% if show_grades %}{% for name, label, weight in components %}<th class="num">{{ label }}<br><span class="weight">{{ weight }} %</span></th>{% endfor %}<th class="num">Total</th>{% endif %}
+      {% if can_grade or manage %}<th></th>{% endif %}</tr></thead>
     <tbody>
     {% for r in rows %}
+      {% set editable = can_grade and r.status == 'ENROLLED' and r.user_id != current_user.id %}
       <tr><td><div class="person"><span class="avatar">{{ r.full_name|initials }}</span><div><b>{{ r.full_name }}</b><span class="mono">{{ r.student_code }}</span></div></div></td>
         <td>{{ ui.status_badge(r.status) }}</td>
-        {% if show_grades %}<td class="num">{{ ui.score(r.score) }}</td>{% endif %}
-        {% if can_grade %}<td>
-          {% if r.status == 'ENROLLED' and r.user_id != current_user.id %}
-          <form method="post" action="{{ url_for('courses.save_grade') }}" class="inline-form">
-            {{ ui.csrf() }}
-            <input type="hidden" name="enrollment_id" value="{{ r.enrollment_id }}">
-            <input class="input-sm" name="score" maxlength="5" placeholder="0–10" required inputmode="decimal" aria-label="Score for {{ r.student_code }}">
+        {% if show_grades %}
+          {% for name, label, weight in components %}<td class="num">
+            {% if editable %}<input class="input-sm" form="g{{ r.enrollment_id }}" name="{{ name }}" maxlength="5" inputmode="decimal" placeholder="–" value="{{ '%.2f'|format(r[name]) if r[name] is not none else '' }}" aria-label="{{ label }} for {{ r.student_code }}">
+            {% else %}{{ '%.2f'|format(r[name]) if r[name] is not none else '—' }}{% endif %}</td>{% endfor %}
+          <td class="num">{{ ui.score(r.score) }}</td>
+        {% endif %}
+        {% if can_grade or manage %}<td class="num nowrap">
+          {% if editable %}
+          <form method="post" id="g{{ r.enrollment_id }}" action="{{ url_for('courses.save_grade') }}" class="inline-form">
+            {{ ui.csrf() }}<input type="hidden" name="enrollment_id" value="{{ r.enrollment_id }}">
             <button type="submit" class="btn btn-sm">{{ ui.icon('save', 'icon-sm') }} Save</button>
           </form>
-          {% elif r.user_id == current_user.id %}<span class="badge warn">Own enrollment – cannot grade</span>{% else %}<span class="badge muted">Not active</span>{% endif %}
+          {% elif can_grade and r.user_id == current_user.id %}<span class="badge warn">Own enrollment</span>{% endif %}
+          {% if manage and can_enroll and r.status == 'ENROLLED' %}
+          <form method="post" action="{{ url_for('enrollments.drop_enrollment', enrollment_id=r.enrollment_id) }}" class="inline-form">
+            {{ ui.csrf() }}<input type="hidden" name="return_to" value="course">
+            <button type="submit" class="btn btn-danger btn-sm" data-confirm="Remove {{ r.student_code }} from {{ course.code }}?">{{ ui.icon('trash', 'icon-sm') }}</button>
+          </form>{% endif %}
         </td>{% endif %}
       </tr>
-    {% else %}<tr><td colspan="4">{{ ui.empty('users', 'No students enrolled.') }}</td></tr>{% endfor %}
+    {% else %}<tr><td colspan="9">{{ ui.empty('users', 'No students enrolled.') }}</td></tr>{% endfor %}
     </tbody>
   </table>
   </div>

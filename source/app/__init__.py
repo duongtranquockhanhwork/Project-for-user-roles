@@ -3,7 +3,7 @@ import logging
 import secrets
 
 import psycopg2
-from flask import Flask, abort, g, render_template, request
+from flask import Flask, abort, g, redirect, render_template, request, url_for
 from werkzeug.exceptions import HTTPException
 
 from . import audit, authz, db, security, ui
@@ -34,7 +34,22 @@ NOTICES = {
     "user_unlocked": "User account unlocked.",
     "role_assigned": "Role assigned.",
     "role_removed": "Role removed.",
+    "account_created": "Your student account has been created. You can sign in now.",
+    "course_created": "Class created.",
+    "lecturer_assigned": "Lecturer assigned to the class.",
+    "lecturer_removed": "Lecturer removed from the class.",
+    "class_joined": "You have joined the class.",
+    "class_left": "You have left the class.",
+    "teaching_started": "You are now the lecturer of this class.",
+    "password_changed": "Your password has been changed. Other sessions were signed out.",
+    "name_changed": "Your name has been updated.",
+    "password_change_required": "Please choose a new password to continue.",
+    "reset_approved": "Request approved. The user can now reveal a one-time temporary password.",
+    "reset_rejected": "Request rejected.",
 }
+
+# Endpoints that stay reachable while a temporary password must be changed.
+FORCED_CHANGE_ALLOWED = {"account.account", "account.change_password", "auth.logout"}
 
 
 def create_app():
@@ -50,8 +65,8 @@ def create_app():
     db.init_app(app)
     ui.init_app(app)
 
-    from .routes import admin, audit_views, auth, courses, enrollments, students
-    for module in (auth, students, courses, enrollments, admin, audit_views):
+    from .routes import account, admin, audit_views, auth, courses, enrollments, students
+    for module in (auth, account, students, courses, enrollments, admin, audit_views):
         app.register_blueprint(module.bp)
 
     authz.verify_all_endpoints_declared(app)
@@ -79,6 +94,8 @@ def create_app():
             return None
         if g.user is None:
             abort(401)
+        if g.user.must_change and request.endpoint not in FORCED_CHANGE_ALLOWED:
+            return redirect(url_for("account.account", notice="password_change_required"))
 
         if request.method not in ("GET", "HEAD", "OPTIONS"):
             supplied = request.form.get("csrf_token") or request.headers.get("X-CSRF-Token")
@@ -95,8 +112,12 @@ def create_app():
         user = g.get("user")
         # Only fixed, server-defined messages can be shown (no reflected text).
         notice = NOTICES.get(request.args.get("notice", ""))
+        pending = 0
+        if user is not None and user.has("password_reset.manage"):
+            pending = db.query_one("SELECT count(*) AS n FROM password_reset_requests "
+                                   "WHERE status = 'PENDING'")["n"]
         return {"current_user": user, "csrf_token": user.csrf_token if user else "",
-                "notice": notice}
+                "notice": notice, "pending_resets": pending}
 
     # ------------------------------------------------------------------
     # Error handling: generic pages, no stack traces / SQL / configuration
@@ -126,6 +147,10 @@ def create_app():
             audit.log_event("DB_GUARD_DENIED", audit.DENIED, request.path,
                             {"method": request.method})
             return render_error(403)
+        if getattr(exc, "pgcode", None) in ("23505", "23514"):
+            # Unique / check constraint (e.g. class full, second lecturer): reject without detail.
+            return render_error(400, ["The request conflicts with a data constraint "
+                                      "(for example, the class is full or already has a lecturer)."])
         incident = secrets.token_hex(4)
         app.logger.error("Database error (incident %s): %s", incident, type(exc).__name__)
         return render_error(500)

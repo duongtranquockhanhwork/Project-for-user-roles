@@ -6,8 +6,8 @@
 <section class="hero">
   <div class="hero-art">{{ ui.icon('shield-check') }}</div>
   <h1>Welcome back, {{ current_user.full_name }}</h1>
-  <p>Signed in as <b id="who">{{ current_user.username }}</b>. Your access is limited to what your roles allow — everything else is denied by default.</p>
-  <div class="role-list">{% for r in current_user.roles|sort %}<span class="chip">{{ ui.icon('key') }}{{ r|title }}</span>{% else %}<span class="chip">No roles assigned</span>{% endfor %}</div>
+  <p>Signed in as <b id="who">{{ current_user.username }}</b>.{% if current_user.has('user.read') or current_user.has('audit.read') %} Your access is limited to what your roles allow — everything else is denied by default.{% else %} Here is an overview of your work this semester.{% endif %}</p>
+  <div class="role-list">{% for r in current_user.roles|sort %}<span class="chip">{{ r|title }}</span>{% endfor %}</div>
 </section>
 
 {% if stats.student %}
@@ -16,7 +16,7 @@
   {{ ui.stat('book', stats.student.courses, 'Active courses') }}
   {{ ui.stat('layers', stats.student.credits, 'Credits enrolled', 'violet') }}
   {{ ui.stat('check-circle', stats.student.graded, 'Grades published', 'ok') }}
-  {{ ui.stat('trending', stats.student.average|float if stats.student.average is not none else '—', 'Average score', 'warn', 2) }}
+  {{ ui.stat('trending', stats.student.average|float if stats.student.average is not none else '—', 'Overall average', 'warn', 2) }}
 </div>
 {% endif %}
 {% if stats.lecturer %}
@@ -24,7 +24,7 @@
 <div class="grid grid-3 stagger">
   {{ ui.stat('layers', stats.lecturer.courses, 'Assigned courses') }}
   {{ ui.stat('users', stats.lecturer.students, 'Enrolled students', 'violet') }}
-  {{ ui.stat('clock', stats.lecturer.pending, 'Grades pending', 'warn') }}
+  {{ ui.stat('clock', stats.lecturer.pending, 'Totals not complete', 'warn') }}
 </div>
 {% endif %}
 {% if stats.registrar %}
@@ -59,6 +59,12 @@
   <a class="card tile" href="{{ url_for('students.student_grades', student_id=current_user.student_id) }}"><span class="stat-icon">{{ ui.icon('graduation') }}</span><div><b>View my grades</b><span>Scores of all your courses</span></div>{{ ui.icon('arrow-right', 'go') }}</a>
   <a class="card tile" href="{{ url_for('students.view_student', student_id=current_user.student_id) }}"><span class="stat-icon violet">{{ ui.icon('user') }}</span><div><b>My profile</b><span>Check and update contact details</span></div>{{ ui.icon('arrow-right', 'go') }}</a>
   {% endif %}
+  {% if current_user.has('class.join') or current_user.has('class.teach') %}
+  <a class="card tile" href="{{ url_for('courses.catalog') }}"><span class="stat-icon ok">{{ ui.icon('compass') }}</span><div><b>Class catalog</b><span>{{ 'Join a class' if current_user.has('class.join') else 'Find a class to teach' }}</span></div>{{ ui.icon('arrow-right', 'go') }}</a>
+  {% endif %}
+  {% if current_user.has('course.manage') %}
+  <a class="card tile" href="{{ url_for('courses.new_course') }}"><span class="stat-icon">{{ ui.icon('plus') }}</span><div><b>Create a class</b><span>Max. 1 lecturer and 30 students</span></div>{{ ui.icon('arrow-right', 'go') }}</a>
+  {% endif %}
   {% if current_user.has('course.read') %}
   <a class="card tile" href="{{ url_for('courses.list_courses') }}"><span class="stat-icon">{{ ui.icon('layers') }}</span><div><b>{{ 'Browse courses' if 'ALL' in current_user.scopes('course.read') else 'Grade my courses' }}</b><span>Open course rosters</span></div>{{ ui.icon('arrow-right', 'go') }}</a>
   {% endif %}
@@ -80,10 +86,12 @@
   {% endif %}
 </div>
 
+{% if current_user.has('user.read') or current_user.has('audit.read') %}
 <div class="section-title">{{ ui.icon('shield') }} Effective permissions</div>
 <div class="card"><div class="card-body">
   {% if current_user.perms %}
   {% for code, scopes in current_user.perms|dictsort %}<span class="kv-chip"><code>{{ code }}</code> {% for s in scopes|sort %}<span class="scope {{ s }}">{{ s }}</span> {% endfor %}</span> {% endfor %}
   {% else %}{{ ui.empty('ban', 'No permissions', 'No role grants you any permission (default deny).') }}{% endif %}
 </div></div>
+{% endif %}
 {% endblock %}

@@ -188,7 +188,8 @@ def student_grades(student_id):
     sees_all = "ALL" in scopes or ("OWN" in scopes and student["user_id"] == g.user.id)
     # A lecturer (ASSIGNED scope only) sees only grades of courses he/she teaches.
     rows = db.query_all(
-        "SELECT c.code, c.title, c.semester, e.status, gr.score, gr.updated_at "
+        "SELECT c.code, c.title, c.semester, c.credits, e.status, gr.process1, gr.process2, "
+        "       gr.midterm, gr.final_exam, gr.score, gr.updated_at "
         "  FROM enrollments e "
         "  JOIN courses c ON c.id = e.course_id "
         "  LEFT JOIN grades gr ON gr.enrollment_id = e.id "

@@ -8,8 +8,7 @@
   <h1>{{ 'Edit student ' ~ student.student_code if student else 'New student record' }}</h1>
   <p>{{ 'Update the official record of this student.' if student else 'Create a student record and optionally link it to an existing STUDENT account.' }}</p></div>
 </div>
-<div class="grid grid-side">
-<div class="card">
+<div class="card narrow-card">
   <div class="card-head"><h2>{{ ui.icon('file') }} Student details</h2></div>
   <div class="card-body">
   <form method="post" class="form" action="{{ url_for('students.update_student', student_id=student.id) if student else url_for('students.create_student') }}">
@@ -36,8 +35,5 @@
       <a class="btn btn-ghost" href="{{ url_for('students.view_student', student_id=student.id) if student else url_for('students.list_students') }}">Cancel</a></div>
   </form>
   </div>
-</div>
-<div class="card"><div class="card-head"><h2>{{ ui.icon('shield') }} Validation rules</h2></div>
-  <div class="card-body"><p class="muted">All fields are validated on the server: allow-listed formats, length limits and no control characters. Every change is written to the audit log.</p></div></div>
 </div>
 {% endblock %}

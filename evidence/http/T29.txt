@@ -1,4 +1,4 @@
-Evidence for T29 - generated 2026-11-10 18:02:37
+Evidence for T29 - generated 2026-11-10 19:44:29
 Target: http://localhost:8000
 
 ### Admin assigns REGISTRAR to self
@@ -6,4 +6,4 @@ Target: http://localhost:8000
 > body: role=REGISTRAR&action=assign&csrf_token=[REDACTED]
 < HTTP 403
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard Administration Users & roles Secure session · server-side RBAC UniRecords Error 403 AA Alice Admin admin01 · Admin Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My account Administration Users & roles Password requests Secure session · server-side RBAC UniRecords Error 403 AA Alice Admin admin01 · Admin Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}New class{% endblock %}
+{% block crumb %}New class{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('layers') }} Academic</div><h1>Create a new class</h1><p>A class has one lecturer and at most 30 students.</p></div>
+</div>
+<div class="card narrow-card">
+  <div class="card-head"><h2>{{ ui.icon('book') }} Class details</h2></div>
+  <div class="card-body">
+  <form method="post" action="{{ url_for('courses.create_course') }}" class="form">
+    {{ ui.csrf() }}
+    <div class="form-row">
+      <div class="field"><label for="code">Class code</label><input id="code" name="code" maxlength="10" required placeholder="SE310"><div class="hint">2–4 letters followed by 3–4 digits.</div></div>
+      <div class="field"><label for="title">Title</label><input id="title" name="title" maxlength="120" required placeholder="Cloud Computing"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label for="credits">Credits</label><input id="credits" name="credits" inputmode="numeric" required value="3"></div>
+      <div class="field"><label for="semester">Semester</label><input id="semester" name="semester" required value="2026-1" placeholder="YYYY-1"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label for="capacity">Capacity</label><input id="capacity" name="capacity" inputmode="numeric" value="30"><div class="hint">Maximum 30 students.</div></div>
+      <div class="field"><label for="lecturer">Lecturer (optional)</label>
+        <select id="lecturer" name="lecturer"><option value="">— assign later —</option>{% for l in lecturers %}<option value="{{ l.username }}">{{ l.full_name }} ({{ l.username }})</option>{% endfor %}</select></div>
+    </div>
+    <div class="actions"><button type="submit" class="btn">{{ ui.icon('check') }} Create class</button>
+      <a class="btn btn-ghost" href="{{ url_for('courses.list_courses') }}">Cancel</a></div>
+  </form>
+  </div>
+</div>
+{% endblock %}

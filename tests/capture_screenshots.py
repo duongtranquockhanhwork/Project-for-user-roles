@@ -125,6 +125,39 @@ def main():
         login_attempt(page, "' OR '1'='1' --", "' OR '1'='1")
         s.shot(page, "sqli-login-rejected", A, "SQL-injection payload in the login form: generic failure, no database error", "T18", element=".auth-card")
 
+        # ---------------------------------------------------------- registration
+        G = "registration"
+        page = s.new_page()
+        page.goto(BASE_URL + "/register")
+        s.shot(page, "register-page", G, "Student self-registration form")
+        page.fill("#full_name", "Pham Minh Chau")
+        page.fill("#username", "chau.pham")
+        page.fill("#email", "chau.pham@student.example.edu")
+        page.fill("#password", "short")
+        page.fill("#confirm_password", "different")
+        page.click("form[action='/register'] button[type=submit]")
+        page.wait_for_load_state()
+        s.shot(page, "register-validation-errors", G, "Registration rejected by server-side validation", "T46",
+               element=".auth-card")
+        page.fill("#password", "Minh-Chau-Secure-2026")
+        page.fill("#confirm_password", "Minh-Chau-Secure-2026")
+        page.click("form[action='/register'] button[type=submit]")
+        page.wait_for_url("**notice=account_created**")
+        s.shot(page, "register-success", G, "Account created with the STUDENT role only; the user can sign in",
+               "T45", full_page=False)
+        page = s.new_page()
+        page.goto(BASE_URL + "/login")
+        page.fill("input[name=username]", "chau.pham")
+        page.fill("input[name=password]", "Minh-Chau-Secure-2026")
+        page.click("button[type=submit]")
+        page.wait_for_url(BASE_URL + "/")
+        s.shot(page, "new-student-dashboard", G, "Dashboard of the newly registered student (new student code)")
+        page.goto(BASE_URL + "/classes")
+        page.locator(".class-card", has_text="AI305").locator("button", has_text="Join class").click()
+        page.wait_for_url("**notice=class_joined**")
+        s.shot(page, "student-joins-class", G, "Class catalog: the new student joins AI305 (seat counter updated)",
+               "T51", full_page=False)
+
         # ---------------------------------------------------------- student
         S = "student"
         page = s.new_page("student01")
@@ -134,49 +167,64 @@ def main():
         page.goto(f"{BASE_URL}/students/{sid['S2026001']}/enrollments")
         s.shot(page, "student-enrollments", S, "Student's own enrollments")
         page.goto(f"{BASE_URL}/students/{sid['S2026001']}/grades")
-        s.shot(page, "student-own-grades", S, "Student's own grades with colour-coded scores and the average", "T06")
+        s.shot(page, "student-own-grades", S,
+               "Own grades: four components, course totals and the credit-weighted overall average", "T06")
+        page.goto(BASE_URL + "/classes")
+        s.shot(page, "student-class-catalog", S, "Class catalog seen by student01 (enrolled, open and full classes)")
 
         # ---------------------------------------------------------- lecturer
         L = "lecturer"
         page = s.new_page("lecturer01")
-        s.shot(page, "lecturer-dashboard", L, "Lecturer dashboard: assigned courses, students and pending grades")
+        s.shot(page, "lecturer-dashboard", L, "Lecturer dashboard: assigned classes, students and incomplete totals")
         page.goto(BASE_URL + "/courses")
-        s.shot(page, "lecturer-courses", L, "Lecturer sees only the courses assigned to them")
+        s.shot(page, "lecturer-courses", L, "Lecturer sees only the classes assigned to them")
         page.goto(f"{BASE_URL}/courses/{cid['IS101']}/roster")
-        s.shot(page, "lecturer-assigned-roster", L, "Roster of the assigned course IS101 with grade entry", "T09")
+        s.shot(page, "lecturer-assigned-roster", L, "Roster of IS101 with the four grade components and totals", "T09")
         row = page.locator("#roster tr", has_text="S2026002")
-        row.locator("input[name=score]").fill("7.25")
-        row.locator("button").click()
+        for field, value in (("process1", "8.50"), ("process2", "7.75"), ("midterm", "7.00"), ("final_exam", "8.25")):
+            row.locator(f"input[name={field}]").fill(value)
+        row.locator("button", has_text="Save").click()
         page.wait_for_url("**notice=grade_saved**")
-        s.shot(page, "lecturer-grade-update-success", L, "Grade saved for S2026002 in IS101 (confirmation toast)", "T10",
+        s.shot(page, "lecturer-grade-update-success", L,
+               "Components saved for S2026002; the database computes the total 8.00 (confirmation toast)", "T10",
                full_page=False)
         page = s.new_page("ta01")
-        page.goto(f"{BASE_URL}/courses/{cid['NW301']}/roster")
+        page.goto(f"{BASE_URL}/courses/{cid['SE202']}/roster")
         s.shot(page, "ta-own-enrollment-protected", L,
-               "Multi-role ta01 grades NW301 but cannot grade their own enrollment", "T27")
+               "Multi-role ta01 teaches SE202 but cannot grade their own enrollment", "T27")
+        page = s.new_page("lecturer02")
+        page.goto(BASE_URL + "/classes")
+        s.shot(page, "lecturer-class-catalog", L, "Lecturer catalog: an unassigned class can be taken over", "T52")
 
         # ---------------------------------------------------------- registrar
         R = "registrar"
         page = s.new_page("registrar01")
-        s.shot(page, "registrar-dashboard", R, "Registrar dashboard: records, enrollments and courses")
+        s.shot(page, "registrar-dashboard", R, "Registrar dashboard: records, enrollments and classes")
         page.goto(BASE_URL + "/students?q=Nguyen")
         s.shot(page, "registrar-student-search", R, "Student search (the search text is a bound SQL parameter)")
         page.goto(BASE_URL + "/students/new")
         s.shot(page, "registrar-new-student-form", R, "Form for creating a student record")
-        active = {r["code"] for r in db_rows(
-            "SELECT c.code FROM enrollments e JOIN courses c ON c.id = e.course_id "
-            "WHERE e.student_id = %s AND e.status = 'ENROLLED'", (sid["S2026006"],))}
-        free = next((c for c in ("IS101", "NW301") if c not in active), None)
+        page.goto(BASE_URL + "/courses")
+        s.shot(page, "registrar-all-classes", R, "All classes with lecturer and seat usage")
+        page.goto(BASE_URL + "/courses/new")
+        page.fill("#code", "SE310")
+        page.fill("#title", "Cloud Computing")
+        page.select_option("#lecturer", "lecturer02")
+        s.shot(page, "registrar-new-class-form", R, "Creating a class: capacity at most 30, one optional lecturer")
+        page.click("form[action='/courses'] button[type=submit]")
+        page.wait_for_url("**notice=course_created**")
+        for code in ("S2026006", "S2026002"):
+            page.fill("input[name=student_code]", code)
+            page.locator("form[action='/enrollments'] button[type=submit]").click()
+            page.wait_for_url("**notice=enrollment_created**")
+        s.shot(page, "registrar-class-management", R,
+               "Managing class SE310: lecturer assignment, adding students, seat usage", "T48")
         page.goto(BASE_URL + "/enrollments")
-        if free is None:  # both taken by an earlier run: drop one first
-            free = "IS101"
-            page.locator("#enrollments tr", has_text="S2026006").filter(has_text="IS101").locator("button").click()
-            page.wait_for_load_state()
-        page.fill("input[name=student_code]", "S2026006")
-        page.select_option("select[name=course_code]", free)
-        page.click("form[action='/enrollments'] button[type=submit]")
+        page.fill("input[name=student_code]", "S2026003")
+        page.select_option("select[name=course_code]", "IS101")
+        page.click("form.form[action='/enrollments'] button[type=submit]")
         page.wait_for_url("**notice=enrollment_created**")
-        s.shot(page, "registrar-creates-enrollment", R, f"Registrar enrolls S2026006 in {free}", "T12", full_page=False)
+        s.shot(page, "registrar-creates-enrollment", R, "Registrar enrolls S2026003 in IS101", "T12", full_page=False)
 
         # ---------------------------------------------------------- administrator
         D = "administrator"
@@ -185,18 +233,74 @@ def main():
         page.goto(BASE_URL + "/admin/users")
         s.shot(page, "admin-users-and-roles", D, "User accounts, role chips, status and role-assignment controls", "T16")
 
+        # ---------------------------------------------------------- account & password reset
+        K = "account"
+        page = s.new_page("student01")
+        page.goto(BASE_URL + "/account")
+        s.shot(page, "account-student", K, "My account (student): change name and password", "T53")
+        page = s.new_page("registrar01")
+        page.goto(BASE_URL + "/account")
+        page.fill("#current_password", "wrong-password-1")
+        page.fill("#new_password", "short")
+        page.fill("#confirm_password", "short")
+        page.click("form[action='/account/password'] button[type=submit]")
+        page.wait_for_load_state()
+        s.shot(page, "account-registrar-errors", K,
+               "My account (registrar): name locked; a wrong current password is rejected", "T53/T54", full_page=False)
+        page = s.new_page()
+        page.goto(BASE_URL + "/forgot-password")
+        page.fill("#username", "student02")
+        page.fill("#email", "binh.tran@student.example.edu")
+        page.fill("#message", "I can show my student card at the faculty office.")
+        s.shot(page, "forgot-password-form", K, "Forgot-password request form")
+        page.click("form[action='/forgot-password'] button[type=submit]")
+        page.wait_for_load_state()
+        code = page.locator("#reference-code b").inner_text()
+        s.shot(page, "forgot-password-sent", K, "Request received: the reference code is shown once", "T55")
+        page = s.new_page("admin01")
+        page.goto(BASE_URL + "/admin/password-requests")
+        s.shot(page, "admin-password-requests", K,
+               "Administrator inbox: requester, e-mail check against the profile, approve or reject with a reply", "T57")
+        card = page.locator(".request-card", has_text="student02")
+        card.locator("input[name=reply]").fill("Identity verified with your student card.")
+        card.locator("button", has_text="Approve").click()
+        page.wait_for_url("**notice=reset_approved**")
+        page = s.new_page()
+        page.goto(BASE_URL + "/forgot-password/status")
+        page.fill("#username", "student02")
+        page.fill("#code", code)
+        page.locator("form[action='/forgot-password/status'] button[type=submit]").click()
+        page.wait_for_load_state()
+        s.shot(page, "reset-request-approved", K, "Status page: approved, with the administrator's reply", "T56")
+        page.click("form[action='/forgot-password/reveal'] button[type=submit]")
+        page.wait_for_load_state()
+        temp = page.locator("#temp-password b").inner_text()
+        s.shot(page, "reset-temporary-password", K, "One-time temporary password, revealed only to the requester", "T56")
+        page.goto(BASE_URL + "/login")
+        page.fill("input[name=username]", "student02")
+        page.fill("input[name=password]", temp)
+        page.click("button[type=submit]")
+        page.wait_for_url("**notice=password_change_required**")
+        s.shot(page, "forced-password-change", K, "Signing in with the temporary password forces a password change", "T56",
+               full_page=False)
+        page.fill("#current_password", temp)
+        page.fill("#new_password", "Binh-New-Secret-2026")
+        page.fill("#confirm_password", "Binh-New-Secret-2026")
+        page.click("form[action='/account/password'] button[type=submit]")
+        page.wait_for_url("**notice=password_changed**")
+
         # ---------------------------------------------------------- rejected operations
         X = "rejections"
         page = s.new_page("student01")
         page.goto(f"{BASE_URL}/students/{sid['S2026002']}/grades")
         s.shot(page, "student-idor-denied", X, "student01 changes the id in the URL to another student: HTTP 403", "T07", height=600)
-        post_form(page, "/grades", {"enrollment_id": enr("S2026001", "IS101"), "score": "10"})
+        post_form(page, "/grades", {"enrollment_id": enr("S2026001", "IS101"), "final_exam": "10"})
         s.shot(page, "student-direct-grade-request-denied", X, "student01 sends a grade-modification request directly: HTTP 403", "T08", height=600)
         page = s.new_page("lecturer01")
-        post_form(page, "/grades", {"enrollment_id": enr("S2026001", "NW301"), "score": "0"})
+        post_form(page, "/grades", {"enrollment_id": enr("S2026001", "NW301"), "final_exam": "0"})
         s.shot(page, "lecturer-unassigned-course-denied", X, "lecturer01 modifies a grade in unassigned NW301: HTTP 403", "T11", height=600)
         page = s.new_page("registrar01")
-        post_form(page, "/grades", {"enrollment_id": enr("S2026002", "DB201"), "score": "10"})
+        post_form(page, "/grades", {"enrollment_id": enr("S2026002", "DB201"), "final_exam": "10"})
         s.shot(page, "registrar-grade-modification-denied", X, "registrar01 modifies a grade: HTTP 403", "T13", height=600)
         page = s.new_page("auditor01")
         post_form(page, f"/students/{sid['S2026003']}", {"full_name": "Changed by auditor"})
@@ -258,7 +362,7 @@ def main():
         if report.exists():
             page = s.new_page()
             page.goto(report.resolve().as_uri())
-            s.shot(page, "security-test-results", B, "Automated security test results (pytest)", "T01–T44", full_page=False)
+            s.shot(page, "security-test-results", B, "Automated security test results (pytest)", "T01–T58", full_page=False)
 
         browser.close()
     (OUT / "index.json").write_text(json.dumps(s.index, indent=2, ensure_ascii=False), encoding="utf-8")

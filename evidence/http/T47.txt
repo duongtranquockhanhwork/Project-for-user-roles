@@ -1,0 +1,16 @@
+Evidence for T47 - generated 2026-11-10 19:45:42
+Target: http://localhost:8000
+
+### Save four components
+> POST /grades
+> body: enrollment_id=3&process1=8.00&process2=7.50&midterm=6.00&final_exam=9.25&csrf_token=[REDACTED]
+< HTTP 302
+< Location: /courses/2/roster?notice=grade_saved
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Redirecting... Redirecting... You should be redirected automatically to the target URL: /courses/2/roster?notice=grade_saved . If not, click the link.
+
+### Student views own grades
+> GET /students/2/grades
+< HTTP 200
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Grades · University Records System UniRecords University Records System Overview Dashboard My account My studies My profile My enrollments My grades Classes Class catalog Faculty of Information Technology UniRecords Grades TB Tran Thi Binh student02 · Student Academic results Grades of Tran Thi Binh Student S2026002 · scores on a 0–10 scale. Profile 2 Courses 2 Courses completed 7.57 Overall average (by credits) Grade components Total = 10 % process 1 + 20 % process 2 + 20 % midterm + 50 % final exam. Course Status Process 1 10 % Process 2 20 % Midterm 20 % Final 50 % Total DB201 Database Syst

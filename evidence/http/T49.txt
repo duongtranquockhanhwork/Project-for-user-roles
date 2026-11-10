@@ -1,0 +1,12 @@
+Evidence for T49 - generated 2026-11-10 19:45:57
+Target: http://localhost:8000
+
+### lecturer02 takes a class that already has a lecturer
+> POST /classes/7/teach
+> body: csrf_token=[REDACTED]
+< HTTP 403
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 403 DL Dr. Minh Lecturer lecturer02 · Lecturer Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+
+### Direct insert of a second lecturer
+23505 duplicate key value violates unique constraint "course_lecturers_course_id_key"

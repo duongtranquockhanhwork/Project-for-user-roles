@@ -35,9 +35,10 @@ src_code/
 │       ├── validators.py       server-side allow-list input validation
 │       ├── ui.py               template helpers: SVG icon set, initials, grade bands
 │       ├── routes/
-│       │   ├── auth.py         login, logout, dashboard, lockout
+│       │   ├── auth.py         login, logout, student self-registration, dashboard, lockout
+│       │   ├── account.py      My account (rename, password change), forgot-password workflow, admin inbox
 │       │   ├── students.py     profiles, contact update, enrollments and grades of a student
-│       │   ├── courses.py      course list, roster, grade entry
+│       │   ├── courses.py      classes: create, lecturer assignment, roster, 4-component grading, catalog (join/leave/teach)
 │       │   ├── enrollments.py  enrollment management (registrar)
 │       │   ├── admin.py        users and role assignment (administrator)
 │       │   └── audit_views.py  audit log, integrity check, access-control configuration (auditor)
@@ -54,7 +55,9 @@ src_code/
 │   ├── test_3_injection.py        T18–T19, T35–T38
 │   ├── test_4_audit.py            T20, T39–T42
 │   ├── test_5_database.py         T43–T44
-│   ├── capture_screenshots.py  35 evidence screenshots + index.json (section, caption, test id)
+│   ├── test_6_features.py         T45–T52 (registration, weighted grades, classes)
+│   ├── test_7_account.py          T53–T58 (password change, rename rules, reset workflow)
+│   ├── capture_screenshots.py  53 evidence screenshots + index.json (section, caption, test id)
 │   └── requirements.txt
 ├── evidence/                   generated: test-results.html/.md, http/Txx.txt, screenshots/ (+ index.json)
 ├── contribution/               member-a/b/c.md and .pdf (individual statements)
@@ -112,7 +115,22 @@ Permissions and their scopes are data in the database (`role_permissions`, see `
 * **Multiple roles:** a user receives the union of the (permission, scope) pairs of all of their roles.
 * **Grades** (`routes/courses.py`): only `grade.write` with scope ASSIGNED, never for the lecturer's own
   enrollment, and only for active enrollments. The course is taken from the enrollment in the database. The trigger
-  `grades_write_guard` re-checks these rules.
+  `grades_write_guard` re-checks these rules. Four components are stored (`process1` 10 %, `process2` 20 %,
+  `midterm` 20 %, `final_exam` 50 %); the total `score` is a generated column that no client can write.
+* **Self-registration** (`routes/auth.py::register`): creates exactly one STUDENT role and a NEW student profile
+  (code `S<year><id>`); role fields sent by the client are ignored and existing records can never be claimed.
+* **Account self-service** (`routes/account.py`): every signed-in user may change their password (current
+  password required, failures count towards lockout, all other sessions revoked). `account.rename` is granted to
+  STUDENT and LECTURER, but denied to anyone who also holds ADMIN, AUDITOR or REGISTRAR (deny overrides).
+* **Password reset:** a public request stores the username, an optional e-mail/message and only the SHA-256 of a
+  random reference code shown once to the requester. `password_reset.manage` (ADMIN) approves or rejects it, but
+  not for the administrator's own account. After approval the requester reveals a temporary password,
+  generated at that moment and shown once. It is valid for 24 h and sets `must_change_password`, so every
+  page redirects to **My account** until a new password is chosen. No password is stored in plaintext or shown
+  to the administrator.
+* **Classes** (`routes/courses.py`): `course.manage` (registrar) creates classes and assigns/replaces/removes the
+  single lecturer; `class.join` (student, OWN) joins or leaves a class (leave only while ungraded); `class.teach`
+  (lecturer, OWN) takes a class without a lecturer in which the lecturer is not enrolled.
 * **Roles** (`routes/admin.py`): administrators cannot change their own roles or disable themselves; pairs in
   `role_conflicts` (ADMIN+AUDITOR, LECTURER+REGISTRAR, STUDENT+REGISTRAR) are rejected, also by the trigger
   `user_roles_conflict_guard`; the last active administrator cannot be removed.
@@ -125,6 +143,11 @@ Permissions and their scopes are data in the database (`role_permissions`, see `
 * Grants are table- and column-level. There is no DELETE on users, students, enrollments or grades. The policy
   tables, courses and lecturer assignments are SELECT-only. `audit_logs` allows only INSERT and SELECT.
 * `users.password_hash` has a CHECK constraint that accepts only `$argon2id$...` values.
+* `password_reset_requests` has no password column; the application may only INSERT and update its workflow
+  columns (no DELETE).
+* Class limits: `UNIQUE (course_lecturers.course_id)` (one lecturer), trigger `enrollments_capacity_guard`
+  (at most `courses.capacity` ≤ 30 active students, the class row is locked), trigger `course_lecturers_guard`
+  (only active LECTURER users).
 * **Audit log.** The trigger `audit_logs_before_insert` assigns the id, a server timestamp, `prev_hash` and
   `entry_hash` (SHA-256 chain). The triggers `audit_logs_no_update` and `audit_logs_no_truncate` block UPDATE,
   DELETE and TRUNCATE for everyone. `audit_verify_chain()` recomputes the chain.
@@ -139,6 +162,10 @@ Permissions and their scopes are data in the database (`role_permissions`, see `
 | GRADE_CREATE / GRADE_UPDATE (old and new score) | SUCCESS |
 | GRADE_MODIFY_DENIED, RECORD_ACCESS_DENIED, ACCESS_DENIED, CSRF_REJECTED, DB_GUARD_DENIED | DENIED |
 | STUDENT_CREATE / STUDENT_UPDATE / CONTACT_UPDATE / ENROLLMENT_CREATE / ENROLLMENT_DROP | SUCCESS |
+| USER_REGISTER, COURSE_CREATE, COURSE_LECTURER_ASSIGN / _REMOVE, CLASS_JOIN, CLASS_LEAVE | SUCCESS |
+| PASSWORD_CHANGE, NAME_CHANGE, PASSWORD_RESET_REQUEST / _APPROVE / _REJECT / _DELIVERED | SUCCESS |
+| PASSWORD_CHANGE_FAILURE / NAME_CHANGE_DENIED / PASSWORD_RESET_REVEAL_DENIED / PASSWORD_RESET_APPROVE_DENIED | FAILURE / DENIED |
+| CLASS_JOIN_DENIED, CLASS_TEACH_DENIED | DENIED |
 
 Each entry stores the timestamp, actor id and username, event type, target resource, result, JSON details and
 source IP. `audit.py` removes keys such as `password`, `token` and `csrf_token`. Successful changes are logged in
@@ -209,7 +236,7 @@ python docs/build_contributions.py
 
 ## 10. Demo data
 
-`database/seed-data.sql` creates 11 accounts (password `<username>@Demo2026`), 3 courses, 6 student profiles,
-9 enrollments and 6 grades. The account list is in the [main README](../README.md#3-accounts-for-grading).
+`database/seed-data.sql` creates 11 accounts (password `<username>@Demo2026`), 5 classes (AI305 without a
+lecturer), 6 student profiles, 11 enrollments and 6 grade records (four components each). The account list is in the [main README](../README.md#3-accounts-for-grading).
 To prepare a hash for a new seed account, run `python source/scripts/hash_password.py`; the password is read
 without being echoed.

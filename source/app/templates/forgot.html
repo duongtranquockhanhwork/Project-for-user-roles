@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Forgot password{% endblock %}
+{% block standalone %}
+<div class="auth auth-single">
+  <section class="auth-panel">
+    <div class="card auth-card wide-auth">
+      <a class="brand brand-dark" href="{{ url_for('auth.login') }}"><span class="brand-mark">{{ ui.icon('shield-check') }}</span>
+        <span><span class="brand-name">UniRecords</span><br><span class="brand-sub">University Records System</span></span></a>
+      <h2>Forgot your password?</h2>
+      <p class="sub">Send a request to the system administrator. After your identity is checked, you can collect a one-time temporary password with the reference code you receive.</p>
+      {% if errors %}<div class="alert bad" role="alert">{{ ui.icon('alert') }}<span>{% for e in errors %}{{ e }}{% if not loop.last %}<br>{% endif %}{% endfor %}</span></div><br>{% endif %}
+      <form method="post" action="{{ url_for('account.forgot_password') }}" class="form">
+        <div class="field"><label for="username">Username</label>
+          <div class="input-wrap">{{ ui.icon('user') }}<input id="username" name="username" maxlength="32" required autocomplete="username" value="{{ form.username or '' }}" placeholder="e.g. student01"></div></div>
+        <div class="field"><label for="email">Email on your profile (helps the administrator verify you)</label>
+          <div class="input-wrap">{{ ui.icon('mail') }}<input id="email" name="email" type="email" maxlength="254" value="{{ form.email or '' }}" placeholder="you@student.edu"></div></div>
+        <div class="field"><label for="message">Message to the administrator (optional)</label>
+          <input id="message" name="message" maxlength="300" value="{{ form.message or '' }}" placeholder="e.g. I can show my student card at the office"></div>
+        <button type="submit" class="btn btn-block">{{ ui.icon('mail') }} Send request</button>
+      </form>
+      <p class="switch"><a href="{{ url_for('account.reset_status') }}">I already have a reference code</a> · <a href="{{ url_for('auth.login') }}">Back to sign in</a></p>
+    </div>
+  </section>
+</div>
+{% endblock %}

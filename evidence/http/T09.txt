@@ -1,8 +1,8 @@
-Evidence for T09 - generated 2026-11-10 18:02:11
+Evidence for T09 - generated 2026-11-10 19:44:03
 Target: http://localhost:8000
 
 ### Roster of assigned course IS101
 > GET /courses/1/roster
 < HTTP 200
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: IS101 roster · University Records System UniRecords University Records System Overview Dashboard Academic My courses Secure session · server-side RBAC UniRecords IS101 roster DL Dr. Linh Lecturer lecturer01 · Lecturer Course roster IS101 · Information Security Semester 2026-1 · you can record grades for this course. All courses 3 Enrolled students 3 Graded 7.83 Course average Students Enter a score between 0 and 10 (max. 2 decimals) and press Save. Student Status Score Set grade NA Nguyen Van An S2026001 Enrolled 8.50 Save TB Tran Thi Binh S2026002 Enrolled 7.00 Save TA Tuan Teaching-Assistant
+< page text: IS101 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords IS101 class DL Dr. Linh Lecturer lecturer01 · Lecturer Class IS101 · Information Security 3 credits · semester 2026-1 · lecturer: Dr. Linh Lecturer All classes 3 Students (max 30) 3 Final totals published 7.82 Class average Students and grades Weights: process 1 – 10 %, process 2 – 20 %, midterm – 20 %, final – 50 %. The total appears when all four are recorded. Student Status Process 1 10 % Process 2 20 % Mi

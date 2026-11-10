@@ -9,7 +9,7 @@ case = pytest.mark.case
 
 @case(id="T43", category="Database security", role="Application DB account (uni_app)",
       pre="Grade of S2026002 in IS101 exists",
-      action="Bypass the web layer: UPDATE grades directly as uni_app with updated_by = registrar01 "
+      action="Bypass the web layer: UPDATE grades.final_exam directly as uni_app with updated_by = registrar01 "
              "and = lecturer02 (not assigned)",
       expected="grades_guard trigger rejects both (42501); score unchanged")
 def test_t43_grade_guard_trigger(app_db, record, lookup):
@@ -18,7 +18,7 @@ def test_t43_grade_guard_trigger(app_db, record, lookup):
     outcomes = []
     for writer in ("registrar01", "lecturer02"):
         with pytest.raises(psycopg2.Error) as exc:
-            q(app_db, "UPDATE grades SET score = 10, updated_by = %s WHERE enrollment_id = %s",
+            q(app_db, "UPDATE grades SET final_exam = 10, updated_by = %s WHERE enrollment_id = %s",
               (lookup.user(writer), enr))
         assert exc.value.pgcode == "42501"
         outcomes.append(f"updated_by={writer}: {str(exc.value).splitlines()[0]}")

@@ -24,189 +24,297 @@
     "test": "T18"
   },
   {
-    "file": "05-student-dashboard.png",
+    "file": "05-register-page.png",
+    "section": "registration",
+    "caption": "Student self-registration form",
+    "test": ""
+  },
+  {
+    "file": "06-register-validation-errors.png",
+    "section": "registration",
+    "caption": "Registration rejected by server-side validation",
+    "test": "T46"
+  },
+  {
+    "file": "07-register-success.png",
+    "section": "registration",
+    "caption": "Account created with the STUDENT role only; the user can sign in",
+    "test": "T45"
+  },
+  {
+    "file": "08-new-student-dashboard.png",
+    "section": "registration",
+    "caption": "Dashboard of the newly registered student (new student code)",
+    "test": ""
+  },
+  {
+    "file": "09-student-joins-class.png",
+    "section": "registration",
+    "caption": "Class catalog: the new student joins AI305 (seat counter updated)",
+    "test": "T51"
+  },
+  {
+    "file": "10-student-dashboard.png",
     "section": "student",
     "caption": "Student dashboard: study statistics and quick actions",
     "test": "T01"
   },
   {
-    "file": "06-student-profile.png",
+    "file": "11-student-profile.png",
     "section": "student",
     "caption": "Student profile with the self-service contact form",
     "test": ""
   },
   {
-    "file": "07-student-enrollments.png",
+    "file": "12-student-enrollments.png",
     "section": "student",
     "caption": "Student's own enrollments",
     "test": ""
   },
   {
-    "file": "08-student-own-grades.png",
+    "file": "13-student-own-grades.png",
     "section": "student",
-    "caption": "Student's own grades with colour-coded scores and the average",
+    "caption": "Own grades: four components, course totals and the credit-weighted overall average",
     "test": "T06"
   },
   {
-    "file": "09-lecturer-dashboard.png",
-    "section": "lecturer",
-    "caption": "Lecturer dashboard: assigned courses, students and pending grades",
+    "file": "14-student-class-catalog.png",
+    "section": "student",
+    "caption": "Class catalog seen by student01 (enrolled, open and full classes)",
     "test": ""
   },
   {
-    "file": "10-lecturer-courses.png",
+    "file": "15-lecturer-dashboard.png",
     "section": "lecturer",
-    "caption": "Lecturer sees only the courses assigned to them",
+    "caption": "Lecturer dashboard: assigned classes, students and incomplete totals",
     "test": ""
   },
   {
-    "file": "11-lecturer-assigned-roster.png",
+    "file": "16-lecturer-courses.png",
     "section": "lecturer",
-    "caption": "Roster of the assigned course IS101 with grade entry",
+    "caption": "Lecturer sees only the classes assigned to them",
+    "test": ""
+  },
+  {
+    "file": "17-lecturer-assigned-roster.png",
+    "section": "lecturer",
+    "caption": "Roster of IS101 with the four grade components and totals",
     "test": "T09"
   },
   {
-    "file": "12-lecturer-grade-update-success.png",
+    "file": "18-lecturer-grade-update-success.png",
     "section": "lecturer",
-    "caption": "Grade saved for S2026002 in IS101 (confirmation toast)",
+    "caption": "Components saved for S2026002; the database computes the total 8.00 (confirmation toast)",
     "test": "T10"
   },
   {
-    "file": "13-ta-own-enrollment-protected.png",
+    "file": "19-ta-own-enrollment-protected.png",
     "section": "lecturer",
-    "caption": "Multi-role ta01 grades NW301 but cannot grade their own enrollment",
+    "caption": "Multi-role ta01 teaches SE202 but cannot grade their own enrollment",
     "test": "T27"
   },
   {
-    "file": "14-registrar-dashboard.png",
+    "file": "20-lecturer-class-catalog.png",
+    "section": "lecturer",
+    "caption": "Lecturer catalog: an unassigned class can be taken over",
+    "test": "T52"
+  },
+  {
+    "file": "21-registrar-dashboard.png",
     "section": "registrar",
-    "caption": "Registrar dashboard: records, enrollments and courses",
+    "caption": "Registrar dashboard: records, enrollments and classes",
     "test": ""
   },
   {
-    "file": "15-registrar-student-search.png",
+    "file": "22-registrar-student-search.png",
     "section": "registrar",
     "caption": "Student search (the search text is a bound SQL parameter)",
     "test": ""
   },
   {
-    "file": "16-registrar-new-student-form.png",
+    "file": "23-registrar-new-student-form.png",
     "section": "registrar",
     "caption": "Form for creating a student record",
     "test": ""
   },
   {
-    "file": "17-registrar-creates-enrollment.png",
+    "file": "24-registrar-all-classes.png",
     "section": "registrar",
-    "caption": "Registrar enrolls S2026006 in IS101",
+    "caption": "All classes with lecturer and seat usage",
+    "test": ""
+  },
+  {
+    "file": "25-registrar-new-class-form.png",
+    "section": "registrar",
+    "caption": "Creating a class: capacity at most 30, one optional lecturer",
+    "test": ""
+  },
+  {
+    "file": "26-registrar-class-management.png",
+    "section": "registrar",
+    "caption": "Managing class SE310: lecturer assignment, adding students, seat usage",
+    "test": "T48"
+  },
+  {
+    "file": "27-registrar-creates-enrollment.png",
+    "section": "registrar",
+    "caption": "Registrar enrolls S2026003 in IS101",
     "test": "T12"
   },
   {
-    "file": "18-admin-dashboard.png",
+    "file": "28-admin-dashboard.png",
     "section": "administrator",
     "caption": "Administrator dashboard: account statistics only, no academic data",
     "test": ""
   },
   {
-    "file": "19-admin-users-and-roles.png",
+    "file": "29-admin-users-and-roles.png",
     "section": "administrator",
     "caption": "User accounts, role chips, status and role-assignment controls",
     "test": "T16"
   },
   {
-    "file": "20-student-idor-denied.png",
+    "file": "30-account-student.png",
+    "section": "account",
+    "caption": "My account (student): change name and password",
+    "test": "T53"
+  },
+  {
+    "file": "31-account-registrar-errors.png",
+    "section": "account",
+    "caption": "My account (registrar): name locked; a wrong current password is rejected",
+    "test": "T53/T54"
+  },
+  {
+    "file": "32-forgot-password-form.png",
+    "section": "account",
+    "caption": "Forgot-password request form",
+    "test": ""
+  },
+  {
+    "file": "33-forgot-password-sent.png",
+    "section": "account",
+    "caption": "Request received: the reference code is shown once",
+    "test": "T55"
+  },
+  {
+    "file": "34-admin-password-requests.png",
+    "section": "account",
+    "caption": "Administrator inbox: requester, e-mail check against the profile, approve or reject with a reply",
+    "test": "T57"
+  },
+  {
+    "file": "35-reset-request-approved.png",
+    "section": "account",
+    "caption": "Status page: approved, with the administrator's reply",
+    "test": "T56"
+  },
+  {
+    "file": "36-reset-temporary-password.png",
+    "section": "account",
+    "caption": "One-time temporary password, revealed only to the requester",
+    "test": "T56"
+  },
+  {
+    "file": "37-forced-password-change.png",
+    "section": "account",
+    "caption": "Signing in with the temporary password forces a password change",
+    "test": "T56"
+  },
+  {
+    "file": "38-student-idor-denied.png",
     "section": "rejections",
     "caption": "student01 changes the id in the URL to another student: HTTP 403",
     "test": "T07"
   },
   {
-    "file": "21-student-direct-grade-request-denied.png",
+    "file": "39-student-direct-grade-request-denied.png",
     "section": "rejections",
     "caption": "student01 sends a grade-modification request directly: HTTP 403",
     "test": "T08"
   },
   {
-    "file": "22-lecturer-unassigned-course-denied.png",
+    "file": "40-lecturer-unassigned-course-denied.png",
     "section": "rejections",
     "caption": "lecturer01 modifies a grade in unassigned NW301: HTTP 403",
     "test": "T11"
   },
   {
-    "file": "23-registrar-grade-modification-denied.png",
+    "file": "41-registrar-grade-modification-denied.png",
     "section": "rejections",
     "caption": "registrar01 modifies a grade: HTTP 403",
     "test": "T13"
   },
   {
-    "file": "24-auditor-modify-student-denied.png",
+    "file": "42-auditor-modify-student-denied.png",
     "section": "rejections",
     "caption": "auditor01 modifies a student record: HTTP 403",
     "test": "T15"
   },
   {
-    "file": "25-admin-view-grades-denied.png",
+    "file": "43-admin-view-grades-denied.png",
     "section": "rejections",
     "caption": "admin01 (ADMIN only) opens a grade page: HTTP 403",
     "test": "T17"
   },
   {
-    "file": "26-admin-role-conflict-denied.png",
+    "file": "44-admin-role-conflict-denied.png",
     "section": "rejections",
     "caption": "Assigning AUDITOR to an administrator violates separation of duties: HTTP 403",
     "test": "T30"
   },
   {
-    "file": "27-xss-payload-rendered-as-text.png",
+    "file": "45-xss-payload-rendered-as-text.png",
     "section": "input",
     "caption": "Stored <script> payload is displayed as plain text and does not execute",
     "test": "T19"
   },
   {
-    "file": "28-session-invalid-after-logout.png",
+    "file": "46-session-invalid-after-logout.png",
     "section": "input",
     "caption": "After logout the old session is rejected: HTTP 401",
     "test": "T04"
   },
   {
-    "file": "29-auditor-dashboard.png",
+    "file": "47-auditor-dashboard.png",
     "section": "auditor",
     "caption": "Security Auditor dashboard: audit volume, denials and failed logins",
     "test": ""
   },
   {
-    "file": "30-audit-log-entries.png",
+    "file": "48-audit-log-entries.png",
     "section": "auditor",
     "caption": "Security audit log with timestamp, actor, event, target, result and details",
     "test": "T14"
   },
   {
-    "file": "31-audit-log-rejected-actions.png",
+    "file": "49-audit-log-rejected-actions.png",
     "section": "auditor",
     "caption": "Audit log filtered on rejected actions",
     "test": "T20"
   },
   {
-    "file": "32-audit-log-hash-chain-verified.png",
+    "file": "50-audit-log-hash-chain-verified.png",
     "section": "auditor",
     "caption": "Integrity check: the SHA-256 hash chain is intact",
     "test": "T42"
   },
   {
-    "file": "33-auditor-access-control-configuration.png",
+    "file": "51-auditor-access-control-configuration.png",
     "section": "auditor",
     "caption": "Read-only view of the access-control configuration",
     "test": "T14"
   },
   {
-    "file": "34-hashed-password-records.png",
+    "file": "52-hashed-password-records.png",
     "section": "database",
     "caption": "users.password_hash contains only Argon2id hashes",
     "test": "T05"
   },
   {
-    "file": "35-security-test-results.png",
+    "file": "53-security-test-results.png",
     "section": "database",
     "caption": "Automated security test results (pytest)",
-    "test": "T01–T44"
+    "test": "T01–T58"
   }
 ]

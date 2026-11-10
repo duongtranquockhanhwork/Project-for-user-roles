@@ -10,6 +10,8 @@
 --   * password_hash column only accepts Argon2id hashes (no plaintext possible)
 --   * role-conflict (separation of duties) trigger on user_roles
 --   * grade-write guard trigger (defence in depth for course-assignment rule)
+--   * class limits: one lecturer (UNIQUE) and at most 30 students (capacity trigger)
+--   * course total computed by the database from four weighted grade components
 --   * append-only, hash-chained audit_logs table
 --   * least-privilege grants for the application role (table + column level)
 -- =============================================================================
@@ -62,6 +64,10 @@ CREATE TABLE users (
     is_active          boolean      NOT NULL DEFAULT true,
     failed_login_count integer      NOT NULL DEFAULT 0 CHECK (failed_login_count >= 0),
     locked_until       timestamptz,
+    -- Set after an administrator-approved password reset: the temporary
+    -- password must be changed at the next login and expires at password_expires_at.
+    must_change_password boolean    NOT NULL DEFAULT false,
+    password_expires_at  timestamptz,
     created_at         timestamptz  NOT NULL DEFAULT now(),
     created_by         integer      REFERENCES users (id),
     updated_at         timestamptz  NOT NULL DEFAULT now()
@@ -74,6 +80,28 @@ CREATE TABLE user_roles (
     assigned_at timestamptz NOT NULL DEFAULT now(),
     PRIMARY KEY (user_id, role_id)
 );
+
+-- "Forgot password" requests, answered by an administrator.
+-- No password is ever stored here. The requester receives a random reference
+-- code (only its SHA-256 hash is stored). After approval the temporary password
+-- is generated at the moment the requester reveals it and is shown only once.
+CREATE TABLE password_reset_requests (
+    id            serial       PRIMARY KEY,
+    username      varchar(32)  NOT NULL,                 -- as typed (valid format only)
+    user_id       integer      REFERENCES users (id),    -- NULL if no such account
+    contact_email varchar(254),
+    message       varchar(300),
+    code_hash     char(64)     NOT NULL UNIQUE,
+    status        varchar(10)  NOT NULL DEFAULT 'PENDING'
+                  CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'DELIVERED')),
+    reply_message varchar(300),
+    source_ip     varchar(45),
+    created_at    timestamptz  NOT NULL DEFAULT now(),
+    resolved_at   timestamptz,
+    resolved_by   integer      REFERENCES users (id),
+    delivered_at  timestamptz
+);
+CREATE INDEX password_reset_requests_status_idx ON password_reset_requests (status);
 
 -- Server-side sessions. Only the SHA-256 hash of the session token is stored,
 -- so a database leak does not reveal usable session cookies.
@@ -112,13 +140,19 @@ CREATE TABLE courses (
     code     varchar(10)  NOT NULL UNIQUE CHECK (code ~ '^[A-Z]{2,4}[0-9]{3,4}$'),
     title    varchar(120) NOT NULL,
     credits  smallint     NOT NULL CHECK (credits BETWEEN 1 AND 10),
-    semester varchar(10)  NOT NULL
+    semester varchar(10)  NOT NULL CHECK (semester ~ '^[0-9]{4}-[1-3]$'),
+    -- Each class holds at most 30 students (enforced by enrollments_capacity_guard).
+    capacity smallint     NOT NULL DEFAULT 30 CHECK (capacity BETWEEN 1 AND 30),
+    created_at timestamptz NOT NULL DEFAULT now(),
+    created_by integer    REFERENCES users (id)
 );
 
--- Course assignment: which lecturer(s) teach which course.
+-- Course assignment. UNIQUE (course_id): a class has at most one lecturer.
 CREATE TABLE course_lecturers (
-    course_id   integer NOT NULL REFERENCES courses (id),
-    lecturer_id integer NOT NULL REFERENCES users (id),
+    course_id   integer     NOT NULL UNIQUE REFERENCES courses (id),
+    lecturer_id integer     NOT NULL REFERENCES users (id),
+    assigned_by integer     REFERENCES users (id),
+    assigned_at timestamptz NOT NULL DEFAULT now(),
     PRIMARY KEY (course_id, lecturer_id)
 );
 
@@ -135,7 +169,16 @@ CREATE TABLE enrollments (
 CREATE TABLE grades (
     id            serial       PRIMARY KEY,
     enrollment_id integer      NOT NULL UNIQUE REFERENCES enrollments (id),
-    score         numeric(4,2) NOT NULL CHECK (score >= 0 AND score <= 10),
+    -- Four grade components on a 0-10 scale; NULL = not graded yet.
+    process1      numeric(4,2) CHECK (process1 BETWEEN 0 AND 10),    -- weight 10 %
+    process2      numeric(4,2) CHECK (process2 BETWEEN 0 AND 10),    -- weight 20 %
+    midterm       numeric(4,2) CHECK (midterm BETWEEN 0 AND 10),     -- weight 20 %
+    final_exam    numeric(4,2) CHECK (final_exam BETWEEN 0 AND 10),  -- weight 50 %
+    -- Course total, computed by the database (cannot be written directly);
+    -- NULL until all four components are recorded.
+    score         numeric(4,2) GENERATED ALWAYS AS
+                  (round(process1 * 0.10 + process2 * 0.20 + midterm * 0.20 + final_exam * 0.50, 2)) STORED,
+    CHECK (coalesce(process1, process2, midterm, final_exam) IS NOT NULL),
     created_at    timestamptz  NOT NULL DEFAULT now(),
     created_by    integer      NOT NULL REFERENCES users (id),
     updated_at    timestamptz  NOT NULL DEFAULT now(),
@@ -301,6 +344,44 @@ END $$;
 CREATE TRIGGER grades_guard BEFORE INSERT OR UPDATE ON grades
     FOR EACH ROW EXECUTE FUNCTION grades_write_guard();
 
+-- A class holds at most `capacity` (<= 30) active students. The course row is
+-- locked so that concurrent enrollments cannot exceed the limit.
+CREATE FUNCTION enrollments_capacity_guard() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE
+    v_capacity smallint;
+    v_active   integer;
+BEGIN
+    IF NEW.status <> 'ENROLLED' OR (TG_OP = 'UPDATE' AND OLD.status = 'ENROLLED') THEN
+        RETURN NEW;
+    END IF;
+    SELECT capacity INTO v_capacity FROM courses WHERE id = NEW.course_id FOR UPDATE;
+    SELECT count(*) INTO v_active FROM enrollments
+     WHERE course_id = NEW.course_id AND status = 'ENROLLED' AND id <> NEW.id;
+    IF v_active >= v_capacity THEN
+        RAISE EXCEPTION 'class is full (capacity %)', v_capacity USING ERRCODE = '23514';
+    END IF;
+    RETURN NEW;
+END $$;
+
+CREATE TRIGGER enrollments_capacity BEFORE INSERT OR UPDATE OF status ON enrollments
+    FOR EACH ROW EXECUTE FUNCTION enrollments_capacity_guard();
+
+-- Only an active user holding the LECTURER role can be assigned to a class.
+CREATE FUNCTION course_lecturers_guard() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM users u
+          JOIN user_roles ur ON ur.user_id = u.id
+          JOIN roles r ON r.id = ur.role_id AND r.name = 'LECTURER'
+         WHERE u.id = NEW.lecturer_id AND u.is_active) THEN
+        RAISE EXCEPTION 'course_lecturers: user is not an active lecturer' USING ERRCODE = '42501';
+    END IF;
+    RETURN NEW;
+END $$;
+
+CREATE TRIGGER course_lecturers_role BEFORE INSERT OR UPDATE ON course_lecturers
+    FOR EACH ROW EXECUTE FUNCTION course_lecturers_guard();
+
 -- -----------------------------------------------------------------------------
 -- 6. Least-privilege grants for the application account
 -- -----------------------------------------------------------------------------
@@ -314,8 +395,12 @@ GRANT SELECT ON roles, permissions, role_permissions, role_conflicts TO uni_app;
 -- Accounts: no DELETE (accounts are disabled, not removed); username and
 -- created_* columns cannot be changed.
 GRANT SELECT, INSERT ON users TO uni_app;
-GRANT UPDATE (password_hash, full_name, is_active, failed_login_count, locked_until, updated_at)
+GRANT UPDATE (password_hash, full_name, is_active, failed_login_count, locked_until,
+              must_change_password, password_expires_at, updated_at)
     ON users TO uni_app;
+-- Reset requests: no DELETE; only the workflow columns can change.
+GRANT SELECT, INSERT ON password_reset_requests TO uni_app;
+GRANT UPDATE (status, reply_message, resolved_at, resolved_by, delivered_at) ON password_reset_requests TO uni_app;
 GRANT SELECT, INSERT, DELETE ON user_roles TO uni_app;
 GRANT SELECT, INSERT, DELETE ON sessions TO uni_app;
 GRANT UPDATE (last_seen_at, revoked_at) ON sessions TO uni_app;
@@ -324,16 +409,19 @@ GRANT UPDATE (last_seen_at, revoked_at) ON sessions TO uni_app;
 GRANT SELECT, INSERT ON students TO uni_app;
 GRANT UPDATE (full_name, date_of_birth, program, email, phone, address, updated_at, updated_by)
     ON students TO uni_app;
-GRANT SELECT ON courses, course_lecturers TO uni_app;
+-- Classes are created by the registrar; code, id and audit columns cannot be changed.
+GRANT SELECT, INSERT ON courses TO uni_app;
+GRANT UPDATE (title, capacity) ON courses TO uni_app;
+GRANT SELECT, INSERT, DELETE ON course_lecturers TO uni_app;
 GRANT SELECT, INSERT ON enrollments TO uni_app;
 GRANT UPDATE (status) ON enrollments TO uni_app;
 GRANT SELECT, INSERT ON grades TO uni_app;
-GRANT UPDATE (score, updated_by, updated_at) ON grades TO uni_app;
+GRANT UPDATE (process1, process2, midterm, final_exam, updated_by, updated_at) ON grades TO uni_app;
 
 -- Audit log: append and read only.
 GRANT SELECT, INSERT ON audit_logs TO uni_app;
 
-GRANT USAGE ON SEQUENCE users_id_seq, students_id_seq, enrollments_id_seq, grades_id_seq,
+GRANT USAGE ON SEQUENCE password_reset_requests_id_seq, users_id_seq, students_id_seq, enrollments_id_seq, grades_id_seq, courses_id_seq,
     audit_logs_id_seq TO uni_app;
 
 COMMIT;

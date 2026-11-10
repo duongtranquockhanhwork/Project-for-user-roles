@@ -1,4 +1,4 @@
-Evidence for T03 - generated 2026-11-10 18:01:35
+Evidence for T03 - generated 2026-11-10 19:43:26
 Target: http://localhost:8000
 
 ### Login as disabled account with correct password
@@ -6,4 +6,4 @@ Target: http://localhost:8000
 > body: username=disabled01&password=[REDACTED]
 < HTTP 401
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Sign in · University Records System UniRecords University Records System Student records, protected by design. One secure place for profiles, enrollments and grades — every request is authorized on the server and every sensitive action is audited. Role-based access control Five roles, default deny, record-level checks. Argon2id & secure sessions Hashed passwords, HttpOnly cookies, CSRF tokens. Tamper-evident audit log Append-only, SHA-256 hash-chained events. Faculty of Information Technology · Ton Duc Thang University Welcome back Sign in with your university account. Invalid username or pass
+< page text: Sign in · University Records System UniRecords University Records System Your academic life, in one place. Follow your classes, see every grade component and your averages, and keep your contact details up to date. Grades & averages Process, midterm and final scores with your course totals. Class catalog Browse open classes and join them in one click. For the whole faculty Students, lecturers and the registrar's office. Faculty of Information Technology · Ton Duc Thang University Welcome back Sign in with your university account. Invalid username or password. Username Password Forgot password?

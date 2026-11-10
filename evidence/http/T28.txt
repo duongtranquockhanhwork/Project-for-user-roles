@@ -1,20 +1,20 @@
-Evidence for T28 - generated 2026-11-10 18:02:35
+Evidence for T28 - generated 2026-11-10 19:44:26
 Target: http://localhost:8000
 
 ### Own grades
 > GET /students/4/grades
 < HTTP 200
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Grades · University Records System UniRecords University Records System Overview Dashboard My studies My profile My enrollments My grades Academic My courses Secure session · server-side RBAC UniRecords Grades TA Tuan Teaching-Assistant ta01 · Lecturer, Student Academic results Grades of Tuan Teaching-Assistant Student S2026004 · scores on a 0–10 scale. Profile 2 Courses shown 2 Grades published 7.75 Average score Course Title Semester Status Score Last updated IS101 Information Security 2026-1 Enrolled 8.00 10 Nov 2026, 11:01 NW301 Computer Networks 2026-1 Enrolled 7.50 10 Nov 2026, 11:01 Uni
+< page text: Grades · University Records System UniRecords University Records System Overview Dashboard My account My studies My profile My enrollments My grades Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Grades TA Tuan Teaching-Assistant ta01 · Lecturer, Student Academic results Grades of Tuan Teaching-Assistant Student S2026004 · scores on a 0–10 scale. Profile 3 Courses 1 Courses completed 8.00 Overall average (by credits) Grade components Total = 10 % process 1 + 20 % process 2 + 20 % midterm + 50 % final exam. Course Status Process 1 10 % Process 2 20 % Midt
 
-### NW301 roster
-> GET /courses/3/roster
+### SE202 roster
+> GET /courses/4/roster
 < HTTP 200
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: NW301 roster · University Records System UniRecords University Records System Overview Dashboard My studies My profile My enrollments My grades Academic My courses Secure session · server-side RBAC UniRecords NW301 roster TA Tuan Teaching-Assistant ta01 · Lecturer, Student Course roster NW301 · Computer Networks Semester 2026-1 · you can record grades for this course. All courses 3 Enrolled students 3 Graded 7.37 Course average Students Enter a score between 0 and 10 (max. 2 decimals) and press Save. Student Status Score Set grade NA Nguyen Van An S2026001 Enrolled 6.50 Save LC Le Van Cuong S2
+< page text: SE202 · University Records System UniRecords University Records System Overview Dashboard My account My studies My profile My enrollments My grades Classes Class catalog Academic My courses Faculty of Information Technology UniRecords SE202 class TA Tuan Teaching-Assistant ta01 · Lecturer, Student Class SE202 · Software Engineering 3 credits · semester 2026-1 · lecturer: Tuan Teaching-Assistant All classes 2 Students (max 30) 1 Final totals published 2.42 Class average Students and grades Weights: process 1 – 10 %, process 2 – 20 %, midterm – 20 %, final – 50 %. The total appears when all four
 
 ### DB201 roster
 > GET /courses/2/roster
 < HTTP 403
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My studies My profile My enrollments My grades Academic My courses Secure session · server-side RBAC UniRecords Error 403 TA Tuan Teaching-Assistant ta01 · Lecturer, Student Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My account My studies My profile My enrollments My grades Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 403 TA Tuan Teaching-Assistant ta01 · Lecturer, Student Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026

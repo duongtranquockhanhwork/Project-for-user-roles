@@ -28,7 +28,7 @@ REQUIRED_EVENTS = {
 def test_t20_rejection_in_audit_log(login_as, record, lookup, app_db, audit_mark):
     reg = login_as("registrar01")
     enr = lookup.enrollment("S2026002", "DB201")
-    r = reg.post("/grades", {"enrollment_id": enr, "score": "10"})
+    r = reg.post("/grades", {"enrollment_id": enr, "final_exam": "10"})
     assert r.status_code == 403
     row = q1(app_db, "SELECT * FROM audit_logs WHERE id > %s AND actor_username = 'registrar01' "
                      "AND event_type = 'GRADE_MODIFY_DENIED' ORDER BY id DESC LIMIT 1",
@@ -113,7 +113,8 @@ def test_t41_required_events_and_fields(login_as, app_db, record, lookup):
     admin.post(f"/admin/users/{uid}/roles", {"role": "STUDENT", "action": "remove"})
     lect = login_as("lecturer01")
     enr = lookup.enrollment("S2026006", "DB201")
-    lect.post("/grades", {"enrollment_id": enr, "score": "6.75"})
+    lect.post("/grades", {"enrollment_id": enr, "process1": "7", "process2": "6.5", "midterm": "7",
+                          "final_exam": "6.75"})
     lect.post("/logout")
 
     present = {r["event_type"] for r in q(app_db, "SELECT DISTINCT event_type FROM audit_logs")}

@@ -1,4 +1,4 @@
-Evidence for T31 - generated 2026-11-10 18:02:41
+Evidence for T31 - generated 2026-11-10 19:44:33
 Target: http://localhost:8000
 
 ### Update another student's contact
@@ -6,4 +6,4 @@ Target: http://localhost:8000
 > body: email=attacker%40evil.example&csrf_token=[REDACTED]
 < HTTP 403
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My studies My profile My enrollments My grades Secure session · server-side RBAC UniRecords Error 403 NA Nguyen Van An student01 · Student Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My account My studies My profile My enrollments My grades Classes Class catalog Faculty of Information Technology UniRecords Error 403 NA Nguyen Van An student01 · Student Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026

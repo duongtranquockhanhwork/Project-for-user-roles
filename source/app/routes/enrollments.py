@@ -8,6 +8,13 @@ from ..validators import COURSE_CODE_RE, STUDENT_CODE_RE, ValidationError, Valid
 bp = Blueprint("enrollments", __name__)
 
 
+def _back(course_id, notice):
+    """Return to the class page or to the enrollment list (fixed choices: no open redirect)."""
+    if request.form.get("return_to") == "course" and course_id:
+        return redirect(url_for("courses.roster", course_id=course_id, notice=notice))
+    return redirect(url_for("enrollments.list_enrollments", notice=notice))
+
+
 @bp.get("/enrollments")
 @require_permission("enrollment.manage")
 def list_enrollments():
@@ -31,9 +38,14 @@ def create_enrollment():
 
     student = db.query_one("SELECT id FROM students WHERE student_code = %s",
                            (data["student_code"],))
-    course = db.query_one("SELECT id FROM courses WHERE code = %s", (data["course_code"],))
+    course = db.query_one(
+        "SELECT c.id, c.capacity, (SELECT count(*) FROM enrollments e "
+        "  WHERE e.course_id = c.id AND e.status = 'ENROLLED') AS enrolled FROM courses c WHERE c.code = %s",
+        (data["course_code"],))
     if student is None or course is None:
         raise ValidationError(["Unknown student code or course code."])
+    if course["enrolled"] >= course["capacity"]:
+        raise ValidationError([f"This class is full ({course['capacity']} students)."])
 
     existing = db.query_one(
         "SELECT id, status FROM enrollments WHERE student_id = %s AND course_id = %s",
@@ -52,7 +64,7 @@ def create_enrollment():
                     {"student_code": data["student_code"], "course": data["course_code"]},
                     in_request_tx=True)
     db.commit()
-    return redirect(url_for("enrollments.list_enrollments", notice="enrollment_created"))
+    return _back(course["id"], "enrollment_created")
 
 
 @bp.post("/enrollments/<int:enrollment_id>/drop")
@@ -60,11 +72,11 @@ def create_enrollment():
 def drop_enrollment(enrollment_id):
     row = db.query_one(
         "UPDATE enrollments SET status = 'DROPPED' WHERE id = %s AND status = 'ENROLLED' "
-        "RETURNING id", (enrollment_id,))
+        "RETURNING id, course_id", (enrollment_id,))
     if row is None:
         abort(404)
     audit.log_event("ENROLLMENT_DROP", audit.SUCCESS, f"enrollment:{enrollment_id}",
                     in_request_tx=True)
     db.commit()
-    return redirect(url_for("enrollments.list_enrollments", notice="enrollment_dropped"))
+    return _back(row["course_id"], "enrollment_dropped")
 

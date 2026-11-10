@@ -1,8 +1,8 @@
-Evidence for T06 - generated 2026-11-10 18:02:04
+Evidence for T06 - generated 2026-11-10 19:43:56
 Target: http://localhost:8000
 
 ### Own grades
 > GET /students/1/grades
 < HTTP 200
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Grades · University Records System UniRecords University Records System Overview Dashboard My studies My profile My enrollments My grades Secure session · server-side RBAC UniRecords Grades NA Nguyen Van An student01 · Student Academic results Grades of Nguyen Van An Student S2026001 · scores on a 0–10 scale. Profile 2 Courses shown 2 Grades published 7.50 Average score Course Title Semester Status Score Last updated IS101 Information Security 2026-1 Enrolled 8.50 10 Nov 2026, 11:01 NW301 Computer Networks 2026-1 Enrolled 6.50 10 Nov 2026, 11:01 UniRecords · University Records System · Faculty
+< page text: Grades · University Records System UniRecords University Records System Overview Dashboard My account My studies My profile My enrollments My grades Classes Class catalog Faculty of Information Technology UniRecords Grades NA Nguyen Van An student01 · Student Academic results Grades of Nguyen Van An Student S2026001 · scores on a 0–10 scale. Profile 2 Courses 2 Courses completed 7.45 Overall average (by credits) Grade components Total = 10 % process 1 + 20 % process 2 + 20 % midterm + 50 % final exam. Course Status Process 1 10 % Process 2 20 % Midterm 20 % Final 50 % Total IS101 Information S

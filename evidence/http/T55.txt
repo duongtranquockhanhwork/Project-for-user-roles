@@ -1,0 +1,16 @@
+Evidence for T55 - generated 2026-11-10 19:47:50
+Target: http://localhost:8000
+
+### Existing username
+> POST /forgot-password
+> body: username=student02&email=binh.tran%40student.example.edu&message=Lost+my+password
+< HTTP 200
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Request sent · University Records System UniRecords University Records System Request received If an account named student02 exists, the administrator will review your request. Your reference code ecWmjyKCX3k0xRmB Write this code down now — it is shown only once and is required to read the administrator's reply. Check my request Back to sign in
+
+### Unknown username
+> POST /forgot-password
+> body: username=ghostuser&email=&message=Lost+my+password
+< HTTP 200
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Request sent · University Records System UniRecords University Records System Request received If an account named ghostuser exists, the administrator will review your request. Your reference code Wd1i_eYsHeVW5p7v Write this code down now — it is shown only once and is required to read the administrator's reply. Check my request Back to sign in

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Class catalog{% endblock %}
+{% block crumb %}Class catalog{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('layers') }} Class catalog</div><h1>Classes this semester</h1>
+  <p>{% if can_join %}Join a class with free seats, or leave one before grades are recorded.{% endif %}{% if can_join and can_teach %} {% endif %}{% if can_teach %}Classes without a lecturer can be taken over.{% endif %}</p></div>
+</div>
+<div class="grid grid-3 stagger" id="catalog">
+  {% for c in classes %}
+  {% set full = c.enrolled >= c.capacity %}
+  {% set mine_teach = c.lecturer_id == current_user.id %}
+  <div class="card class-card">
+    <div class="class-top"><span class="chip">{{ c.code }}</span>
+      {% if c.my_status == 'ENROLLED' %}<span class="badge ok">Enrolled</span>{% elif mine_teach %}<span class="badge info">You teach</span>{% elif full %}<span class="badge bad">Full</span>{% else %}<span class="badge muted">Open</span>{% endif %}</div>
+    <b class="class-title">{{ c.title }}</b>
+    <span class="class-meta">{{ ui.icon('user', 'icon-sm') }} {{ c.lecturer_name or 'No lecturer yet' }} · {{ c.credits }} credits</span>
+    <div class="seats"><div class="seat-bar"><span class="fill w{{ ((c.enrolled / c.capacity * 10)|round(0, 'ceil'))|int }}"></span></div><span>{{ c.enrolled }}/{{ c.capacity }} seats</span></div>
+    <div class="class-actions">
+      {% if can_join and not mine_teach %}
+        {% if c.my_status == 'ENROLLED' %}
+          {% if c.my_graded %}<span class="muted small">Grades recorded</span>{% else %}
+          <form method="post" action="{{ url_for('courses.leave_class', course_id=c.id) }}" class="inline-form">{{ ui.csrf() }}
+            <button type="submit" class="btn btn-ghost btn-sm" data-confirm="Leave {{ c.code }}?">{{ ui.icon('logout', 'icon-sm') }} Leave</button></form>{% endif %}
+        {% elif not full %}
+          <form method="post" action="{{ url_for('courses.join_class', course_id=c.id) }}" class="inline-form">{{ ui.csrf() }}
+            <button type="submit" class="btn btn-sm">{{ ui.icon('plus', 'icon-sm') }} Join class</button></form>
+        {% endif %}
+      {% endif %}
+      {% if can_teach and c.lecturer_id is none and c.my_status != 'ENROLLED' %}
+        <form method="post" action="{{ url_for('courses.teach_class', course_id=c.id) }}" class="inline-form">{{ ui.csrf() }}
+          <button type="submit" class="btn btn-soft btn-sm" data-confirm="Become the lecturer of {{ c.code }}?">{{ ui.icon('graduation', 'icon-sm') }} Teach this class</button></form>
+      {% endif %}
+      {% if mine_teach %}<a class="btn btn-soft btn-sm" href="{{ url_for('courses.roster', course_id=c.id) }}">Open roster {{ ui.icon('arrow-right', 'icon-sm') }}</a>{% endif %}
+    </div>
+  </div>
+  {% else %}
+  <div class="card">{{ ui.empty('layers', 'No classes available.') }}</div>
+  {% endfor %}
+</div>
+{% endblock %}

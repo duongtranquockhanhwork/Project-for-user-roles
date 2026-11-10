@@ -14,6 +14,7 @@ COURSE_CODE_RE = re.compile(r"^[A-Z]{2,4}[0-9]{3,4}$")
 EMAIL_RE = re.compile(r"^[A-Za-z0-9._%+\-]{1,64}@[A-Za-z0-9.\-]{1,190}\.[A-Za-z]{2,24}$")
 PHONE_RE = re.compile(r"^\+?[0-9][0-9 \-]{6,18}$")
 SCORE_RE = re.compile(r"^\d{1,2}(\.\d{1,2})?$")
+SEMESTER_RE = re.compile(r"^[0-9]{4}-[1-3]$")
 _CONTROL_CHARS = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 
 ROLE_NAMES = ("STUDENT", "LECTURER", "REGISTRAR", "AUDITOR", "ADMIN")
@@ -101,6 +102,29 @@ class Validator:
             self.data[name] = None
         else:
             self.data[name] = score
+
+    def optional_score(self, name, label):
+        """A grade component: empty means "not graded yet" (None)."""
+        value = self._raw(name)
+        if value == "":
+            self.data[name] = None
+            return
+        if not SCORE_RE.fullmatch(value) or not Decimal("0") <= Decimal(value) <= Decimal("10"):
+            self.errors.append(f"{label} must be a number between 0 and 10 with at most 2 decimals.")
+            self.data[name] = None
+        else:
+            self.data[name] = Decimal(value)
+
+    def int_range(self, name, label, low, high, default=None):
+        value = self._raw(name)
+        if value == "" and default is not None:
+            self.data[name] = default
+            return
+        if not value.isdigit() or not low <= int(value) <= high:
+            self.errors.append(f"{label} must be a whole number between {low} and {high}.")
+            self.data[name] = None
+        else:
+            self.data[name] = int(value)
 
     def choice(self, name, label, choices):
         value = self._raw(name)

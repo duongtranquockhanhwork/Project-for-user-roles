@@ -32,13 +32,18 @@ INSERT INTO permissions (code, description) VALUES
     ('roster.read',            'View the list of students enrolled in a course'),
     ('enrollment.read',        'View enrollments'),
     ('enrollment.manage',      'Create or drop enrollments'),
+    ('course.manage',          'Create classes and assign or remove their lecturer'),
+    ('class.join',             'Browse the class catalog and join or leave a class as a student'),
+    ('class.teach',            'Browse the class catalog and take an unassigned class as its lecturer'),
     ('grade.read',             'View grades'),
     ('grade.write',            'Create or update grades'),
     ('audit.read',             'Read security audit logs and verify their integrity'),
     ('policy.read',            'Read the access-control configuration'),
     ('user.read',              'List user accounts'),
     ('user.manage',            'Create, disable and enable user accounts'),
-    ('role.assign',            'Assign or remove roles');
+    ('role.assign',            'Assign or remove roles'),
+    ('account.rename',         'Change the display name of one''s own account'),
+    ('password_reset.manage',  'Review and answer forgotten-password requests');
 
 INSERT INTO role_permissions (role_id, permission_code, scope) VALUES
     -- STUDENT: own records only
@@ -46,12 +51,16 @@ INSERT INTO role_permissions (role_id, permission_code, scope) VALUES
     (1, 'profile.update_contact', 'OWN'),
     (1, 'enrollment.read',        'OWN'),
     (1, 'grade.read',             'OWN'),
+    (1, 'class.join',             'OWN'),
+    (1, 'account.rename',         'OWN'),
     -- LECTURER: only courses assigned to the lecturer
     (2, 'course.read',            'ASSIGNED'),
     (2, 'roster.read',            'ASSIGNED'),
     (2, 'profile.read',           'ASSIGNED'),
     (2, 'grade.read',             'ASSIGNED'),
     (2, 'grade.write',            'ASSIGNED'),
+    (2, 'class.teach',            'OWN'),
+    (2, 'account.rename',         'OWN'),
     -- REGISTRAR: all student records, no grade.write
     (3, 'student.search',         'ALL'),
     (3, 'student.create',         'ALL'),
@@ -61,6 +70,7 @@ INSERT INTO role_permissions (role_id, permission_code, scope) VALUES
     (3, 'roster.read',            'ALL'),
     (3, 'enrollment.read',        'ALL'),
     (3, 'enrollment.manage',      'ALL'),
+    (3, 'course.manage',          'ALL'),
     (3, 'grade.read',             'ALL'),
     -- AUDITOR: read-only security data
     (4, 'audit.read',             'ALL'),
@@ -68,7 +78,8 @@ INSERT INTO role_permissions (role_id, permission_code, scope) VALUES
     -- ADMIN: accounts and roles only, no academic permissions
     (5, 'user.read',              'ALL'),
     (5, 'user.manage',            'ALL'),
-    (5, 'role.assign',            'ALL');
+    (5, 'role.assign',            'ALL'),
+    (5, 'password_reset.manage',  'ALL');
 
 INSERT INTO role_conflicts (role_a, role_b, reason) VALUES
     (1, 3, 'A registrar must not maintain his or her own student record or enrollment'),
@@ -107,15 +118,19 @@ SELECT u.id, r.id
 -- -----------------------------------------------------------------------------
 -- Courses and lecturer assignment
 -- -----------------------------------------------------------------------------
-INSERT INTO courses (code, title, credits, semester) VALUES
-    ('IS101', 'Information Security',  3, '2026-1'),
-    ('DB201', 'Database Systems',      3, '2026-1'),
-    ('NW301', 'Computer Networks',     3, '2026-1');
+INSERT INTO courses (code, title, credits, semester, capacity) VALUES
+    ('IS101', 'Information Security',  3, '2026-1', 30),
+    ('DB201', 'Database Systems',      3, '2026-1', 30),
+    ('NW301', 'Computer Networks',     3, '2026-1', 30),
+    ('SE202', 'Software Engineering',  3, '2026-1', 30),
+    ('AI305', 'Artificial Intelligence', 3, '2026-1', 30);   -- open class, no lecturer yet
 
+-- One lecturer per class. ta01 (Student + Lecturer) teaches SE202 and is also
+-- enrolled in it: this legacy record demonstrates the self-grading guard.
 INSERT INTO course_lecturers (course_id, lecturer_id)
 SELECT c.id, u.id
   FROM (VALUES ('IS101', 'lecturer01'), ('DB201', 'lecturer01'),
-               ('NW301', 'lecturer02'), ('NW301', 'ta01')) AS v (course_code, username)
+               ('NW301', 'lecturer02'), ('SE202', 'ta01')) AS v (course_code, username)
   JOIN courses c ON c.code = v.course_code
   JOIN users u   ON u.username = v.username;
 
@@ -147,6 +162,7 @@ SELECT s.id, c.id
                ('S2026002', 'IS101'), ('S2026002', 'DB201'),
                ('S2026003', 'DB201'), ('S2026003', 'NW301'),
                ('S2026004', 'IS101'), ('S2026004', 'NW301'),
+               ('S2026003', 'SE202'), ('S2026004', 'SE202'),
                ('S2026006', 'DB201')) AS v (student_code, course_code)
   JOIN students s ON s.student_code = v.student_code
   JOIN courses c  ON c.code = v.course_code
@@ -155,14 +171,17 @@ SELECT s.id, c.id
 -- -----------------------------------------------------------------------------
 -- Grades (written by the assigned lecturer, so the grade guard trigger passes)
 -- -----------------------------------------------------------------------------
-INSERT INTO grades (enrollment_id, score, created_by, updated_by)
-SELECT e.id, v.score, u.id, u.id
-  FROM (VALUES ('S2026001', 'IS101', 8.50, 'lecturer01'),
-               ('S2026001', 'NW301', 6.50, 'lecturer02'),
-               ('S2026002', 'IS101', 7.00, 'lecturer01'),
-               ('S2026002', 'DB201', 9.00, 'lecturer01'),
-               ('S2026004', 'IS101', 8.00, 'lecturer01'),
-               ('S2026004', 'NW301', 7.50, 'lecturer02')) AS v (student_code, course_code, score, lecturer)
+-- Components: process 1 (10 %), process 2 (20 %), midterm (20 %), final (50 %).
+-- The course total (grades.score) is computed by the database.
+INSERT INTO grades (enrollment_id, process1, process2, midterm, final_exam, created_by, updated_by)
+SELECT e.id, v.p1, v.p2, v.mid, v.fin, u.id, u.id
+  FROM (VALUES ('S2026001', 'IS101', 9.00, 8.50, 8.00, 8.50, 'lecturer01'),
+               ('S2026001', 'NW301', 7.00, 6.00, 6.50, 6.50, 'lecturer02'),
+               ('S2026002', 'IS101', 8.00, 7.00, 6.50, 7.00, 'lecturer01'),
+               ('S2026002', 'DB201', 9.50, 9.00, 8.50, 9.00, 'lecturer01'),
+               ('S2026004', 'IS101', 8.00, 8.50, 7.50, 8.00, 'lecturer01'),
+               ('S2026004', 'NW301', 8.00, 7.50, 7.00, NULL, 'lecturer02'))
+       AS v (student_code, course_code, p1, p2, mid, fin, lecturer)
   JOIN students s    ON s.student_code = v.student_code
   JOIN courses c     ON c.code = v.course_code
   JOIN enrollments e ON e.student_id = s.id AND e.course_id = c.id

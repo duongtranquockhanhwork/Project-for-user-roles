@@ -5,13 +5,17 @@ from decimal import Decimal
 
 import pytest
 
-from conftest import Client, q, q1
+from conftest import Client, q, q1, weighted_total
 
 case = pytest.mark.case
 
 
 def new_score():
     return Decimal(random.randint(0, 1000)) / 100
+
+
+def new_components():
+    return {k: new_score() for k in ("process1", "process2", "midterm", "final_exam")}
 
 
 @case(id="T06", category="Authorization", role="Student (student01)",
@@ -49,13 +53,13 @@ def test_t07_idor_other_student(login_as, record, lookup, app_db, audit_mark):
 
 @case(id="T08", category="Authorization", role="Student (student01)",
       pre="student01 is logged in (valid CSRF token)",
-      action="POST /grades directly for own IS101 enrollment with score=10",
+      action="POST /grades directly for own IS101 enrollment with final_exam=10",
       expected="Rejected (403), grade unchanged; GRADE_MODIFY_DENIED logged")
 def test_t08_student_direct_grade_modification(login_as, record, lookup, app_db, audit_mark):
     c = login_as("student01")
     enr = lookup.enrollment("S2026001", "IS101")
     before = lookup.score(enr)
-    r = c.post("/grades", {"enrollment_id": enr, "score": "10"})
+    r = c.post("/grades", {"enrollment_id": enr, "final_exam": "10"})
     record.http("Forged grade-modification request", r)
     assert r.status_code == 403
     assert lookup.score(enr) == before
@@ -80,25 +84,27 @@ def test_t09_lecturer_views_assigned_roster(login_as, record, lookup):
 
 @case(id="T10", category="Authorization", role="Lecturer (lecturer01)",
       pre="lecturer01 is assigned to IS101; student01 enrolled in IS101",
-      action="POST /grades {enrollment of student01 in IS101, new score}",
-      expected="Allowed, grade changed; GRADE_UPDATE logged with old and new score")
+      action="POST /grades {enrollment of student01 in IS101, four new components}",
+      expected="Allowed; components stored, total = 10/20/20/50 % weighted; GRADE_UPDATE logged")
 def test_t10_lecturer_modifies_assigned_grade(login_as, record, lookup, app_db, audit_mark):
     c = login_as("lecturer01")
     enr = lookup.enrollment("S2026001", "IS101")
-    old, score = lookup.score(enr), new_score()
-    while score == old:
-        score = new_score()
-    r = c.post("/grades", {"enrollment_id": enr, "score": str(score)})
+    old = lookup.score(enr)
+    comps = new_components()
+    r = c.post("/grades", {"enrollment_id": enr, **{k: str(v) for k, v in comps.items()}})
     record.http("Update grade in assigned course", r)
     assert r.status_code == 302
-    assert lookup.score(enr) == score
+    score = weighted_total(comps)
+    assert lookup.score(enr)[:4] == tuple(comps.values())
+    assert lookup.total(enr) == score
     log = q1(app_db, "SELECT details, result FROM audit_logs WHERE id > %s AND event_type = "
                      "'GRADE_UPDATE' AND actor_username = 'lecturer01' ORDER BY id DESC LIMIT 1",
              (audit_mark,))
     assert log and log["result"] == "SUCCESS"
-    assert Decimal(log["details"]["new_score"]) == score
+    assert Decimal(log["details"]["total"]) == score
     record.note("Audit entry", log)
-    record.actual(f"HTTP 302; score {old} -> {score}; GRADE_UPDATE logged {log['details']}")
+    record.actual(f"HTTP 302; components {[str(v) for v in comps.values()]} -> total {score} "
+                  f"(was {old[4] if old else None}); GRADE_UPDATE logged with old and new values")
 
 
 @case(id="T11", category="Authorization", role="Lecturer (lecturer01)",
@@ -109,7 +115,7 @@ def test_t11_lecturer_modifies_unassigned_grade(login_as, record, lookup, app_db
     c = login_as("lecturer01")
     enr = lookup.enrollment("S2026001", "NW301")
     before = lookup.score(enr)
-    r = c.post("/grades", {"enrollment_id": enr, "score": "0"})
+    r = c.post("/grades", {"enrollment_id": enr, "final_exam": "0"})
     record.http("Update grade in unassigned course", r)
     assert r.status_code == 403
     assert lookup.score(enr) == before
@@ -150,7 +156,7 @@ def test_t13_registrar_modifies_grade(login_as, record, lookup):
     before = lookup.score(enr)
     view = c.get(f"/students/{lookup.student('S2026002')}/grades")
     assert view.status_code == 200                       # may view ...
-    r = c.post("/grades", {"enrollment_id": enr, "score": "10"})
+    r = c.post("/grades", {"enrollment_id": enr, "final_exam": "10"})
     record.http("Registrar attempts grade modification", r)
     assert r.status_code == 403                          # ... but not modify
     assert lookup.score(enr) == before
@@ -250,21 +256,22 @@ def test_t26_lecturer_roster_scope(login_as, record, lookup):
 
 
 @case(id="T27", category="Authorization", role="Student+Lecturer (ta01)",
-      pre="ta01 is co-lecturer of NW301 and also enrolled in NW301",
-      action="POST /grades for own NW301 enrollment, then for student03's NW301 enrollment",
+      pre="ta01 is the lecturer of SE202 and also enrolled in SE202",
+      action="POST /grades for own SE202 enrollment, then for student03's SE202 enrollment",
       expected="Self-grading rejected (403, unchanged); grading another student allowed")
 def test_t27_no_self_grading(login_as, record, lookup, app_db, audit_mark):
     c = login_as("ta01")
-    own = lookup.enrollment("S2026004", "NW301")
+    own = lookup.enrollment("S2026004", "SE202")
     before = lookup.score(own)
-    r = c.post("/grades", {"enrollment_id": own, "score": "10"})
+    r = c.post("/grades", {"enrollment_id": own, "final_exam": "10"})
     record.http("TA grades own enrollment", r)
     assert r.status_code == 403 and lookup.score(own) == before
-    other = lookup.enrollment("S2026003", "NW301")
-    score = new_score()
-    r2 = c.post("/grades", {"enrollment_id": other, "score": str(score)})
+    other = lookup.enrollment("S2026003", "SE202")
+    comps = new_components()
+    r2 = c.post("/grades", {"enrollment_id": other, **{k: str(v) for k, v in comps.items()}})
     record.http("TA grades another student", r2)
-    assert r2.status_code == 302 and lookup.score(other) == score
+    score = weighted_total(comps)
+    assert r2.status_code == 302 and lookup.total(other) == score
     log = q1(app_db, "SELECT details FROM audit_logs WHERE id > %s AND event_type = "
                      "'GRADE_MODIFY_DENIED' AND actor_username = 'ta01'", (audit_mark,))
     assert log["details"]["reason"] == "self_grading"
@@ -274,15 +281,15 @@ def test_t27_no_self_grading(login_as, record, lookup, app_db, audit_mark):
 
 @case(id="T28", category="Authorization", role="Student+Lecturer (ta01)",
       pre="ta01 holds STUDENT and LECTURER roles",
-      action="GET own grades, NW301 roster (assigned), DB201 roster (not assigned)",
-      expected="Union of role permissions: own grades 200, NW301 200, DB201 403")
+      action="GET own grades, SE202 roster (assigned), DB201 roster (not assigned)",
+      expected="Union of role permissions: own grades 200, SE202 200, DB201 403")
 def test_t28_multi_role_union(login_as, record, lookup):
     c = login_as("ta01")
     own = c.get(f"/students/{lookup.student('S2026004')}/grades")
-    nw = c.get(f"/courses/{lookup.course('NW301')}/roster")
+    nw = c.get(f"/courses/{lookup.course('SE202')}/roster")
     db_ = c.get(f"/courses/{lookup.course('DB201')}/roster")
     record.http("Own grades", own)
-    record.http("NW301 roster", nw)
+    record.http("SE202 roster", nw)
     record.http("DB201 roster", db_)
     assert (own.status_code, nw.status_code, db_.status_code) == (200, 200, 403)
     record.actual("200 / 200 / 403 as expected (permissions are the union, scopes still enforced)")
@@ -343,7 +350,7 @@ def test_t32_csrf(login_as, record, lookup, app_db, audit_mark):
     c = login_as("lecturer01")
     enr = lookup.enrollment("S2026002", "IS101")
     before = lookup.score(enr)
-    r = c.post("/grades", {"enrollment_id": enr, "score": "1"}, csrf=False)
+    r = c.post("/grades", {"enrollment_id": enr, "final_exam": "1"}, csrf=False)
     record.http("POST without CSRF token", r)
     assert r.status_code == 403 and lookup.score(enr) == before
     assert q(app_db, "SELECT 1 FROM audit_logs WHERE id > %s AND event_type = 'CSRF_REJECTED'",
@@ -359,7 +366,7 @@ def test_t33_unauthenticated(client, record):
     for method, path in (("GET", "/students/1/grades"), ("GET", "/audit/logs"),
                          ("GET", "/admin/users"), ("POST", "/grades")):
         r = client.get(path) if method == "GET" else client.post(path, {"enrollment_id": 1,
-                                                                        "score": 9}, csrf=False)
+                                                                        "final_exam": 9}, csrf=False)
         record.http(f"{method} {path}", r)
         assert r.status_code == 401
     record.actual("All four requests HTTP 401")

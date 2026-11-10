@@ -1,11 +1,11 @@
-Evidence for T42 - generated 2026-11-10 18:03:30
+Evidence for T42 - generated 2026-11-10 19:45:21
 Target: http://localhost:8000
 
 ### Integrity check (intact)
 > GET /audit/verify
 < HTTP 200
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Integrity check · University Records System UniRecords University Records System Overview Dashboard Security Audit log Integrity check Access policy Secure session · server-side RBAC UniRecords Integrity check OA Oscar Auditor auditor01 · Auditor Security Audit-log integrity The database recomputes the SHA-256 hash chain over every entry. Audit log Hash chain intact: 93 entries verified. No entry has been modified, removed or re-ordered since it was written. How it works Each entry stores prev_hash and entry_hash = SHA-256(prev_hash | fields) , set by a database trigger. UPDATE, DELETE and TRU
+< page text: Integrity check · University Records System UniRecords University Records System Overview Dashboard My account Security Audit log Integrity check Access policy Secure session · server-side RBAC UniRecords Integrity check OA Oscar Auditor auditor01 · Auditor Security Audit-log integrity The database recomputes the SHA-256 hash chain over every entry. Audit log Hash chain intact: 93 entries verified. No entry has been modified, removed or re-ordered since it was written. How it works Each entry stores prev_hash and entry_hash = SHA-256(prev_hash | fields) , set by a database trigger. UPDATE, DEL
 
 ### Verification after tampering (rolled back)
 RealDictRow([('checked', 4), ('first_bad_id', 4)])

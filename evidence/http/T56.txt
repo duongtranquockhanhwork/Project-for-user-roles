@@ -1,0 +1,26 @@
+Evidence for T56 - generated 2026-11-10 19:48:05
+Target: http://localhost:8000
+
+### Admin approves
+> POST /admin/password-requests/3
+> body: action=approve&reply=Identity+verified+at+the+office&csrf_token=[REDACTED]
+< HTTP 302
+< Location: /admin/password-requests?notice=reset_approved
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Redirecting... Redirecting... You should be redirected automatically to the target URL: /admin/password-requests?notice=reset_approved . If not, click the link.
+
+### Second reveal
+> POST /forgot-password/reveal
+> body: username=acc41ed3c&code=r4_1SARRMVt0Ku5H
+< HTTP 403
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Request status · University Records System UniRecords University Records System Password request status Enter your username and the reference code you received. Completed The temporary password for this request has already been revealed. Reply from the administrator Identity verified at the office Username Reference code Check status New request · Back to sign in
+
+### Login with temporary password
+> POST /login
+> body: username=acc41ed3c&password=[REDACTED]
+< HTTP 302
+< Location: /account?notice=password_change_required
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< Set-Cookie: urs_session=[REDACTED]; HttpOnly; Path=/; SameSite=Strict
+< page text: Redirecting... Redirecting... You should be redirected automatically to the target URL: /account?notice=password_change_required . If not, click the link.

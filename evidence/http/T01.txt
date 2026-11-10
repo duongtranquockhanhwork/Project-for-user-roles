@@ -1,4 +1,4 @@
-Evidence for T01 - generated 2026-11-10 18:01:30
+Evidence for T01 - generated 2026-11-10 19:43:22
 Target: http://localhost:8000
 
 ### Login with correct credentials
@@ -14,4 +14,4 @@ Target: http://localhost:8000
 > GET /
 < HTTP 200
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Dashboard · University Records System UniRecords University Records System Overview Dashboard My studies My profile My enrollments My grades Secure session · server-side RBAC UniRecords Dashboard NA Nguyen Van An student01 · Student Welcome back, Nguyen Van An Signed in as student01 . Your access is limited to what your roles allow — everything else is denied by default. Student My studies 2 Active courses 6 Credits enrolled 2 Grades published 7.50 Average score Quick actions View my grades Scores of all your courses My profile Check and update contact details Effective permissions enrollment.
+< page text: Dashboard · University Records System UniRecords University Records System Overview Dashboard My account My studies My profile My enrollments My grades Classes Class catalog Faculty of Information Technology UniRecords Dashboard NA Nguyen Van An student01 · Student Welcome back, Nguyen Van An Signed in as student01 . Here is an overview of your work this semester. Student My studies 2 Active courses 6 Credits enrolled 2 Grades published 7.45 Overall average Quick actions View my grades Scores of all your courses My profile Check and update contact details Class catalog Join a class UniRecords 

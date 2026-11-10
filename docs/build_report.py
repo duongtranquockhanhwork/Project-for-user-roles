@@ -359,14 +359,18 @@ ABBREVIATIONS = [
 ABSTRACT = (
     "This report documents the design, implementation and audit of access control for a small web-based "
     "University Records System that stores user accounts, student profiles, courses, enrollments, grades "
-    "and a security audit log. A threat model with ten threats and twelve security requirements was derived "
+    "and a security audit log. A threat model with twelve threats and sixteen security requirements was derived "
     "first, followed by an access-control matrix for five roles (Student, Lecturer, Registrar, Security "
     "Auditor and System Administrator) based on default deny, least privilege and separation of duties. The "
     "system was implemented with Flask and PostgreSQL 16 and enforces authorization at three layers: an "
     "endpoint permission check, a record-level ownership or course-assignment check, and database privileges "
     "and triggers. Passwords are hashed with Argon2id, sessions are server-side, every state-changing request "
     "requires an anti-CSRF token, and sensitive events are written to an append-only, hash-chained audit log. "
-    "An automated suite of 44 security tests, including the 20 mandatory tests, passed completely. The report "
+    "Students can register themselves (STUDENT role only) and join classes of at most 30 students with one "
+    "lecturer, and course totals are computed by the database from four weighted grade components. Every user "
+    "can change their password, and forgotten passwords are reset through an administrator-approved workflow "
+    "in which no one, not even the administrator, ever sees a stored password. "
+    "An automated suite of 58 security tests, including the 20 mandatory tests, passed completely. The report "
     "closes with seven remaining risks and the improvements recommended for each.")
 
 
@@ -383,46 +387,43 @@ def chapters(bld, results, img, group):
           "access-control policy, implement it on the server and in the database, verify it with repeatable "
           "tests, and review the remaining risks.")
     bld.h2("1.2 Scope and Group Organization")
-    bld.p("The scope covers authentication, session handling, role assignment, server-side and record-level "
-          "authorization, parameterized database access, input validation, output encoding and security audit "
-          "logging, as required by the assignment. Following the assignment, each member took primary "
-          "responsibility for one area (Table 1.1), while all members reviewed the complete submission.")
-    bld.table("Group members and primary responsibilities",
-              ["Member", "Full name – Student ID", "Primary responsibility"],
-              [[m["label"], f"{m['name']} – {m['student_id']}", m["responsibility"]] for m in group["members"]],
-              [2.2, 5.5, 7.8], size=22)
+    lead = "; ".join(f"{m['label']} ({m['name']}): {m['responsibility'].lower()}" for m in group["members"])
+    bld.p("The scope covers authentication, sessions, roles, server-side and record-level authorization, the "
+          "academic features, database security, validation, output encoding and audit logging. Primary "
+          "responsibilities were " + lead + ". All members reviewed the complete submission.")
 
     # ------------------------------------------------------------------ 2
     bld.h1("SYSTEM OVERVIEW")
     bld.p("The University Records System is a server-rendered web application written in Python 3.11 with Flask "
           "3.1 and served by gunicorn. Data is stored in PostgreSQL 16. The application and the database run as "
           "two Docker containers defined in `docker-compose.yml`; both ports are published on 127.0.0.1 only. "
-          "The seed data contains 11 demo accounts, including a disabled account and the multi-role teaching "
-          "assistant `ta01` (Student and Lecturer), three courses (IS101, DB201 and NW301), six student profiles, "
-          "nine enrollments and six grades. The operations of the five roles are defined in Chapter 4.")
-    bld.p("The user interface (Figure 2.1) has a role-aware sidebar, a dashboard per role, summary tiles, "
-          "colour-coded status badges and confirmation messages. Navigation only hides links as a convenience: "
-          "every decision is taken on the server. Appendix A presents every screen and the rejected operations.")
-    bld.figure(img["roster"], "Main interface: lecturer01 works in the roster of the assigned course IS101.",
-               width_cm=9.5)
+          "The seed data contains 11 demo accounts (including a disabled account and the multi-role teaching "
+          "assistant `ta01`, Student and Lecturer), five classes (IS101, DB201, NW301, SE202 and the still "
+          "unassigned AI305), six student profiles, eleven enrollments and six grade records.")
+    bld.p("Beyond the required operations, visitors can **register a student account**, students and lecturers "
+          "use a **class catalog** to join a class or take an unassigned one, the registrar **creates classes** "
+          "(one lecturer, at most 30 students) and arranges their lecturer and students, and lecturers enter "
+          "**four grade components** (10/20/20/50 %). Every user can change their password, and a **forgot-password** "
+          "request is answered by an administrator.")
+    bld.p("The interface has a role-aware sidebar and a dashboard per role; permission lists are shown only to "
+          "administrators and auditors. Hiding links is a convenience; every decision is taken on the server "
+          "(screens in Appendix A).")
 
     # ------------------------------------------------------------------ 3
     bld.h1("THREAT MODEL AND SECURITY REQUIREMENTS")
     bld.h2("3.1 Assets, Users and Trust Boundaries")
-    bld.p("**Assets:** A1 credentials and password hashes, A2 session tokens, A3 student personal data, A4 grades, "
-          "A5 enrollments, A6 role assignments and the access-control configuration, A7 the audit log, and "
-          "A8 database and application secrets. **Users:** the five application roles, any of whom may be "
-          "malicious or compromised, anonymous Internet users, and the database operator (DBA). "
+    bld.p("**Assets:** A1 credentials, A2 session tokens, A3 personal data, A4 grades, A5 enrollments, A6 roles "
+          "and policy, A7 audit log, A8 secrets. **Users:** the five roles (any may be malicious or compromised), "
+          "anonymous visitors and the DBA. "
           "**Trust boundaries:** TB1 lies between the browser and the application (every request field, URL and "
           "cookie is untrusted). TB2 lies between the application and PostgreSQL (the application uses the "
           "restricted account `uni_app`). TB3 is the privileged maintenance channel (the Docker host and the "
           "database superuser), which lies outside the application (Figure 3.1).")
     bld.figure(img["dfd"], "System and data-flow diagram with trust boundaries TB1–TB3 and data stores D1–D4.",
-               width_cm=13.5)
+               width_cm=12.5)
     bld.h2("3.2 Threat-Model Table")
-    bld.p("Likelihood (L) and impact (I) are rated High, Medium or Low before controls are applied. Table 3.1 "
-          "lists the implemented control for each threat. Residual risks are discussed in Chapter 8, and the "
-          "twelve derived security requirements with their tests are traced in Appendix C.")
+    bld.p("Likelihood (L) and impact (I) are rated High, Medium or Low before controls. Residual risks are in "
+          "Chapter 8; the sixteen derived security requirements are traced to tests in Appendix C.")
     bld.table("Threat model", ["ID", "Threat", "Asset", "Attack scenario", "L", "I", "Mitigation / control"], [
         ["TH1", "Account compromise", "A1, A2", "Password guessing or credential stuffing on /login; username "
          "enumeration via messages or timing.", "H", "H", "Argon2id; one generic error; dummy hash for unknown "
@@ -454,7 +455,14 @@ def chapters(bld, results, img, group):
         ["TH10", "Cross-site request forgery", "A4, A6", "A malicious page makes a lecturer's browser submit a "
          "grade.", "M", "H", "Per-session synchronizer token on every POST; SameSite=Strict; CSRF_REJECTED "
          "logged."],
-    ], [1.1, 2.4, 1.3, 4.4, 0.6, 0.6, 5.1], size=18, first_col_center=True)
+        ["TH11", "Abuse of self-service (registration, classes)", "A3–A6", "Sign-up with a forged role or by "
+         "claiming another student's record; over-filling a class; a 2nd lecturer taking a class.", "M", "H",
+         "Sign-up always STUDENT with a NEW profile; class capacity ≤ 30 and one lecturer enforced in app and DB "
+         "(trigger, UNIQUE); self-service limited to oneself; all actions logged."],
+        ["TH12", "Account takeover via password reset", "A1, A2", "Forged reset request; an administrator "
+         "reading users' passwords.", "M", "H", "Uniform response; secret code; admin check and approval; one-time "
+         "24 h temp password shown only to the requester; forced change."],
+    ], [1.1, 2.4, 1.3, 4.4, 0.6, 0.6, 5.1], size=17, first_col_center=True)
 
     # ------------------------------------------------------------------ 4
     bld.h1("ACCESS-CONTROL POLICY")
@@ -466,94 +474,101 @@ def chapters(bld, results, img, group):
     A, D = "Allow", "Deny"
     bld.table("Access-control matrix", ["Resource and operation", "Student", "Lecturer", "Registrar",
                                         "Auditor", "Administrator"], [
-        ["Log in / log out / own dashboard", A, A, A, A, A],
-        ["View own profile and enrollments", "Own", "N/A", "N/A", "N/A", "N/A"],
+        ["View own profile, enrollments and grades", "Own", "N/A", "N/A", "N/A", "N/A"],
         ["Update own contact information", "Own", D, "via record update", D, D],
         ["View another student's profile", D, "Assigned course only", A, D, D],
-        ["Search / list all students", D, D, A, D, D],
-        ["Create / update student record", D, D, A, D, D],
+        ["Search, create and update student records", D, D, A, D, D],
         ["View courses and course roster", D, "Assigned only", A, D, D],
         ["Create / drop enrollment", D, D, A, D, D],
-        ["View own grade", A, "N/A", "N/A", "N/A", "N/A"],
+        ["Create class (capacity ≤ 30)", D, D, A, D, D],
+        ["Assign / replace / remove class lecturer (max. 1)", D, D, A, D, D],
+        ["Join / leave a class (free seat; leave only if ungraded)", "Own", D, "via enrollment", D, D],
+        ["Take an unassigned class as its lecturer", D, "Own, only if no lecturer", D, D, D],
         ["View another student's grade", D, "Assigned course only", A, D, D],
-        ["Create / modify grade", D, "Assigned course only, not own enrollment", D, D, D],
-        ["Read audit log / verify integrity", D, D, D, "Allow (read-only)", D],
-        ["Read access-control configuration", D, D, D, "Allow (read-only)", D],
+        ["Create / modify grade components", D, "Assigned course only, not own enrollment", D, D, D],
+        ["Change own password (current password required)", "Own", "Own", "Own", "Own", "Own"],
+        ["Change own display name", "Own", "Own", D, D, D],
+        ["Answer forgotten-password requests (not own)", D, D, D, D, A],
+        ["View any stored password", D, D, D, D, "Deny (not stored)"],
+        ["Read audit log, verify integrity, read access policy", D, D, D, "Allow (read-only)", D],
         ["Create / disable / enable / unlock user", D, D, D, D, "Allow (not disable self)"],
         ["Assign / remove roles", D, D, D, D, "Allow (not own roles, no conflicting pair, keep one admin)"],
-        ["Modify permissions, courses, lecturer assignment", D, D, D, D, "Deny (DBA migration only)"],
+        ["Modify permissions and role definitions", D, D, D, D, "Deny (DBA migration only)"],
         ["Delete students, grades, users, audit entries", D, D, D, D, D],
-    ], [4.6, 1.7, 2.6, 2.0, 1.9, 2.9], size=18)
+    ], [4.8, 1.6, 2.6, 2.0, 1.8, 2.9], size=16)
+    bld.p("Every role may log in, log out and open its dashboard. **Anonymous visitors** may only sign in or "
+          "register; registration always creates a STUDENT account with a new student profile.", indent=False)
     bld.h2("4.2 Policy Explanation")
-    bld.p("**Default deny.** An operation is allowed only if a row in `role_permissions` grants it. In the code, "
-          "every route must declare its rule with `@public`, `@login_required` or `@require_permission`. The "
-          "function `verify_all_endpoints_declared()` stops the application at start-up if any route has no "
-          "declaration, so a forgotten check cannot silently expose a route. Unauthenticated requests receive "
-          "HTTP 401. Requests without the required permission receive HTTP 403, are logged, and change no data.")
+    bld.p("**Default deny.** An operation is allowed only if a row in `role_permissions` grants it. Every route "
+          "must declare its rule (`@public`, `@login_required`, `@require_permission`); "
+          "`verify_all_endpoints_declared()` stops the application at start-up otherwise. Requests without a "
+          "session get 401; without the permission 403, logged, with no data changed.")
     bld.p("**Least privilege.** Each role holds only the permissions of its duties: the Registrar has "
-          "`grade.read` but not `grade.write`, and the Administrator has no academic permission at all. The same "
-          "principle applies below the application, because `uni_app` can neither delete academic data nor "
-          "modify the policy tables (Chapter 6).")
+          "`grade.read` but not `grade.write`, and the Administrator has no academic permission. Below the "
+          "application, `uni_app` can neither delete academic data nor modify the policy (Chapter 6).")
     bld.p("**Separation of duties and role conflicts.** The table `role_conflicts` forbids three combinations: "
           "ADMIN+AUDITOR (whoever manages accounts must not audit those actions), LECTURER+REGISTRAR (enrolling "
           "and grading must be done by different people) and STUDENT+REGISTRAR (a registrar must not maintain "
           "their own record). Conflicts are checked when a role is assigned and again by the trigger "
-          "`user_roles_conflict_guard`. An administrator cannot change their own roles, so giving an "
-          "administrator separate access to academic data requires a second administrator, and the change is "
-          "logged.")
+          "`user_roles_conflict_guard`. An administrator cannot change their own roles, so separate academic "
+          "access for an administrator requires a second administrator.")
     bld.p("**Multiple roles.** The effective permissions of a user are the union of the (permission, scope) "
           "pairs of all of the user's roles. The union never widens a scope. For example, `ta01` "
-          "(Student+Lecturer) can read their own grades (OWN) and grade NW301 (ASSIGNED), but cannot open the DB201 "
-          "roster or grade their own NW301 enrollment (tests T27 and T28).")
-    bld.p("**Ownership and course-assignment checks.** Every handler that receives an object id loads the object "
-          "and calls `can_access_student()` or `can_access_course()`. The OWN scope requires `students.user_id` "
-          "to equal the session's user id. The ASSIGNED scope requires a `course_lecturers` row for that course. "
-          "For a grade, the course is derived from the enrollment stored in the database, never from a value "
-          "sent by the client.")
+          "(Student+Lecturer) can read their own grades (OWN) and grade SE202 (ASSIGNED), but cannot open the "
+          "DB201 roster or grade their own SE202 enrollment (tests T27 and T28).")
+    bld.p("**Self-service and classes.** Registration ignores any role field and never links an existing record, "
+          "so it cannot be used to read another student's grades. Self-service class actions act only on the "
+          "user's own enrollment or teaching assignment; arranging other people remains a registrar duty "
+          "(`course.manage`, `enrollment.manage`). A lecturer may take only a class without a lecturer and in which "
+          "they are not enrolled. Renaming is denied to holders of ADMIN, AUDITOR or REGISTRAR (deny overrides); "
+          "the administrator answers reset requests but never learns the new password.")
+    bld.p("**Ownership and course-assignment checks.** Handlers load the object and call `can_access_student()` "
+          "or `can_access_course()`: OWN requires `students.user_id` = session user, ASSIGNED a `course_lecturers` "
+          "row. For a grade the course is taken from the stored enrollment, never from the client.")
 
     # ------------------------------------------------------------------ 5
     bld.h1("SECURITY ARCHITECTURE AND IMPLEMENTATION")
-    bld.h2("5.1 Request Pipeline")
-    bld.p("Every request passes the same pipeline (Figure 3.1). The session is resolved and checked, the route's "
-          "access rule and the CSRF token are enforced, the handler validates the input and checks the record "
-          "scope, the data is accessed with parameterized SQL in one transaction, and the response is rendered "
-          "with auto-escaping and security headers (CSP, X-Frame-Options DENY, nosniff, no-referrer, no-store).")
-    bld.h2("5.2 Authentication and Session Handling")
-    bld.p("Passwords are hashed with Argon2id (64 MiB of memory, 3 iterations, 4 lanes). A CHECK constraint makes "
-          "the database reject any value that is not an Argon2id hash. Wrong passwords, unknown usernames, "
-          "disabled accounts and locked accounts all return the same message, \"Invalid username or "
-          "password.\", and unknown usernames still cost one hash verification. After five failures an "
-          "account is locked for 15 minutes. Each login issues a new random 256-bit token. Only its SHA-256 hash "
+    bld.p("Every request passes the same pipeline (Figure 3.1): session check, route access rule, CSRF token, "
+          "input validation and record scope, parameterized SQL in one transaction, then auto-escaped output with "
+          "security headers (CSP, X-Frame-Options DENY, nosniff, no-referrer, no-store).")
+    bld.h2("5.1 Authentication and Session Handling")
+    bld.p("Passwords are hashed with Argon2id (64 MiB, 3 iterations, 4 lanes); a CHECK constraint rejects any "
+          "other value. Wrong passwords, unknown, disabled and locked accounts all return \"Invalid username or "
+          "password.\", and unknown usernames still cost one hash verification. Five failures lock an account "
+          "for 15 minutes. Each login issues a new random 256-bit token. Only its SHA-256 hash "
           "is stored in the `sessions` table, together with the CSRF token and the expiry. Logout revokes the "
           "session on the server, and disabling an account revokes all of that account's sessions "
-          "(`source/app/security.py`, `source/app/routes/auth.py`).")
-    bld.h2("5.3 Authorization")
+          "(`security.py`, `routes/auth.py`). Registration and password change apply the same policy "
+          "(12–128 characters, confirmation, not containing the username); a change needs the current password "
+          "(failures count towards lockout) and revokes other sessions. For a reset (`routes/account.py`) the "
+          "requester gets a 96-bit code (stored as SHA-256); after approval a temporary password is generated on "
+          "reveal, shown once, valid 24 h, and forces a password change.")
+    bld.h2("5.2 Authorization")
     bld.p("`source/app/authz.py` loads the user's roles and the scoped permissions from the database on every "
           "request, so a role change takes effect immediately. The decorator checks the permission. The handlers "
           "in `routes/students.py` and `routes/courses.py` then check the scope of the specific record. Grade "
           "writes additionally reject self-grading and inactive enrollments. The administration handlers enforce "
           "the self-change, role-conflict and last-administrator rules.")
+    bld.h2("5.3 Grading and Class Management")
+    bld.p("A grade row holds four components; the course total `score` is a generated column "
+          "(0.1·P1 + 0.2·P2 + 0.2·Mid + 0.5·Final), so it cannot be written by any client and stays empty until all "
+          "components exist. The student page shows every component and a credit-weighted overall average. "
+          "Class handlers check capacity and the single-lecturer rule before writing; the database repeats both.")
     bld.h2("5.4 Input Validation and Output Encoding")
-    bld.p("`source/app/validators.py` applies allow-list rules: regular expressions for usernames, codes, e-mail "
-          "addresses and phone numbers, length limits, rejection of control characters, and scores between 0 "
-          "and 10 with at most two decimals. Requests larger than 64 KB are rejected. All templates rely on "
-          "Jinja2 auto-escaping. The pages use only inline SVG icons, one external stylesheet and one external "
-          "script (`static/app.js`, which provides usability features only), so the strict CSP "
-          "`script-src 'self'; style-src 'self'` holds. Confirmation messages are selected from a fixed "
-          "server-side list by a code (`?notice=grade_saved`), so no request text is ever reflected.")
+    bld.p("`validators.py` applies allow-list rules (formats, lengths, no control characters, scores 0–10 with two "
+          "decimals); bodies over 64 KB are rejected. Templates are auto-escaped and use only inline SVG, one "
+          "stylesheet and one script (`static/app.js`, usability only), so the CSP `script-src 'self'; style-src "
+          "'self'` holds. Toast messages come from a fixed server-side list (`?notice=grade_saved`), so no request "
+          "text is reflected.")
     bld.h2("5.5 Security Audit Logging")
-    bld.p("`source/app/audit.py` records all eight required event types (login success and failure, logout, "
-          "user creation and disabling, role assignment and removal, grade creation or update, rejected grade "
-          "modification, rejected access to another user's record) plus lockout, CSRF and student-record "
-          "events. Each entry contains the timestamp, actor, event type, target, result and JSON details (for "
-          "example the old and new score). Secret keys such as password and token are stripped. Successful "
-          "changes are logged in the same transaction as the change. Rejections are logged in a separate "
-          "transaction, so they are recorded although nothing changes.")
+    bld.p("`audit.py` records the eight required event types plus registration, lockout, CSRF, class and record "
+          "events, each with timestamp, actor, event type, target, result and JSON details (e.g. old and new "
+          "grade components); secret keys are stripped. Successful changes are logged in the same transaction, "
+          "rejections in a separate one, so they are recorded although nothing changes.")
     bld.h2("5.6 Error Handling and Secrets")
-    bld.p("Debug mode is disabled. Generic handlers for 400, 401, 403, 404, 405, 413 and 500 render a neutral "
-          "page without a stack trace, SQL or configuration. A database guard violation (SQLSTATE 42501) is "
-          "returned as 403 and logged as DB_GUARD_DENIED. Secrets exist only in `.env`, which is git-ignored and "
-          "documented by `.env.example`. The application container runs as an unprivileged user.")
+    bld.p("Debug mode is off; generic pages for 400–500 show no stack trace, SQL or configuration. A database guard "
+          "violation (42501) becomes 403 (DB_GUARD_DENIED), a constraint violation (class full, second lecturer) "
+          "400. Secrets live only in the git-ignored `.env`; the container runs as an unprivileged user.")
 
     # ------------------------------------------------------------------ 6
     bld.h1("DATABASE-SECURITY CONTROLS")
@@ -561,14 +576,15 @@ def chapters(bld, results, img, group):
         "**Separate accounts.** The DBA account `uni_dba` is used only for initialization. The application connects "
         "as `uni_app` (password from the environment, created by `database/init/00-create-roles.sh`): no "
         "superuser, CREATEROLE, CREATEDB or BYPASSRLS, owns no table; CONNECT is revoked from PUBLIC.",
-        "**Table and column grants.** The application has no DELETE privilege on users, students, enrollments or "
-        "grades. UPDATE is limited to specific columns, for example `grades(score, updated_by, updated_at)`, and "
-        "usernames cannot be changed. The policy tables, courses and lecturer assignments are SELECT-only, and "
-        "`audit_logs` allows only INSERT and SELECT.",
+        "**Table and column grants.** No DELETE on users, students, enrollments or grades; UPDATE only on "
+        "named columns (the four grade components, never the total; no username or class-code change); policy "
+        "tables SELECT-only; `audit_logs` INSERT and SELECT only; `password_reset_requests` has no password "
+        "column, no DELETE and only its workflow columns can be updated.",
         "**Integrity triggers.** `grades_guard` rejects any grade written by someone who is not an active, assigned "
         "lecturer, and rejects self-grading, even if the application layer were bypassed. "
-        "`user_roles_conflict_guard` enforces separation of duties. CHECK constraints protect formats and the "
-        "score range.",
+        "`user_roles_conflict_guard` enforces separation of duties. `enrollments_capacity_guard` locks the class "
+        "row and rejects a student beyond its capacity (≤ 30); `UNIQUE (course_id)` allows one lecturer and "
+        "`course_lecturers_guard` only active LECTURERs. CHECK constraints protect formats and score ranges.",
         "**Append-only, tamper-evident audit log.** A BEFORE INSERT trigger assigns the id, a server timestamp, "
         "`prev_hash` and `entry_hash` = SHA-256(prev_hash | fields) under an advisory lock. UPDATE, DELETE and "
         "TRUNCATE are blocked for every user, including the DBA. `audit_verify_chain()` reports the first "
@@ -580,12 +596,10 @@ def chapters(bld, results, img, group):
     # ------------------------------------------------------------------ 7
     bld.h1("SECURITY TESTING")
     bld.h2("7.1 Test Plan")
-    bld.p("The suite in `tests/` is automated and repeatable (pytest and requests against the running system, "
-          "plus database inspection). Each test declares its ID, preconditions, role, action and expected result; "
-          "the run records the actual result, PASS/FAIL and an evidence trace (`evidence/http/Txx.txt`, secrets "
-          "redacted). T01–T20 are the mandatory tests; the original tests T21–T44 cover enumeration, lockout, "
-          "cookie flags, session fixation, multi-role scope, self-grading, self-escalation, role conflicts, CSRF, "
-          "error disclosure, validation, log secrecy, the hash chain and database least privilege.")
+    bld.p("The suite in `tests/` is automated and repeatable (pytest + requests against the running system, plus "
+          "database checks). Each test declares ID, preconditions, role, action and expected result; the run records "
+          "the actual result, PASS/FAIL and an evidence trace in `evidence/http/`. T01–T20 are mandatory; T21–T58 "
+          "are original tests covering every additional control and feature.")
     bld.h2("7.2 Results")
     cats = {}
     for r in rows:
@@ -595,52 +609,44 @@ def chapters(bld, results, img, group):
         c[2].append(r["id"])
     summary = [[k, v[0], v[1], v[0] - v[1], ", ".join(v[2])] for k, v in cats.items()]
     summary.append(["**Total**", f"**{results['total']}**", f"**{results['passed']}**",
-                    f"**{results['total'] - results['passed']}**", "T01–T20 mandatory, T21–T44 original"])
+                    f"**{results['total'] - results['passed']}**", "T01–T20 mandatory, T21–T58 original"])
     bld.p(f"The final run on {results['run_at']} passed **{results['passed']} of {results['total']}** tests "
           "(Table 7.1); all 20 mandatory tests T01–T20 passed. The complete table with preconditions, actions, "
           "actual results and evidence for every test is given in Appendix B.")
     bld.table("Test results by category", ["Category", "Tests", "Pass", "Fail", "Test IDs"], summary,
               [3.6, 1.2, 1.2, 1.2, 8.3], size=20)
-    bld.p("The only defects found were in three tests (T24, T35 and T42, whose tamper step could leave an entry "
-          "unchanged) and were corrected; no application defect remained open. Appendix A shows every screen.")
+    bld.p("Defects were found only in three tests (T24, T35, T42) and corrected.")
 
     # ------------------------------------------------------------------ 8
     bld.h1("REMAINING RISKS AND IMPROVEMENTS")
     bld.p("The final review checked the suggested areas against the actual code and configuration; Table 8.1 "
-          "lists the limitations that remain.")
+          "lists the remaining limitations; role explosion is low because permissions use scopes.")
     bld.table("Remaining limitations", ["#", "Limitation (verified)", "L", "I", "Risk",
                                         "Recommended improvement", "Implemented"], [
-        ["R1", "No multi-factor authentication: a stolen password alone gives full access, including Lecturer and "
-         "Administrator accounts.", "M", "H", "High", "TOTP or WebAuthn, mandatory for LECTURER, REGISTRAR, "
-         "ADMIN.", "No"],
-        ["R2", "No password change or reset: initial passwords cannot be changed and are not forced to change; "
-         "demo accounts use a predictable pattern.", "M", "M", "Medium", "Change with re-authentication, forced "
-         "change at first login, single-use reset tokens; remove demo accounts.", "No"],
-        ["R3", "Delivered configuration serves HTTP on localhost; Secure cookie and HSTS are not active.",
-         "L (H if exposed)", "H", "Medium", "TLS reverse proxy, COOKIE_SECURE=true, HSTS.",
-         "Partly (Secure + __Host- cookie switch)"],
-        ["R4", "No encryption at rest and no backup procedure for the PostgreSQL volume.", "L", "H", "Medium",
-         "Encrypted volume; encrypted, access-controlled backups with restore tests.", "No"],
-        ["R5", "A database superuser can disable the triggers and recompute the whole hash chain.", "L", "H",
-         "Medium", "Export chain heads to a write-once store or SIEM, or sign entries with an external key.",
-         "Partly (append-only + hash chain)"],
-        ["R6", "Lockout can be abused to lock a known user for 15 minutes; no per-IP rate limiting.", "M", "L",
-         "Low", "Per-IP throttling with progressive delay; CAPTCHA after repeated failures.",
-         "Partly (lockout + admin unlock)"],
-        ["R7", "No emergency (break-glass) access procedure; the login form has no CSRF token (SameSite=Strict "
-         "only).", "L", "M", "Low", "Time-limited emergency role approved by two administrators, with alerting; "
-         "CSRF token on login.", "No"],
-    ], [0.8, 4.8, 1.3, 0.6, 1.7, 4.1, 2.2], size=18, first_col_center=True)
-    bld.p("Implemented during the review: lockout (T22), CSRF protection (T32), the hash-chained log (T42), "
-          "the grade guard trigger (T43) and CSP (T19). Role explosion is low risk because permissions use "
-          "scopes instead of one role per course.")
+        ["R1", "No multi-factor authentication.", "M", "H", "High", "TOTP/WebAuthn for staff roles.", "No"],
+        ["R2", "Reset depends on a manual identity check; admin-created and demo passwords are not force-changed.",
+         "M", "M", "Medium", "Verified e-mail/SMS reset; force change of initial passwords.",
+         "Partly (change + approved one-time reset)"],
+        ["R3", "HTTP only on localhost; Secure cookie and HSTS inactive.", "L", "H", "Medium",
+         "TLS proxy, COOKIE_SECURE=true, HSTS.", "Partly (config switch)"],
+        ["R4", "No encryption at rest; no backups.", "L", "H", "Medium", "Encrypted volume and backups, restore tests.",
+         "No"],
+        ["R5", "A DB superuser can disable triggers and rebuild the hash chain.", "L", "H", "Medium",
+         "Anchor chain heads in WORM storage / SIEM.", "Partly (append-only + chain)"],
+        ["R6", "Lockout can be abused; no per-IP rate limit.", "M", "L", "Low", "Per-IP throttling, CAPTCHA.",
+         "Partly (admin unlock)"],
+        ["R7", "No break-glass access; no CSRF token on login.", "L", "M", "Low",
+         "Two-admin emergency role; login CSRF token.", "No"],
+        ["R8", "Sign-up has no e-mail check or CAPTCHA; lecturers take open classes without approval.", "M", "L",
+         "Low", "E-mail verification, throttling, approval of teaching.", "Partly (STUDENT only, logged)"],
+    ], [0.8, 5.4, 0.6, 0.6, 1.5, 4.2, 2.6], size=17, first_col_center=True)
 
     # ------------------------------------------------------------------ 9
     bld.h1("CONCLUSION")
-    bld.p("The group derived ten threats and a default-deny, least-privilege policy with separation of duties, "
+    bld.p("The group derived twelve threats and a default-deny, least-privilege policy with separation of duties, "
           "and implemented it at three layers: endpoint decorator, record-level scope check, and database "
           f"privileges and triggers. All {results['total']} automated tests passed, including the 20 mandatory "
-          "tests. The main open risks are MFA, password management, TLS, encryption at rest and external "
+          "tests. The main open risks are MFA, an automated reset channel, TLS, encryption at rest and external "
           "protection of the audit log.")
 
     # ------------------------------------------------------- contributions
@@ -691,53 +697,68 @@ def chapters(bld, results, img, group):
           "application itself, the strict Content Security Policy remains unchanged.")
     bld.h2("A.2 Authentication")
     bld.p("The sign-in page (Figure A.1) combines a product panel with the login form. The password field can be "
-          "revealed with the eye button, and the note under the form states the lockout policy. Whatever the reason "
+          "revealed with the eye button, and a link leads new students to registration. Whatever the reason "
           "for a failure (wrong password, unknown user, disabled or locked account, or an injection payload), the "
           "page shows the same message, as Figures A.2–A.4 show.")
     gallery("authentication")
-    bld.h2("A.3 Student Portal")
+    bld.h2("A.3 Self-Registration and Class Catalog")
+    bld.p("A visitor creates a student account with name, username, e-mail and a confirmed password. Invalid input "
+          "is rejected on the server with all messages at once. A successful sign-up returns to the login page with "
+          "a confirmation; the new student receives a fresh student code and can immediately join an open class "
+          "from the catalog, whose cards show lecturer, credits and seat usage.")
+    gallery("registration")
+    bld.h2("A.4 Student Portal")
     bld.p("A student's dashboard summarises their own studies (active courses, credits, published grades and the "
           "average) and offers quick actions. The profile page shows the official record next to a self-service "
-          "form, which is limited to email, phone and address. The enrollment and grade pages show only the "
-          "student's own data. Scores are colour-coded and the average is calculated on the page.")
+          "form limited to email, phone and address. The grade page lists the four components of every course, "
+          "the colour-coded total and the credit-weighted overall average. The catalog shows enrolled, open and "
+          "full classes; a class cannot be left once grades exist.")
     gallery("student")
-    bld.h2("A.4 Lecturer Workspace")
-    bld.p("Lecturers see only their assigned courses. A roster lists the enrolled students with status, current "
-          "score and an inline grade field. After a grade is saved, the page reloads with a confirmation toast "
-          "and the change is audited. For the multi-role account `ta01`, the own enrollment shows the notice "
-          "\"Own enrollment – cannot grade\" instead of a form. The server and the database trigger reject the "
-          "request anyway (T27).")
+    bld.h2("A.5 Lecturer Workspace")
+    bld.p("Lecturers see only their assigned classes. The roster has one input per grade component with its weight "
+          "and the computed total. After saving, a toast confirms the change, which is audited with old and new "
+          "values. For the multi-role account `ta01`, the own SE202 enrollment shows \"Own enrollment\" instead "
+          "of inputs; the server and the database trigger reject such a request anyway (T27). In the catalog a "
+          "lecturer can take a class that has no lecturer.")
     gallery("lecturer")
-    bld.h2("A.5 Registrar Workspace")
-    bld.p("The registrar works with all student records: a searchable list, a creation form validated on the "
-          "server, and the enrollment manager. The enrollment manager combines the list of all enrollments (with a "
-          "confirmed Drop action) and a form for new enrollments. The registrar can view grades but has no grade "
-          "field anywhere.")
+    bld.h2("A.6 Registrar Workspace")
+    bld.p("The registrar works with all student records (searchable list, creation form) and all classes. A new "
+          "class gets a code, title, credits, semester, a capacity of at most 30 and optionally its lecturer. The "
+          "class page lets the registrar replace or remove the single lecturer, add students by code while seats "
+          "remain, and remove students. The registrar can view grades but has no grade input anywhere.")
     gallery("registrar")
-    bld.h2("A.6 Administrator Console")
+    bld.h2("A.7 Administrator Console")
     bld.p("The administrator's dashboard contains account statistics only, with no academic figures. The Users & "
           "roles page lists every account with role chips and its status (active, locked or disabled). It "
           "provides account actions and role assignment, and a Safeguards card states the separation-of-duties "
           "rules that the server enforces.")
     gallery("administrator")
-    bld.h2("A.7 Rejected Operations")
+    bld.h2("A.8 Account Self-Service and Password Reset")
+    bld.p("Every role has a My account page. Students and lecturers can rename themselves; staff names are locked, "
+          "and every role can change its password after confirming the current one. A forgotten password starts "
+          "with a public request that returns a reference code once. The administrator's inbox shows the "
+          "requester, whether the e-mail matches the profile and the message, with Approve and Reject plus a "
+          "reply. With the code, the requester reads the reply and reveals a one-time temporary password; signing "
+          "in with it leads straight to a forced password change.")
+    gallery("account")
+    bld.h2("A.9 Rejected Operations")
     bld.p("Unauthorized requests receive a uniform Access denied page (HTTP 403) that gives no detail about the "
           "protected resource. The figures below were produced by requests that bypass the user interface: a "
           "changed id in the URL (IDOR), or a hand-crafted POST with a valid CSRF token. They demonstrate that "
           "hiding a button is not the control; the server-side check is.")
     gallery("rejections", width=13)
-    bld.h2("A.8 Input Handling and Session Termination")
+    bld.h2("A.10 Input Handling and Session Termination")
     bld.p("A stored script payload is rendered as text because of auto-escaping, and the CSP would block it "
           "anyway. After logout, the previous session is revoked on the server, and any request with it receives "
           "the sign-in-required page (HTTP 401).")
     gallery("input")
-    bld.h2("A.9 Security Auditor Console")
+    bld.h2("A.11 Security Auditor Console")
     bld.p("The auditor's dashboard monitors audit volume, denied actions and failed logins. The audit log can be "
           "filtered by event type, result and actor, and the details of each entry are shown as key–value chips. "
           "The integrity page recomputes the SHA-256 hash chain in the database. The policy page renders the "
           "permission matrix, role conflicts and role assignments directly from the database, read-only.")
     gallery("auditor")
-    bld.h2("A.10 Database and Test Evidence")
+    bld.h2("A.12 Database and Test Evidence")
     bld.p("The last two figures show the content of the users table, which holds only Argon2id hashes, and the "
           "automatically generated test report.")
     gallery("database", width=14)
@@ -767,8 +788,8 @@ def chapters(bld, results, img, group):
          "T08, T13, T15, T17, T33, T34"],
         ["SR6", "Records accessible only to the owner, the assigned lecturer or the registrar.", "TH4",
          "T06, T07, T09, T26, T31"],
-        ["SR7", "Grades written only by an assigned lecturer, never for their own enrollment; enforced in the DB too.",
-         "TH7", "T10, T11, T27, T43"],
+        ["SR7", "Grade components written only by the assigned lecturer, never for their own enrollment; total "
+         "computed by the DB; enforced in the DB too.", "TH7", "T10, T11, T27, T43, T47"],
         ["SR8", "Role changes only by administrators, not on themselves, no conflicting combinations.", "TH3",
          "T16, T28, T29, T30"],
         ["SR9", "Parameterized SQL, server-side validation, output encoding.", "TH5, TH6",
@@ -778,14 +799,23 @@ def chapters(bld, results, img, group):
          "TH8, TH9", "T20, T39, T40, T41, T42"],
         ["SR12", "No stack trace, SQL or configuration in errors; least-privilege DB account; no secrets in the "
          "repository.", "TH5, TH9", "T37, T44"],
+        ["SR13", "Self-registration creates only STUDENT accounts with a new profile and validates input.", "TH11",
+         "T45, T46"],
+        ["SR14", "Classes are created only by the registrar; one lecturer and at most 30 students per class; "
+         "self-service limited to oneself.", "TH11, TH3", "T48, T49, T50, T51, T52"],
+        ["SR15", "Every user can change their password (current password, policy, other sessions revoked); only "
+         "students and lecturers can rename.", "TH1, TH2", "T53, T54"],
+        ["SR16", "Password reset: uniform request response, secret code, admin approval, one-time 24 h temporary "
+         "password visible only to the requester, forced change; no stored or admin-visible passwords.",
+         "TH12", "T55, T56, T57, T58"],
     ], [1.1, 8.6, 2.2, 3.6], size=20, first_col_center=True)
     bld.table("Demo accounts (password of every account: <username>@Demo2026)", ["Username", "Role(s)", "Notes"], [
         ["admin01, admin02", "ADMIN", "Two administrators (dual control for role changes)"],
         ["registrar01", "REGISTRAR", ""],
         ["auditor01", "AUDITOR", ""],
         ["lecturer01", "LECTURER", "Assigned IS101, DB201"],
-        ["lecturer02", "LECTURER", "Assigned NW301"],
-        ["ta01", "STUDENT + LECTURER", "Student S2026004 (IS101, NW301); co-lecturer of NW301"],
+        ["lecturer02", "LECTURER", "Assigned NW301 (AI305 has no lecturer yet)"],
+        ["ta01", "STUDENT + LECTURER", "Student S2026004 (IS101, NW301, SE202); lecturer of SE202"],
         ["student01, student02, student03", "STUDENT", "S2026001, S2026002, S2026003"],
         ["disabled01", "STUDENT", "Disabled account (S2026005)"],
     ], [5.0, 4.0, 6.5], size=20)

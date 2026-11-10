@@ -1,4 +1,4 @@
-Evidence for T33 - generated 2026-11-10 18:02:45
+Evidence for T33 - generated 2026-11-10 19:44:37
 Target: http://localhost:8000
 
 ### GET /students/1/grades
@@ -21,7 +21,7 @@ Target: http://localhost:8000
 
 ### POST /grades
 > POST /grades
-> body: enrollment_id=1&score=9
+> body: enrollment_id=1&final_exam=9
 < HTTP 401
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
 < page text: Error 401 · University Records System Error 401 Sign-in required You are not logged in or your session has expired. Go to sign in

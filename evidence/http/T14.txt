@@ -1,8 +1,8 @@
-Evidence for T14 - generated 2026-11-10 18:02:22
+Evidence for T14 - generated 2026-11-10 19:44:13
 Target: http://localhost:8000
 
 ### Audit log
 > GET /audit/logs
 < HTTP 200
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Audit log · University Records System UniRecords University Records System Overview Dashboard Security Audit log Integrity check Access policy Secure session · server-side RBAC UniRecords Audit log OA Oscar Auditor auditor01 · Auditor Security Security audit log Append-only, SHA-256 hash-chained record of security-relevant events. Verify integrity All events ACCOUNT_LOCKED ENROLLMENT_CREATE GRADE_MODIFY_DENIED GRADE_UPDATE LOGIN_FAILURE LOGIN_SUCCESS LOGOUT RECORD_ACCESS_DENIED STUDENT_CREATE SYSTEM_INITIALISED USER_CREATE USER_DISABLE All results SUCCESS DENIED FAILURE Filter 41 most recent #
+< page text: Audit log · University Records System UniRecords University Records System Overview Dashboard My account Security Audit log Integrity check Access policy Secure session · server-side RBAC UniRecords Audit log OA Oscar Auditor auditor01 · Auditor Security Security audit log Append-only, SHA-256 hash-chained record of security-relevant events. Verify integrity All events ACCOUNT_LOCKED ENROLLMENT_CREATE GRADE_MODIFY_DENIED GRADE_UPDATE LOGIN_FAILURE LOGIN_SUCCESS LOGOUT RECORD_ACCESS_DENIED STUDENT_CREATE SYSTEM_INITIALISED USER_CREATE USER_DISABLE All results SUCCESS DENIED FAILURE Filter 41 mo

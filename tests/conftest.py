@@ -40,6 +40,16 @@ def demo_password(username):
     return f"{username}@Demo2026"
 
 
+WEIGHTS = {"process1": "0.10", "process2": "0.20", "midterm": "0.20", "final_exam": "0.50"}
+
+
+def weighted_total(components):
+    """Expected course total: 10 % / 20 % / 20 % / 50 %, rounded to 2 decimals."""
+    from decimal import ROUND_HALF_UP, Decimal
+    total = sum(Decimal(str(components[k])) * Decimal(w) for k, w in WEIGHTS.items())
+    return total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
 # ---------------------------------------------------------------------------
 # HTTP client
 # ---------------------------------------------------------------------------
@@ -62,7 +72,7 @@ class Client:
 
     def csrf(self):
         if self._csrf is None:
-            page = self.get("/").text
+            page = self.get("/account").text     # reachable by every signed-in user
             match = re.search(r'name="csrf-token" content="([^"]*)"', page)
             self._csrf = match.group(1) if match else ""
         return self._csrf
@@ -149,8 +159,13 @@ def ids(app_db):
                       (student_code, course_code))["id"]
 
         def score(self, enrollment_id):
-            row = q1(app_db, "SELECT score FROM grades WHERE enrollment_id = %s",
-                     (enrollment_id,))
+            """Snapshot of all grade components and the total (to prove 'unchanged')."""
+            row = q1(app_db, "SELECT process1, process2, midterm, final_exam, score FROM grades "
+                             "WHERE enrollment_id = %s", (enrollment_id,))
+            return None if row is None else tuple(row.values())
+
+        def total(self, enrollment_id):
+            row = q1(app_db, "SELECT score FROM grades WHERE enrollment_id = %s", (enrollment_id,))
             return None if row is None else row["score"]
     return Ids()
 
