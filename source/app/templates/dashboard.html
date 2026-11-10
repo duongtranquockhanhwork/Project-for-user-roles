@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Dashboard{% endblock %}
+{% block crumb %}Dashboard{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-art">{{ ui.icon('shield-check') }}</div>
+  <h1>Welcome back, {{ current_user.full_name }}</h1>
+  <p>Signed in as <b id="who">{{ current_user.username }}</b>. Your access is limited to what your roles allow — everything else is denied by default.</p>
+  <div class="role-list">{% for r in current_user.roles|sort %}<span class="chip">{{ ui.icon('key') }}{{ r|title }}</span>{% else %}<span class="chip">No roles assigned</span>{% endfor %}</div>
+</section>
+
+{% if stats.student %}
+<div class="section-title">{{ ui.icon('graduation') }} My studies</div>
+<div class="grid grid-4 stagger">
+  {{ ui.stat('book', stats.student.courses, 'Active courses') }}
+  {{ ui.stat('layers', stats.student.credits, 'Credits enrolled', 'violet') }}
+  {{ ui.stat('check-circle', stats.student.graded, 'Grades published', 'ok') }}
+  {{ ui.stat('trending', stats.student.average|float if stats.student.average is not none else '—', 'Average score', 'warn', 2) }}
+</div>
+{% endif %}
+{% if stats.lecturer %}
+<div class="section-title">{{ ui.icon('layers') }} Teaching</div>
+<div class="grid grid-3 stagger">
+  {{ ui.stat('layers', stats.lecturer.courses, 'Assigned courses') }}
+  {{ ui.stat('users', stats.lecturer.students, 'Enrolled students', 'violet') }}
+  {{ ui.stat('clock', stats.lecturer.pending, 'Grades pending', 'warn') }}
+</div>
+{% endif %}
+{% if stats.registrar %}
+<div class="section-title">{{ ui.icon('clipboard') }} Registry</div>
+<div class="grid grid-3 stagger">
+  {{ ui.stat('users', stats.registrar.students, 'Student records') }}
+  {{ ui.stat('clipboard', stats.registrar.enrollments, 'Active enrollments', 'ok') }}
+  {{ ui.stat('layers', stats.registrar.courses, 'Courses', 'violet') }}
+</div>
+{% endif %}
+{% if stats.auditor %}
+<div class="section-title">{{ ui.icon('activity') }} Security monitoring</div>
+<div class="grid grid-3 stagger">
+  {{ ui.stat('activity', stats.auditor.entries, 'Audit entries') }}
+  {{ ui.stat('shield-alert', stats.auditor.denied, 'Denied actions (24 h)', 'bad') }}
+  {{ ui.stat('lock', stats.auditor.failed_logins, 'Failed logins (24 h)', 'warn') }}
+</div>
+{% endif %}
+{% if stats.admin %}
+<div class="section-title">{{ ui.icon('key') }} Accounts</div>
+<div class="grid grid-4 stagger">
+  {{ ui.stat('users', stats.admin.users, 'User accounts') }}
+  {{ ui.stat('check-circle', stats.admin.active, 'Active', 'ok') }}
+  {{ ui.stat('user-x', stats.admin.disabled, 'Disabled', 'bad') }}
+  {{ ui.stat('lock', stats.admin.locked, 'Locked', 'warn') }}
+</div>
+{% endif %}
+
+<div class="section-title">{{ ui.icon('arrow-right') }} Quick actions</div>
+<div class="grid grid-3 stagger">
+  {% if current_user.student_id and current_user.has('grade.read') %}
+  <a class="card tile" href="{{ url_for('students.student_grades', student_id=current_user.student_id) }}"><span class="stat-icon">{{ ui.icon('graduation') }}</span><div><b>View my grades</b><span>Scores of all your courses</span></div>{{ ui.icon('arrow-right', 'go') }}</a>
+  <a class="card tile" href="{{ url_for('students.view_student', student_id=current_user.student_id) }}"><span class="stat-icon violet">{{ ui.icon('user') }}</span><div><b>My profile</b><span>Check and update contact details</span></div>{{ ui.icon('arrow-right', 'go') }}</a>
+  {% endif %}
+  {% if current_user.has('course.read') %}
+  <a class="card tile" href="{{ url_for('courses.list_courses') }}"><span class="stat-icon">{{ ui.icon('layers') }}</span><div><b>{{ 'Browse courses' if 'ALL' in current_user.scopes('course.read') else 'Grade my courses' }}</b><span>Open course rosters</span></div>{{ ui.icon('arrow-right', 'go') }}</a>
+  {% endif %}
+  {% if current_user.has('student.search') %}
+  <a class="card tile" href="{{ url_for('students.list_students') }}"><span class="stat-icon ok">{{ ui.icon('users') }}</span><div><b>Student records</b><span>Search, create and update</span></div>{{ ui.icon('arrow-right', 'go') }}</a>
+  {% endif %}
+  {% if current_user.has('enrollment.manage') %}
+  <a class="card tile" href="{{ url_for('enrollments.list_enrollments') }}"><span class="stat-icon violet">{{ ui.icon('clipboard') }}</span><div><b>Manage enrollments</b><span>Enroll or drop students</span></div>{{ ui.icon('arrow-right', 'go') }}</a>
+  {% endif %}
+  {% if current_user.has('user.read') %}
+  <a class="card tile" href="{{ url_for('admin.list_users') }}"><span class="stat-icon bad">{{ ui.icon('key') }}</span><div><b>Users &amp; roles</b><span>Accounts and role assignments</span></div>{{ ui.icon('arrow-right', 'go') }}</a>
+  {% endif %}
+  {% if current_user.has('audit.read') %}
+  <a class="card tile" href="{{ url_for('audit_views.logs') }}"><span class="stat-icon warn">{{ ui.icon('activity') }}</span><div><b>Audit log</b><span>Review security events</span></div>{{ ui.icon('arrow-right', 'go') }}</a>
+  <a class="card tile" href="{{ url_for('audit_views.verify') }}"><span class="stat-icon ok">{{ ui.icon('link') }}</span><div><b>Verify integrity</b><span>Recompute the hash chain</span></div>{{ ui.icon('arrow-right', 'go') }}</a>
+  {% endif %}
+  {% if current_user.has('policy.read') %}
+  <a class="card tile" href="{{ url_for('audit_views.policy') }}"><span class="stat-icon">{{ ui.icon('shield') }}</span><div><b>Access policy</b><span>Roles, permissions, conflicts</span></div>{{ ui.icon('arrow-right', 'go') }}</a>
+  {% endif %}
+</div>
+
+<div class="section-title">{{ ui.icon('shield') }} Effective permissions</div>
+<div class="card"><div class="card-body">
+  {% if current_user.perms %}
+  {% for code, scopes in current_user.perms|dictsort %}<span class="kv-chip"><code>{{ code }}</code> {% for s in scopes|sort %}<span class="scope {{ s }}">{{ s }}</span> {% endfor %}</span> {% endfor %}
+  {% else %}{{ ui.empty('ban', 'No permissions', 'No role grants you any permission (default deny).') }}{% endif %}
+</div></div>
+{% endblock %}

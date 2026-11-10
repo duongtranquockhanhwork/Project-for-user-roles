@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Users & roles{% endblock %}
+{% block crumb %}Users &amp; roles{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('key') }} Administration</div><h1>Users &amp; roles</h1><p>Manage accounts and role assignments. Administrators have no access to academic records.</p></div>
+</div>
+<div class="card">
+  <div class="card-head"><h2>{{ ui.icon('users') }} Accounts</h2><span class="chip">{{ users|length }} users</span></div>
+  <div class="table-wrap">
+  <table id="users">
+    <thead><tr><th>User</th><th>Roles</th><th>Status</th><th>Account</th><th>Role assignment</th></tr></thead>
+    <tbody>
+    {% for u in users %}
+      <tr>
+        <td><div class="person"><span class="avatar">{{ u.full_name|initials }}</span><div><b>{{ u.full_name }}</b><span class="mono">{{ u.username }} · #{{ u.id }}</span></div></div></td>
+        <td>{% for r in (u.roles.split(', ') if u.roles else []) %}{{ ui.role_chip(r) }} {% else %}<span class="badge muted">No role</span>{% endfor %}</td>
+        <td>{% if not u.is_active %}<span class="badge bad">Disabled</span>{% elif u.locked %}<span class="badge warn">Locked</span>{% else %}<span class="badge ok">Active</span>{% endif %}</td>
+        <td>
+          <form method="post" action="{{ url_for('admin.change_status', user_id=u.id) }}" class="inline-form">
+            {{ ui.csrf() }}
+            {% if u.is_active %}<button name="action" value="disable" class="btn btn-danger btn-sm" data-confirm="Disable {{ u.username }}? All of its sessions will be revoked.">{{ ui.icon('user-x', 'icon-sm') }} Disable</button>
+            {% else %}<button name="action" value="enable" class="btn btn-soft btn-sm">{{ ui.icon('check', 'icon-sm') }} Enable</button>{% endif %}
+            {% if u.locked %}<button name="action" value="unlock" class="btn btn-ghost btn-sm">{{ ui.icon('unlock', 'icon-sm') }} Unlock</button>{% endif %}
+          </form>
+        </td>
+        <td>
+          <form method="post" action="{{ url_for('admin.change_role', user_id=u.id) }}" class="inline-form">
+            {{ ui.csrf() }}
+            <select name="role" class="select-sm" aria-label="Role for {{ u.username }}">{% for r in role_names %}<option>{{ r }}</option>{% endfor %}</select>
+            <button name="action" value="assign" class="btn btn-soft btn-sm">Assign</button>
+            <button name="action" value="remove" class="btn btn-ghost btn-sm">Remove</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+<br>
+<div class="grid grid-2">
+<div class="card">
+  <div class="card-head"><h2>{{ ui.icon('user-plus') }} Create user</h2></div>
+  <div class="card-body">
+  <form method="post" action="{{ url_for('admin.create_user') }}" autocomplete="off" class="form">
+    {{ ui.csrf() }}
+    <div class="form-row">
+      <div class="field"><label for="n-username">Username</label><input id="n-username" name="username" maxlength="32" required placeholder="lowercase, 3–32 chars"></div>
+      <div class="field"><label for="n-full">Full name</label><input id="n-full" name="full_name" maxlength="100" required></div>
+    </div>
+    <div class="field"><label for="n-pass">Initial password</label><div class="input-wrap">{{ ui.icon('lock') }}<input id="n-pass" name="password" type="password" maxlength="128" required autocomplete="new-password" placeholder="at least 12 characters">
+      <button type="button" class="btn btn-icon toggle-pass" data-toggle-password="n-pass" aria-label="Show password">{{ ui.icon('eye') }}</button></div>
+      <div class="hint">Stored only as an Argon2id hash.</div></div>
+    <button type="submit" class="btn">{{ ui.icon('user-plus') }} Create account</button>
+  </form>
+  </div>
+</div>
+<div class="card">
+  <div class="card-head"><h2>{{ ui.icon('shield') }} Safeguards</h2></div>
+  <div class="card-body"><ul class="muted">
+    <li>You cannot change your own roles or disable your own account.</li>
+    <li>Conflicting roles are rejected: Admin + Auditor, Lecturer + Registrar, Student + Registrar.</li>
+    <li>The last active administrator cannot be removed.</li>
+    <li>Every change and every rejection is written to the audit log.</li>
+  </ul></div>
+</div>
+</div>
+{% endblock %}

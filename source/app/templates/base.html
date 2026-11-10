@@ -1,0 +1,85 @@
+{% import "_macros.html" as ui with context %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>{% block title %}UniRecords{% endblock %} · University Records System</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+{% if current_user %}
+{% set ep = request.endpoint or '' %}
+{% set own = current_user.student_id and request.view_args and request.view_args.get('student_id') == current_user.student_id %}
+<div class="app">
+  <aside class="sidebar" aria-label="Main navigation">
+    <a class="brand" href="{{ url_for('auth.dashboard') }}">
+      <span class="brand-mark">{{ ui.icon('shield-check') }}</span>
+      <span><span class="brand-name">UniRecords</span><br><span class="brand-sub">University Records System</span></span>
+    </a>
+    {# Navigation is a convenience only. Every route is authorized on the server. #}
+    <div class="nav-group">
+      <div class="nav-title">Overview</div>
+      <a class="nav-link {{ 'active' if ep == 'auth.dashboard' }}" href="{{ url_for('auth.dashboard') }}">{{ ui.icon('home') }} Dashboard</a>
+    </div>
+    {% if current_user.student_id and current_user.has('profile.read') %}
+    <div class="nav-group">
+      <div class="nav-title">My studies</div>
+      <a class="nav-link {{ 'active' if own and ep == 'students.view_student' }}" href="{{ url_for('students.view_student', student_id=current_user.student_id) }}">{{ ui.icon('user') }} My profile</a>
+      {% if current_user.has('enrollment.read') %}<a class="nav-link {{ 'active' if own and ep == 'students.student_enrollments' }}" href="{{ url_for('students.student_enrollments', student_id=current_user.student_id) }}">{{ ui.icon('book') }} My enrollments</a>{% endif %}
+      {% if current_user.has('grade.read') %}<a class="nav-link {{ 'active' if own and ep == 'students.student_grades' }}" href="{{ url_for('students.student_grades', student_id=current_user.student_id) }}">{{ ui.icon('graduation') }} My grades</a>{% endif %}
+    </div>
+    {% endif %}
+    {% if current_user.has('course.read') or current_user.has('student.search') or current_user.has('enrollment.manage') %}
+    <div class="nav-group">
+      <div class="nav-title">Academic</div>
+      {% if current_user.has('course.read') %}<a class="nav-link {{ 'active' if ep.startswith('courses.') }}" href="{{ url_for('courses.list_courses') }}">{{ ui.icon('layers') }} {{ 'Courses' if 'ALL' in current_user.scopes('course.read') else 'My courses' }}</a>{% endif %}
+      {% if current_user.has('student.search') %}<a class="nav-link {{ 'active' if ep.startswith('students.') and not own }}" href="{{ url_for('students.list_students') }}">{{ ui.icon('users') }} Students</a>{% endif %}
+      {% if current_user.has('enrollment.manage') %}<a class="nav-link {{ 'active' if ep.startswith('enrollments.') }}" href="{{ url_for('enrollments.list_enrollments') }}">{{ ui.icon('clipboard') }} Enrollments</a>{% endif %}
+    </div>
+    {% endif %}
+    {% if current_user.has('user.read') %}
+    <div class="nav-group">
+      <div class="nav-title">Administration</div>
+      <a class="nav-link {{ 'active' if ep.startswith('admin.') }}" href="{{ url_for('admin.list_users') }}">{{ ui.icon('key') }} Users &amp; roles</a>
+    </div>
+    {% endif %}
+    {% if current_user.has('audit.read') or current_user.has('policy.read') %}
+    <div class="nav-group">
+      <div class="nav-title">Security</div>
+      {% if current_user.has('audit.read') %}<a class="nav-link {{ 'active' if ep == 'audit_views.logs' }}" href="{{ url_for('audit_views.logs') }}">{{ ui.icon('activity') }} Audit log</a>
+      <a class="nav-link {{ 'active' if ep == 'audit_views.verify' }}" href="{{ url_for('audit_views.verify') }}">{{ ui.icon('link') }} Integrity check</a>{% endif %}
+      {% if current_user.has('policy.read') %}<a class="nav-link {{ 'active' if ep == 'audit_views.policy' }}" href="{{ url_for('audit_views.policy') }}">{{ ui.icon('shield') }} Access policy</a>{% endif %}
+    </div>
+    {% endif %}
+    <div class="sidebar-foot">{{ ui.icon('lock') }}Secure session · server-side RBAC</div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-icon menu-toggle" aria-label="Open menu">{{ ui.icon('menu') }}</button>
+      <nav class="crumbs" aria-label="Breadcrumb">{{ ui.icon('home') }}<span>UniRecords</span>{{ ui.icon('chevron-right') }}<strong>{% block crumb %}Dashboard{% endblock %}</strong></nav>
+      <div class="user-chip">
+        <span class="avatar">{{ current_user.full_name|initials }}</span>
+        <span class="user-meta"><b>{{ current_user.full_name }}</b><span>{{ current_user.username }} · {{ current_user.roles|sort|map('title')|join(', ') }}</span></span>
+        <form method="post" action="{{ url_for('auth.logout') }}" class="inline-form">
+          {{ ui.csrf() }}
+          <button type="submit" class="btn btn-icon" title="Log out" aria-label="Log out">{{ ui.icon('logout') }}</button>
+        </form>
+      </div>
+    </header>
+    <main class="content">
+{% block content %}{% endblock %}
+    </main>
+    <footer class="footer">UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026</footer>
+  </div>
+</div>
+{% else %}
+{% block standalone %}{% endblock %}
+{% endif %}
+{% if notice %}<div class="toast-zone"><div class="toast" role="status">{{ ui.icon('check-circle') }}<span>{{ notice }}</span></div></div>{% endif %}
+</body>
+</html>

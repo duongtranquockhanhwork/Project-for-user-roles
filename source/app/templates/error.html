@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Error {{ code }}{% endblock %}
+{% macro body() %}
+{% set titles = {400: 'Invalid request', 401: 'Sign-in required', 403: 'Access denied', 404: 'Not found', 405: 'Method not allowed', 413: 'Request too large', 500: 'Something went wrong'} %}
+{% set icons = {401: 'lock', 403: 'shield-alert', 404: 'compass', 405: 'ban', 400: 'alert', 413: 'alert', 500: 'alert'} %}
+<div class="card error-card">
+  <div class="error-icon c{{ code }}">{{ ui.icon(icons.get(code, 'alert'), 'icon-xl') }}</div>
+  <div class="error-code">Error {{ code }}</div>
+  <h1>{{ titles.get(code, 'Error') }}</h1>
+  <p>{{ message }}</p>
+  {% if errors %}<ul class="errors">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+  {% if code == 401 %}<a class="btn" href="{{ url_for('auth.login') }}">{{ ui.icon('login') }} Go to sign in</a>
+  {% else %}<a class="btn btn-ghost" href="{{ url_for('auth.dashboard') }}">{{ ui.icon('home') }} Back to dashboard</a>{% endif %}
+</div>
+{% endmacro %}
+{% block crumb %}Error {{ code }}{% endblock %}
+{% block content %}<div class="error-page">{{ body() }}</div>{% endblock %}
+{% block standalone %}<div class="error-page standalone">{{ body() }}</div>{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Students{% endblock %}
+{% block crumb %}Students{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('users') }} Registry</div><h1>Student records</h1><p>Search, open and maintain the records of all students.</p></div>
+  {% if current_user.has('student.create') %}<div class="actions"><a class="btn" href="{{ url_for('students.new_student') }}">{{ ui.icon('plus') }} New student</a></div>{% endif %}
+</div>
+<div class="card">
+  <form method="get" action="{{ url_for('students.list_students') }}" class="filter-bar">
+    <div class="input-wrap">{{ ui.icon('search') }}<input name="q" value="{{ q }}" maxlength="50" placeholder="Search by student code or name"></div>
+    <button type="submit" class="btn btn-ghost">{{ ui.icon('filter') }} Search</button>
+    <span class="chip">{{ students|length }} result{{ '' if students|length == 1 else 's' }}</span>
+  </form>
+  <div class="table-wrap">
+  <table id="students">
+    <thead><tr><th>Student</th><th>Program</th><th>Login account</th><th></th></tr></thead>
+    <tbody>
+    {% for s in students %}
+      <tr><td><div class="person"><span class="avatar">{{ s.full_name|initials }}</span><div><b>{{ s.full_name }}</b><span class="mono">{{ s.student_code }}</span></div></div></td>
+          <td>{{ s.program or '—' }}</td>
+          <td>{% if s.username %}<span class="chip">{{ ui.icon('user') }}{{ s.username }}</span>{% else %}<span class="badge muted">No account</span>{% endif %}</td>
+          <td class="num"><a class="btn btn-soft btn-sm" href="{{ url_for('students.view_student', student_id=s.id) }}">Open {{ ui.icon('arrow-right', 'icon-sm') }}</a></td></tr>
+    {% else %}
+      <tr><td colspan="4">{{ ui.empty('search', 'No matching students.', 'Try a different code or name.') }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

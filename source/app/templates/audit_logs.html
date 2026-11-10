@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Audit log{% endblock %}
+{% block crumb %}Audit log{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('activity') }} Security</div><h1>Security audit log</h1><p>Append-only, SHA-256 hash-chained record of security-relevant events.</p></div>
+  <div class="actions"><a class="btn" href="{{ url_for('audit_views.verify') }}">{{ ui.icon('link') }} Verify integrity</a></div>
+</div>
+<div class="card">
+  <form method="get" action="{{ url_for('audit_views.logs') }}" class="filter-bar">
+    <select name="event_type" aria-label="Event type"><option value="">All events</option>
+      {% for et in event_types %}<option {% if filters.event_type == et %}selected{% endif %}>{{ et }}</option>{% endfor %}</select>
+    <select name="result" aria-label="Result"><option value="">All results</option>
+      {% for r in ['SUCCESS', 'DENIED', 'FAILURE'] %}<option {% if filters.result == r %}selected{% endif %}>{{ r }}</option>{% endfor %}</select>
+    <div class="input-wrap">{{ ui.icon('user') }}<input name="actor" value="{{ filters.actor }}" placeholder="Actor username" maxlength="64"></div>
+    <button type="submit" class="btn btn-ghost">{{ ui.icon('filter') }} Filter</button>
+    <span class="chip">{{ rows|length }} most recent</span>
+  </form>
+  <div class="table-wrap">
+  <table id="audit">
+    <thead><tr><th>#</th><th>Time (UTC)</th><th>Actor</th><th>Event</th><th>Target</th><th>Result</th><th>Details</th><th>Source IP</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr class="row-{{ r.result|lower }}"><td class="mono">{{ r.id }}</td>
+        <td class="nowrap">{{ r.ts.strftime('%Y-%m-%d') }}<br><span class="muted">{{ r.ts.strftime('%H:%M:%S') }}</span></td>
+        <td><b>{{ r.actor_username or '—' }}</b></td>
+        <td><code>{{ r.event_type }}</code></td>
+        <td class="mono">{{ r.target_resource or '' }}</td>
+        <td>{% if r.result == 'SUCCESS' %}<span class="badge ok">Success</span>{% elif r.result == 'DENIED' %}<span class="badge bad">Denied</span>{% else %}<span class="badge warn">Failure</span>{% endif %}</td>
+        <td>{% for k, v in r.details|dictsort %}<span class="kv-chip"><i>{{ k }}:</i> {{ v }}</span>{% endfor %}</td>
+        <td class="mono">{{ r.source_ip or '' }}</td></tr>
+    {% else %}<tr><td colspan="8">{{ ui.empty('activity', 'No matching entries.') }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

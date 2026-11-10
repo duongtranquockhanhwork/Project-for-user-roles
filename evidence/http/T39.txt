@@ -1,0 +1,10 @@
+Evidence for T39 - generated 2026-11-10 18:03:21
+Target: http://localhost:8000
+
+### Modification attempts
+uni_app: UPDATE -> 42501 permission denied for table audit_logs
+uni_app: DELETE -> 42501 permission denied for table audit_logs
+uni_app: TRUNCATE -> 42501 permission denied for table audit_logs
+DBA: UPDATE -> 42501 audit_logs is append-only: UPDATE is not allowed
+DBA: DELETE -> 42501 audit_logs is append-only: DELETE is not allowed
+DBA: TRUNCATE -> 42501 audit_logs is append-only: TRUNCATE is not allowed

@@ -1,0 +1,10 @@
+Evidence for T16 - generated 2026-11-10 18:02:26
+Target: http://localhost:8000
+
+### Assign AUDITOR role
+> POST /admin/users/14/roles
+> body: role=AUDITOR&action=assign&csrf_token=[REDACTED]
+< HTTP 302
+< Location: /admin/users?notice=role_assigned
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Redirecting... Redirecting... You should be redirected automatically to the target URL: /admin/users?notice=role_assigned . If not, click the link.

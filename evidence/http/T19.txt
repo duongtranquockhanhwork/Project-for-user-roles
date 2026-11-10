@@ -1,0 +1,18 @@
+Evidence for T19 - generated 2026-11-10 18:03:00
+Target: http://localhost:8000
+
+### Profile viewed by student01
+> GET /students/1
+< HTTP 200
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< raw HTML excerpt: id="address">&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;&lt;img src=x onerror=alert(1)&gt;</dd></div>
+    <div><dt>Last updated</dt><dd>10 Nov 2026, 11:02
+< page text: Nguyen Van An · University Records System UniRecords University Records System Overview Dashboard My studies My profile My enrollments My grades Secure session · server-side RBAC UniRecords Student profile NA Nguyen Van An student01 · Student Student profile Nguyen Van An Official record S2026001 · Information Technology Enrollments Grades NA Nguyen Van An S2026001 · account student01 Student code S2026001 Date of birth 2005-03-14 Program Information Technology Login account student01 Email an.nguyen@student.example.edu Phone 0901000001 Address <script>alert('xss')</script><img src=x onerror=a
+
+### Profile viewed by registrar01
+> GET /students/1
+< HTTP 200
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< raw HTML excerpt: id="address">&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;&lt;img src=x onerror=alert(1)&gt;</dd></div>
+    <div><dt>Last updated</dt><dd>10 Nov 2026, 11:02
+< page text: Nguyen Van An · University Records System UniRecords University Records System Overview Dashboard Academic Courses Students Enrollments Secure session · server-side RBAC UniRecords Student profile RR Rita Registrar registrar01 · Registrar Student profile Nguyen Van An Official record S2026001 · Information Technology Enrollments Grades Edit record NA Nguyen Van An S2026001 · account student01 Student code S2026001 Date of birth 2005-03-14 Program Information Technology Login account student01 Email an.nguyen@student.example.edu Phone 0901000001 Address <script>alert('xss')</script><img src=x o

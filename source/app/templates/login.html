@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Sign in{% endblock %}
+{% block standalone %}
+<div class="auth">
+  <section class="auth-art">
+    <span class="orb o1"></span><span class="orb o2"></span>
+    <a class="brand" href="{{ url_for('auth.login') }}"><span class="brand-mark">{{ ui.icon('shield-check') }}</span>
+      <span><span class="brand-name">UniRecords</span><br><span class="brand-sub">University Records System</span></span></a>
+    <h1>Student records, protected by design.</h1>
+    <p class="lead">One secure place for profiles, enrollments and grades — every request is authorized on the server and every sensitive action is audited.</p>
+    <div>
+      <div class="feature"><span class="fi">{{ ui.icon('key') }}</span><div><b>Role-based access control</b><span>Five roles, default deny, record-level checks.</span></div></div>
+      <div class="feature"><span class="fi">{{ ui.icon('lock') }}</span><div><b>Argon2id &amp; secure sessions</b><span>Hashed passwords, HttpOnly cookies, CSRF tokens.</span></div></div>
+      <div class="feature"><span class="fi">{{ ui.icon('activity') }}</span><div><b>Tamper-evident audit log</b><span>Append-only, SHA-256 hash-chained events.</span></div></div>
+    </div>
+    <div class="legal">Faculty of Information Technology · Ton Duc Thang University</div>
+  </section>
+  <section class="auth-panel">
+    <div class="card auth-card">
+      <h2>Welcome back</h2>
+      <p class="sub">Sign in with your university account.</p>
+      {% if logged_out %}<div class="alert info">{{ ui.icon('check-circle') }}<span>You have been logged out.</span></div><br>{% endif %}
+      {% if error %}<div class="alert bad" id="login-error" role="alert">{{ ui.icon('alert') }}<span>{{ error }}</span></div><br>{% endif %}
+      <form method="post" action="{{ url_for('auth.login') }}" class="form">
+        <div class="field"><label for="username">Username</label>
+          <div class="input-wrap">{{ ui.icon('user') }}<input id="username" name="username" maxlength="64" required autofocus autocomplete="username" placeholder="e.g. student01"></div></div>
+        <div class="field"><label for="password">Password</label>
+          <div class="input-wrap">{{ ui.icon('lock') }}<input id="password" name="password" type="password" maxlength="128" required autocomplete="current-password" placeholder="Enter your password">
+            <button type="button" class="btn btn-icon toggle-pass" data-toggle-password="password" aria-label="Show password">{{ ui.icon('eye') }}</button></div></div>
+        <button type="submit" class="btn btn-block">{{ ui.icon('login') }} Sign in</button>
+      </form>
+      <p class="foot">{{ ui.icon('shield-check') }} Protected by account lockout after 5 failed attempts.</p>
+    </div>
+  </section>
+</div>
+{% endblock %}

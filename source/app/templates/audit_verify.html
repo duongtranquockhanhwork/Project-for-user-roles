@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Integrity check{% endblock %}
+{% block crumb %}Integrity check{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('link') }} Security</div><h1>Audit-log integrity</h1><p>The database recomputes the SHA-256 hash chain over every entry.</p></div>
+  <div class="actions"><a class="btn btn-ghost" href="{{ url_for('audit_views.logs') }}">{{ ui.icon('activity') }} Audit log</a></div>
+</div>
+<div class="grid grid-side">
+{% if result.first_bad_id is none %}
+<div class="card integrity"><div class="ring">{{ ui.icon('shield-check', 'icon-xl') }}</div>
+  <div><h2 id="chain-ok">Hash chain intact: {{ result.checked }} entries verified.</h2><p>No entry has been modified, removed or re-ordered since it was written.</p></div></div>
+{% else %}
+<div class="card integrity bad"><div class="ring">{{ ui.icon('shield-alert', 'icon-xl') }}</div>
+  <div><h2 id="chain-bad">Integrity violation detected at entry {{ result.first_bad_id }} (after {{ result.checked }} entries).</h2><p>Investigate the database immediately.</p></div></div>
+{% endif %}
+<div class="card"><div class="card-head"><h2>{{ ui.icon('hash') }} How it works</h2></div>
+  <div class="card-body"><p class="muted">Each entry stores <code>prev_hash</code> and <code>entry_hash = SHA-256(prev_hash | fields)</code>, set by a database trigger. UPDATE, DELETE and TRUNCATE are blocked for every account, so any change to a past entry breaks the chain.</p></div></div>
+</div>
+{% endblock %}

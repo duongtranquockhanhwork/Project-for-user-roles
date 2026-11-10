@@ -1,0 +1,29 @@
+{
+  "class_id": "<ClassID>",
+  "group_id": "<GroupID>",
+  "instructor": "Ph.D Huynh Ngoc Tu",
+  "date": "November 2026",
+  "members": [
+    {
+      "label": "Student A",
+      "name": "Trieu Ngoc Van Anh",
+      "student_id": "524H0005",
+      "responsibility": "Threat modeling and access-control design",
+      "summary": ""
+    },
+    {
+      "label": "Student B",
+      "name": "Duong Tran Quoc Khanh",
+      "student_id": "523H0040",
+      "responsibility": "Authentication, authorization and implementation",
+      "summary": ""
+    },
+    {
+      "label": "Student C",
+      "name": "Nguyen Vo Thanh Tu",
+      "student_id": "523H0189",
+      "responsibility": "Database security, testing and audit logging",
+      "summary": ""
+    }
+  ]
+}

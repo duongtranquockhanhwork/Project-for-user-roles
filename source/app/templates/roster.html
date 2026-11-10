@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}{{ course.code }} roster{% endblock %}
+{% block crumb %}{{ course.code }} roster{% endblock %}
+{% block content %}
+{% set scored = rows|selectattr('score', 'ne', none)|list %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('layers') }} Course roster</div><h1>{{ course.code }} · {{ course.title }}</h1><p>Semester {{ course.semester }}{% if can_grade %} · you can record grades for this course{% endif %}.</p></div>
+  <div class="actions"><a class="btn btn-ghost" href="{{ url_for('courses.list_courses') }}">{{ ui.icon('layers') }} All courses</a></div>
+</div>
+{% if notice %}<span id="saved" class="sr-only">{{ notice }}</span>{% endif %}
+<div class="grid grid-3 stagger">
+  {{ ui.stat('users', rows|selectattr('status', 'eq', 'ENROLLED')|list|length, 'Enrolled students') }}
+  {% if show_grades %}
+  {{ ui.stat('check-circle', scored|length, 'Graded', 'ok') }}
+  {{ ui.stat('trending', ((scored|sum(attribute='score')) / scored|length)|float if scored else '—', 'Course average', 'warn', 2) }}
+  {% endif %}
+</div>
+<br>
+<div class="card">
+  <div class="card-head"><div><h2>{{ ui.icon('users') }} Students</h2><p>{% if can_grade %}Enter a score between 0 and 10 (max. 2 decimals) and press Save.{% else %}Read-only view.{% endif %}</p></div></div>
+  <div class="table-wrap">
+  <table id="roster">
+    <thead><tr><th>Student</th><th>Status</th>{% if show_grades %}<th class="num">Score</th>{% endif %}{% if can_grade %}<th>Set grade</th>{% endif %}</tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr><td><div class="person"><span class="avatar">{{ r.full_name|initials }}</span><div><b>{{ r.full_name }}</b><span class="mono">{{ r.student_code }}</span></div></div></td>
+        <td>{{ ui.status_badge(r.status) }}</td>
+        {% if show_grades %}<td class="num">{{ ui.score(r.score) }}</td>{% endif %}
+        {% if can_grade %}<td>
+          {% if r.status == 'ENROLLED' and r.user_id != current_user.id %}
+          <form method="post" action="{{ url_for('courses.save_grade') }}" class="inline-form">
+            {{ ui.csrf() }}
+            <input type="hidden" name="enrollment_id" value="{{ r.enrollment_id }}">
+            <input class="input-sm" name="score" maxlength="5" placeholder="0–10" required inputmode="decimal" aria-label="Score for {{ r.student_code }}">
+            <button type="submit" class="btn btn-sm">{{ ui.icon('save', 'icon-sm') }} Save</button>
+          </form>
+          {% elif r.user_id == current_user.id %}<span class="badge warn">Own enrollment – cannot grade</span>{% else %}<span class="badge muted">Not active</span>{% endif %}
+        </td>{% endif %}
+      </tr>
+    {% else %}<tr><td colspan="4">{{ ui.empty('users', 'No students enrolled.') }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

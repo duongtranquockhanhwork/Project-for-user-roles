@@ -1,0 +1,16 @@
+Evidence for T15 - generated 2026-11-10 18:02:24
+Target: http://localhost:8000
+
+### Update student record
+> POST /students/3
+> body: full_name=Hacked+By+Auditor&csrf_token=[REDACTED]
+< HTTP 403
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard Security Audit log Integrity check Access policy Secure session · server-side RBAC UniRecords Error 403 OA Oscar Auditor auditor01 · Auditor Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+
+### Update contact
+> POST /students/3/contact
+> body: email=x%40evil.example&csrf_token=[REDACTED]
+< HTTP 403
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard Security Audit log Integrity check Access policy Secure session · server-side RBAC UniRecords Error 403 OA Oscar Auditor auditor01 · Auditor Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026

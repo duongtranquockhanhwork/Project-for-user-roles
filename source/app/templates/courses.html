@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Courses{% endblock %}
+{% block crumb %}Courses{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('layers') }} Academic</div><h1>{{ 'All courses' if 'ALL' in current_user.scopes('course.read') else 'My courses' }}</h1>
+  <p>{{ 'Every course offered this semester.' if 'ALL' in current_user.scopes('course.read') else 'Courses assigned to you. Only these rosters and grades are accessible.' }}</p></div>
+</div>
+<div class="grid grid-3 stagger" id="courses">
+  {% for c in courses %}
+  <a class="card tile" href="{{ url_for('courses.roster', course_id=c.id) }}">
+    <span class="stat-icon {{ loop.cycle('', 'violet', 'ok') }}">{{ ui.icon('book') }}</span>
+    <div><b>{{ c.code }} · {{ c.title }}</b><span>{{ c.credits }} credits · semester {{ c.semester }} · {{ c.enrolled }} enrolled</span></div>
+    {{ ui.icon('arrow-right', 'go') }}
+  </a>
+  {% else %}
+  <div class="card">{{ ui.empty('layers', 'No courses.', 'You are not assigned to any course.') }}</div>
+  {% endfor %}
+</div>
+{% endblock %}

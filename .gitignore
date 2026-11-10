@@ -1,0 +1,23 @@
+# Secrets - never commit
+.env
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Generated test output (regenerate with `pytest tests`)
+tests/results/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Intermediate files of the report build
+docs/build/

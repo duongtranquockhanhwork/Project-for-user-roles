@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Enrollments{% endblock %}
+{% block crumb %}Enrollments{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('clipboard') }} Registry</div><h1>Enrollment management</h1><p>Enroll students in courses or drop existing enrollments.</p></div>
+</div>
+<div class="grid grid-side">
+<div class="card">
+  <div class="card-head"><h2>{{ ui.icon('list') }} All enrollments</h2><span class="chip">{{ enrollments|length }} records</span></div>
+  <div class="table-wrap">
+  <table id="enrollments">
+    <thead><tr><th>Course</th><th>Student</th><th>Status</th><th>Enrolled</th><th></th></tr></thead>
+    <tbody>
+    {% for e in enrollments %}
+      <tr><td><span class="chip">{{ e.course_code }}</span></td>
+        <td><div class="person"><span class="avatar">{{ e.full_name|initials }}</span><div><b>{{ e.full_name }}</b><span class="mono">{{ e.student_code }}</span></div></div></td>
+        <td>{{ ui.status_badge(e.status) }}</td>
+        <td class="nowrap">{{ e.enrolled_at.strftime('%d %b %Y') }}</td>
+        <td class="num">{% if e.status == 'ENROLLED' %}
+          <form method="post" action="{{ url_for('enrollments.drop_enrollment', enrollment_id=e.id) }}" class="inline-form">
+            {{ ui.csrf() }}
+            <button type="submit" class="btn btn-danger btn-sm" data-confirm="Drop {{ e.student_code }} from {{ e.course_code }}?">{{ ui.icon('trash', 'icon-sm') }} Drop</button>
+          </form>{% endif %}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+<div class="card">
+  <div class="card-head"><h2>{{ ui.icon('plus') }} New enrollment</h2></div>
+  <div class="card-body">
+  <form method="post" action="{{ url_for('enrollments.create_enrollment') }}" class="form">
+    {{ ui.csrf() }}
+    <div class="field"><label for="student_code">Student code</label><div class="input-wrap">{{ ui.icon('user') }}<input id="student_code" name="student_code" maxlength="12" required placeholder="S2026006"></div></div>
+    <div class="field"><label for="course_code">Course</label>
+      <select id="course_code" name="course_code">{% for c in courses %}<option value="{{ c.code }}">{{ c.code }} – {{ c.title }}</option>{% endfor %}</select></div>
+    <button type="submit" class="btn btn-block">{{ ui.icon('check') }} Enroll student</button>
+  </form>
+  </div>
+</div>
+</div>
+{% endblock %}

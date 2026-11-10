@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Enrollments{% endblock %}
+{% block crumb %}Enrollments{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('book') }} Enrollments</div><h1>{{ student.full_name }}</h1><p>Courses of student {{ student.student_code }}.</p></div>
+  <div class="actions"><a class="btn btn-ghost" href="{{ url_for('students.view_student', student_id=student.id) }}">{{ ui.icon('user') }} Profile</a></div>
+</div>
+<div class="card"><div class="table-wrap">
+  <table id="enrollments">
+    <thead><tr><th>Course</th><th>Title</th><th class="num">Credits</th><th>Semester</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for e in enrollments %}
+      <tr><td><span class="chip">{{ e.code }}</span></td><td><b>{{ e.title }}</b></td><td class="num">{{ e.credits }}</td><td>{{ e.semester }}</td><td>{{ ui.status_badge(e.status) }}</td></tr>
+    {% else %}<tr><td colspan="5">{{ ui.empty('book', 'No enrollments.') }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

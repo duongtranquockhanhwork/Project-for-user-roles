@@ -1,0 +1,27 @@
+{% macro icon(name, cls='') -%}
+<svg class="icon {{ cls }}" viewBox="0 0 24 24" aria-hidden="true">{% for d in ICONS[name] %}<path d="{{ d }}"/>{% endfor %}</svg>
+{%- endmacro %}
+
+{% macro role_chip(role) -%}<span class="chip role-{{ role }}">{{ role|title }}</span>{%- endmacro %}
+
+{% macro score(value) -%}
+<span class="score {{ value|score_class }}">{{ '%.2f'|format(value) if value is not none else '—' }}</span>
+{%- endmacro %}
+
+{% macro status_badge(status) -%}
+{% if status == 'ENROLLED' %}<span class="badge ok">Enrolled</span>{% else %}<span class="badge muted">Dropped</span>{% endif %}
+{%- endmacro %}
+
+{% macro empty(name, title, text='') -%}
+<div class="empty">{{ icon(name) }}<b>{{ title }}</b>{% if text %}<span>{{ text }}</span>{% endif %}</div>
+{%- endmacro %}
+
+{% macro stat(name, value, label, tone='', decimals=0) -%}
+<div class="card stat">
+  <div class="stat-icon {{ tone }}">{{ icon(name) }}</div>
+  <div><div class="stat-value"{% if value is number %} data-count="{{ value }}" data-decimals="{{ decimals }}"{% endif %}>{{ ('%.' ~ decimals ~ 'f')|format(value) if value is number else value }}</div>
+  <div class="stat-label">{{ label }}</div></div>
+</div>
+{%- endmacro %}
+
+{% macro csrf() -%}<input type="hidden" name="csrf_token" value="{{ csrf_token }}">{%- endmacro %}

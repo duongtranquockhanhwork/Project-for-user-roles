@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Grades{% endblock %}
+{% block crumb %}Grades{% endblock %}
+{% block content %}
+{% set scored = grades|selectattr('score', 'ne', none)|list %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('graduation') }} Academic results</div><h1>Grades of {{ student.full_name }}</h1><p>Student {{ student.student_code }} · scores on a 0–10 scale.</p></div>
+  <div class="actions"><a class="btn btn-ghost" href="{{ url_for('students.view_student', student_id=student.id) }}">{{ ui.icon('user') }} Profile</a></div>
+</div>
+<div class="grid grid-3 stagger">
+  {{ ui.stat('layers', grades|length, 'Courses shown') }}
+  {{ ui.stat('check-circle', scored|length, 'Grades published', 'ok') }}
+  {{ ui.stat('trending', ((scored|sum(attribute='score')) / scored|length)|float if scored else '—', 'Average score', 'warn', 2) }}
+</div>
+<br>
+<div class="card"><div class="table-wrap">
+  <table id="grades">
+    <thead><tr><th>Course</th><th>Title</th><th>Semester</th><th>Status</th><th class="num">Score</th><th>Last updated</th></tr></thead>
+    <tbody>
+    {% for gr in grades %}
+      <tr><td><span class="chip">{{ gr.code }}</span></td><td><b>{{ gr.title }}</b></td><td>{{ gr.semester }}</td><td>{{ ui.status_badge(gr.status) }}</td>
+          <td class="num">{{ ui.score(gr.score) }}</td>
+          <td class="nowrap">{{ gr.updated_at.strftime('%d %b %Y, %H:%M') if gr.updated_at else '—' }}</td></tr>
+    {% else %}<tr><td colspan="6">{{ ui.empty('graduation', 'No grades visible.') }}</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

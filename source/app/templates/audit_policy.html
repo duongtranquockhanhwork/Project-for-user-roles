@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}Access policy{% endblock %}
+{% block crumb %}Access policy{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('shield') }} Security</div><h1>Access-control configuration</h1><p>Anything not granted below is denied. <span class="scope OWN">OWN</span> own records · <span class="scope ASSIGNED">ASSIGNED</span> assigned courses · <span class="scope ALL">ALL</span> every record.</p></div>
+</div>
+<div class="card">
+  <div class="card-head"><h2>{{ ui.icon('layers') }} Permission matrix</h2></div>
+  <div class="table-wrap">
+  <table id="matrix">
+    <thead><tr><th>Permission</th>{% for r in roles %}<th>{{ r|title }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for code, cells in matrix|dictsort %}
+      <tr><td><code>{{ code }}</code><br><span class="muted">{{ descriptions[code] }}</span></td>
+        {% for r in roles %}<td><span class="scope {{ cells.get(r, 'DENY') }}">{{ cells.get(r, 'Deny') }}</span></td>{% endfor %}</tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+<br>
+<div class="grid grid-2">
+<div class="card">
+  <div class="card-head"><h2>{{ ui.icon('ban') }} Role conflicts (separation of duties)</h2></div>
+  <div class="table-wrap"><table><thead><tr><th>Roles</th><th>Reason</th></tr></thead><tbody>
+  {% for c in conflicts %}<tr><td class="nowrap">{{ ui.role_chip(c.role_a) }} + {{ ui.role_chip(c.role_b) }}</td><td>{{ c.reason }}</td></tr>{% endfor %}
+  </tbody></table></div>
+</div>
+<div class="card">
+  <div class="card-head"><h2>{{ ui.icon('users') }} Role assignments</h2></div>
+  <div class="table-wrap"><table id="assignments"><thead><tr><th>User</th><th>Status</th><th>Roles</th></tr></thead><tbody>
+  {% for a in assignments %}<tr><td><b>{{ a.username }}</b></td><td>{% if a.is_active %}<span class="badge ok">Active</span>{% else %}<span class="badge bad">Disabled</span>{% endif %}</td>
+    <td>{% for r in a.roles.split(', ') %}{{ ui.role_chip(r) }} {% endfor %}</td></tr>{% endfor %}
+  </tbody></table></div>
+</div>
+</div>
+{% endblock %}

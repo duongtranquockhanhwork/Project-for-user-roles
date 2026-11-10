@@ -1,0 +1,26 @@
+Evidence for T35 - generated 2026-11-10 18:03:02
+Target: http://localhost:8000
+
+### q="' OR 1=1 --"
+> GET /students?q=%27+OR+1%3D1+--
+< HTTP 200
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Students · University Records System UniRecords University Records System Overview Dashboard Academic Courses Students Enrollments Secure session · server-side RBAC UniRecords Students RR Rita Registrar registrar01 · Registrar Registry Student records Search, open and maintain the records of all students. New student Search 0 results Student Program Login account No matching students. Try a different code or name. UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+
+### q="' UNION SELECT password_hash FROM users--"
+> GET /students?q=%27+UNION+SELECT+password_hash+FROM+users--
+< HTTP 200
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Students · University Records System UniRecords University Records System Overview Dashboard Academic Courses Students Enrollments Secure session · server-side RBAC UniRecords Students RR Rita Registrar registrar01 · Registrar Registry Student records Search, open and maintain the records of all students. New student Search 0 results Student Program Login account No matching students. Try a different code or name. UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+
+### q="'; SELECT pg_sleep(5); --"
+> GET /students?q=%27%3B+SELECT+pg_sleep%285%29%3B+--
+< HTTP 200
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Students · University Records System UniRecords University Records System Overview Dashboard Academic Courses Students Enrollments Secure session · server-side RBAC UniRecords Students RR Rita Registrar registrar01 · Registrar Registry Student records Search, open and maintain the records of all students. New student Search 0 results Student Program Login account No matching students. Try a different code or name. UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+
+### q="\\' OR \\'1\\'=\\'1"
+> GET /students?q=%5C%27+OR+%5C%271%5C%27%3D%5C%271
+< HTTP 200
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Students · University Records System UniRecords University Records System Overview Dashboard Academic Courses Students Enrollments Secure session · server-side RBAC UniRecords Students RR Rita Registrar registrar01 · Registrar Registry Student records Search, open and maintain the records of all students. New student Search 0 results Student Program Login account No matching students. Try a different code or name. UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026

@@ -1,0 +1,17 @@
+Evidence for T27 - generated 2026-11-10 18:02:32
+Target: http://localhost:8000
+
+### TA grades own enrollment
+> POST /grades
+> body: enrollment_id=8&score=10&csrf_token=[REDACTED]
+< HTTP 403
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My studies My profile My enrollments My grades Academic My courses Secure session · server-side RBAC UniRecords Error 403 TA Tuan Teaching-Assistant ta01 · Lecturer, Student Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+
+### TA grades another student
+> POST /grades
+> body: enrollment_id=6&score=8.12&csrf_token=[REDACTED]
+< HTTP 302
+< Location: /courses/3/roster?notice=grade_saved
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Redirecting... Redirecting... You should be redirected automatically to the target URL: /courses/3/roster?notice=grade_saved . If not, click the link.

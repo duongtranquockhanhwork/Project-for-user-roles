@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}{{ student.full_name }}{% endblock %}
+{% block crumb %}Student profile{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('user') }} Student profile</div><h1>{{ student.full_name }}</h1><p>Official record {{ student.student_code }}{% if student.program %} · {{ student.program }}{% endif %}</p></div>
+  <div class="actions">
+    {% if current_user.has('enrollment.read') %}<a class="btn btn-ghost" href="{{ url_for('students.student_enrollments', student_id=student.id) }}">{{ ui.icon('book') }} Enrollments</a>{% endif %}
+    {% if current_user.has('grade.read') %}<a class="btn btn-ghost" href="{{ url_for('students.student_grades', student_id=student.id) }}">{{ ui.icon('graduation') }} Grades</a>{% endif %}
+    {% if can_update %}<a class="btn" href="{{ url_for('students.edit_student', student_id=student.id) }}">{{ ui.icon('edit') }} Edit record</a>{% endif %}
+  </div>
+</div>
+<div class="grid {{ 'grid-side' if can_edit_contact }}">
+<div class="card">
+  <div class="profile-head"><span class="avatar avatar-lg">{{ student.full_name|initials }}</span>
+    <div><h2>{{ student.full_name }}</h2><p><span class="mono">{{ student.student_code }}</span>{% if student.username %} · account <b>{{ student.username }}</b>{% endif %}</p></div></div>
+  <dl class="kv" id="profile">
+    <div><dt>Student code</dt><dd>{{ student.student_code }}</dd></div>
+    <div><dt>Date of birth</dt><dd>{{ student.date_of_birth or '—' }}</dd></div>
+    <div><dt>Program</dt><dd>{{ student.program or '—' }}</dd></div>
+    <div><dt>Login account</dt><dd>{{ student.username or '—' }}</dd></div>
+    <div><dt>Email</dt><dd>{{ student.email or '—' }}</dd></div>
+    <div><dt>Phone</dt><dd>{{ student.phone or '—' }}</dd></div>
+    <div><dt>Address</dt><dd id="address">{{ student.address or '' }}</dd></div>
+    <div><dt>Last updated</dt><dd>{{ student.updated_at.strftime('%d %b %Y, %H:%M') if student.updated_at else '—' }}</dd></div>
+  </dl>
+</div>
+{% if can_edit_contact %}
+<div class="card">
+  <div class="card-head"><div><h2>{{ ui.icon('edit') }} Update my contact information</h2><p>Only you can change these fields.</p></div></div>
+  <div class="card-body">
+  <form method="post" class="form" action="{{ url_for('students.update_contact', student_id=student.id) }}">
+    {{ ui.csrf() }}
+    <div class="field"><label for="c-email">Email</label><div class="input-wrap">{{ ui.icon('mail') }}<input id="c-email" name="email" maxlength="254" value="{{ student.email or '' }}"></div></div>
+    <div class="field"><label for="c-phone">Phone</label><div class="input-wrap">{{ ui.icon('phone') }}<input id="c-phone" name="phone" maxlength="20" value="{{ student.phone or '' }}"></div></div>
+    <div class="field"><label for="c-address">Address</label><div class="input-wrap">{{ ui.icon('map-pin') }}<input id="c-address" name="address" maxlength="200" value="{{ student.address or '' }}"></div></div>
+    <button type="submit" class="btn">{{ ui.icon('save') }} Save contact</button>
+  </form>
+  </div>
+</div>
+{% endif %}
+</div>
+{% endblock %}

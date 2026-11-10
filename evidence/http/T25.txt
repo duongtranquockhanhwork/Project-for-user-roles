@@ -1,0 +1,16 @@
+Evidence for T25 - generated 2026-11-10 18:02:02
+Target: http://localhost:8000
+
+### Admin disables the account
+> POST /admin/users/13/status
+> body: action=disable&csrf_token=[REDACTED]
+< HTTP 302
+< Location: /admin/users?notice=user_disabled
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Redirecting... Redirecting... You should be redirected automatically to the target URL: /admin/users?notice=user_disabled . If not, click the link.
+
+### Request with the existing session
+> GET /
+< HTTP 401
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 401 · University Records System Error 401 Sign-in required You are not logged in or your session has expired. Go to sign in

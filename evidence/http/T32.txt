@@ -1,0 +1,9 @@
+Evidence for T32 - generated 2026-11-10 18:02:43
+Target: http://localhost:8000
+
+### POST without CSRF token
+> POST /grades
+> body: enrollment_id=4&score=1
+< HTTP 403
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard Academic My courses Secure session · server-side RBAC UniRecords Error 403 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026

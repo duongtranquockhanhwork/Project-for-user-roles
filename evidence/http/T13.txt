@@ -1,0 +1,9 @@
+Evidence for T13 - generated 2026-11-10 18:02:19
+Target: http://localhost:8000
+
+### Registrar attempts grade modification
+> POST /grades
+> body: enrollment_id=4&score=10&csrf_token=[REDACTED]
+< HTTP 403
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard Academic Courses Students Enrollments Secure session · server-side RBAC UniRecords Error 403 RR Rita Registrar registrar01 · Registrar Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026

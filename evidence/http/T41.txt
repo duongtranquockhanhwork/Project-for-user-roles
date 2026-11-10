@@ -1,0 +1,15 @@
+Evidence for T41 - generated 2026-11-10 18:03:28
+Target: http://localhost:8000
+
+### One example per required event type
+#91 2026-11-10 11:03:28 lecturer01 GRADE_CREATE enrollment:9/grade SUCCESS {'course': 'DB201', 'new_score': '6.75', 'student_code': 'S2026006'}
+#83 2026-11-10 11:03:19 registrar01 GRADE_MODIFY_DENIED /grades DENIED {'method': 'POST', 'required_permission': 'grade.write'}
+#33 2026-11-10 11:02:13 lecturer01 GRADE_UPDATE enrollment:1/grade SUCCESS {'course': 'IS101', 'new_score': '6.77', 'old_score': '8.50', 'student_code': 'S2026001'}
+#73 2026-11-10 11:02:50 (anonymous) LOGIN_FAILURE user:(invalid format) FAILURE {'reason': 'invalid_input_format'}
+#90 2026-11-10 11:03:28 lecturer01 LOGIN_SUCCESS user:lecturer01 SUCCESS {}
+#92 2026-11-10 11:03:28 lecturer01 LOGOUT user:lecturer01 SUCCESS {}
+#64 2026-11-10 11:02:41 student01 RECORD_ACCESS_DENIED student:2/contact DENIED {'method': 'POST', 'permission': 'profile.update_contact'}
+#88 2026-11-10 11:03:25 admin01 ROLE_ASSIGN user:rm6cd03f SUCCESS {'role': 'STUDENT'}
+#89 2026-11-10 11:03:26 admin01 ROLE_REMOVE user:rm6cd03f SUCCESS {'role': 'STUDENT'}
+#87 2026-11-10 11:03:25 admin01 USER_CREATE user:rm6cd03f SUCCESS {'user_id': 15}
+#23 2026-11-10 11:02:00 admin01 USER_DISABLE user:disf3ed6d SUCCESS {'user_id': 13}

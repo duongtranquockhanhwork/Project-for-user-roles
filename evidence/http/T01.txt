@@ -1,0 +1,17 @@
+Evidence for T01 - generated 2026-11-10 18:01:30
+Target: http://localhost:8000
+
+### Login with correct credentials
+> POST /login
+> body: username=student01&password=[REDACTED]
+< HTTP 302
+< Location: /
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< Set-Cookie: urs_session=[REDACTED]; HttpOnly; Path=/; SameSite=Strict
+< page text: Redirecting... Redirecting... You should be redirected automatically to the target URL: / . If not, click the link.
+
+### Dashboard after login
+> GET /
+< HTTP 200
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Dashboard · University Records System UniRecords University Records System Overview Dashboard My studies My profile My enrollments My grades Secure session · server-side RBAC UniRecords Dashboard NA Nguyen Van An student01 · Student Welcome back, Nguyen Van An Signed in as student01 . Your access is limited to what your roles allow — everything else is denied by default. Student My studies 2 Active courses 6 Credits enrolled 2 Grades published 7.50 Average score Quick actions View my grades Scores of all your courses My profile Check and update contact details Effective permissions enrollment.

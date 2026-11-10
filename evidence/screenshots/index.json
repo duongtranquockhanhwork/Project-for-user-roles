@@ -1,0 +1,212 @@
+[
+  {
+    "file": "01-login-page.png",
+    "section": "authentication",
+    "caption": "Sign-in page with the product overview and the login form",
+    "test": ""
+  },
+  {
+    "file": "02-login-failure-generic-message.png",
+    "section": "authentication",
+    "caption": "Wrong password: one generic error message (HTTP 401)",
+    "test": "T02"
+  },
+  {
+    "file": "03-disabled-account-rejected.png",
+    "section": "authentication",
+    "caption": "Disabled account with the correct password is rejected",
+    "test": "T03"
+  },
+  {
+    "file": "04-sqli-login-rejected.png",
+    "section": "authentication",
+    "caption": "SQL-injection payload in the login form: generic failure, no database error",
+    "test": "T18"
+  },
+  {
+    "file": "05-student-dashboard.png",
+    "section": "student",
+    "caption": "Student dashboard: study statistics and quick actions",
+    "test": "T01"
+  },
+  {
+    "file": "06-student-profile.png",
+    "section": "student",
+    "caption": "Student profile with the self-service contact form",
+    "test": ""
+  },
+  {
+    "file": "07-student-enrollments.png",
+    "section": "student",
+    "caption": "Student's own enrollments",
+    "test": ""
+  },
+  {
+    "file": "08-student-own-grades.png",
+    "section": "student",
+    "caption": "Student's own grades with colour-coded scores and the average",
+    "test": "T06"
+  },
+  {
+    "file": "09-lecturer-dashboard.png",
+    "section": "lecturer",
+    "caption": "Lecturer dashboard: assigned courses, students and pending grades",
+    "test": ""
+  },
+  {
+    "file": "10-lecturer-courses.png",
+    "section": "lecturer",
+    "caption": "Lecturer sees only the courses assigned to them",
+    "test": ""
+  },
+  {
+    "file": "11-lecturer-assigned-roster.png",
+    "section": "lecturer",
+    "caption": "Roster of the assigned course IS101 with grade entry",
+    "test": "T09"
+  },
+  {
+    "file": "12-lecturer-grade-update-success.png",
+    "section": "lecturer",
+    "caption": "Grade saved for S2026002 in IS101 (confirmation toast)",
+    "test": "T10"
+  },
+  {
+    "file": "13-ta-own-enrollment-protected.png",
+    "section": "lecturer",
+    "caption": "Multi-role ta01 grades NW301 but cannot grade their own enrollment",
+    "test": "T27"
+  },
+  {
+    "file": "14-registrar-dashboard.png",
+    "section": "registrar",
+    "caption": "Registrar dashboard: records, enrollments and courses",
+    "test": ""
+  },
+  {
+    "file": "15-registrar-student-search.png",
+    "section": "registrar",
+    "caption": "Student search (the search text is a bound SQL parameter)",
+    "test": ""
+  },
+  {
+    "file": "16-registrar-new-student-form.png",
+    "section": "registrar",
+    "caption": "Form for creating a student record",
+    "test": ""
+  },
+  {
+    "file": "17-registrar-creates-enrollment.png",
+    "section": "registrar",
+    "caption": "Registrar enrolls S2026006 in IS101",
+    "test": "T12"
+  },
+  {
+    "file": "18-admin-dashboard.png",
+    "section": "administrator",
+    "caption": "Administrator dashboard: account statistics only, no academic data",
+    "test": ""
+  },
+  {
+    "file": "19-admin-users-and-roles.png",
+    "section": "administrator",
+    "caption": "User accounts, role chips, status and role-assignment controls",
+    "test": "T16"
+  },
+  {
+    "file": "20-student-idor-denied.png",
+    "section": "rejections",
+    "caption": "student01 changes the id in the URL to another student: HTTP 403",
+    "test": "T07"
+  },
+  {
+    "file": "21-student-direct-grade-request-denied.png",
+    "section": "rejections",
+    "caption": "student01 sends a grade-modification request directly: HTTP 403",
+    "test": "T08"
+  },
+  {
+    "file": "22-lecturer-unassigned-course-denied.png",
+    "section": "rejections",
+    "caption": "lecturer01 modifies a grade in unassigned NW301: HTTP 403",
+    "test": "T11"
+  },
+  {
+    "file": "23-registrar-grade-modification-denied.png",
+    "section": "rejections",
+    "caption": "registrar01 modifies a grade: HTTP 403",
+    "test": "T13"
+  },
+  {
+    "file": "24-auditor-modify-student-denied.png",
+    "section": "rejections",
+    "caption": "auditor01 modifies a student record: HTTP 403",
+    "test": "T15"
+  },
+  {
+    "file": "25-admin-view-grades-denied.png",
+    "section": "rejections",
+    "caption": "admin01 (ADMIN only) opens a grade page: HTTP 403",
+    "test": "T17"
+  },
+  {
+    "file": "26-admin-role-conflict-denied.png",
+    "section": "rejections",
+    "caption": "Assigning AUDITOR to an administrator violates separation of duties: HTTP 403",
+    "test": "T30"
+  },
+  {
+    "file": "27-xss-payload-rendered-as-text.png",
+    "section": "input",
+    "caption": "Stored <script> payload is displayed as plain text and does not execute",
+    "test": "T19"
+  },
+  {
+    "file": "28-session-invalid-after-logout.png",
+    "section": "input",
+    "caption": "After logout the old session is rejected: HTTP 401",
+    "test": "T04"
+  },
+  {
+    "file": "29-auditor-dashboard.png",
+    "section": "auditor",
+    "caption": "Security Auditor dashboard: audit volume, denials and failed logins",
+    "test": ""
+  },
+  {
+    "file": "30-audit-log-entries.png",
+    "section": "auditor",
+    "caption": "Security audit log with timestamp, actor, event, target, result and details",
+    "test": "T14"
+  },
+  {
+    "file": "31-audit-log-rejected-actions.png",
+    "section": "auditor",
+    "caption": "Audit log filtered on rejected actions",
+    "test": "T20"
+  },
+  {
+    "file": "32-audit-log-hash-chain-verified.png",
+    "section": "auditor",
+    "caption": "Integrity check: the SHA-256 hash chain is intact",
+    "test": "T42"
+  },
+  {
+    "file": "33-auditor-access-control-configuration.png",
+    "section": "auditor",
+    "caption": "Read-only view of the access-control configuration",
+    "test": "T14"
+  },
+  {
+    "file": "34-hashed-password-records.png",
+    "section": "database",
+    "caption": "users.password_hash contains only Argon2id hashes",
+    "test": "T05"
+  },
+  {
+    "file": "35-security-test-results.png",
+    "section": "database",
+    "caption": "Automated security test results (pytest)",
+    "test": "T01–T44"
+  }
+]

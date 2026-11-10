@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui with context %}
+{% block title %}{{ 'Edit student' if student else 'New student' }}{% endblock %}
+{% block crumb %}{{ 'Edit ' ~ student.student_code if student else 'New student' }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><div class="eyebrow">{{ ui.icon('users') }} Registry</div>
+  <h1>{{ 'Edit student ' ~ student.student_code if student else 'New student record' }}</h1>
+  <p>{{ 'Update the official record of this student.' if student else 'Create a student record and optionally link it to an existing STUDENT account.' }}</p></div>
+</div>
+<div class="grid grid-side">
+<div class="card">
+  <div class="card-head"><h2>{{ ui.icon('file') }} Student details</h2></div>
+  <div class="card-body">
+  <form method="post" class="form" action="{{ url_for('students.update_student', student_id=student.id) if student else url_for('students.create_student') }}">
+    {{ ui.csrf() }}
+    {% if not student %}
+    <div class="form-row">
+      <div class="field"><label for="student_code">Student code</label><input id="student_code" name="student_code" maxlength="12" required placeholder="S2026007"><div class="hint">5–12 uppercase letters or digits.</div></div>
+      <div class="field"><label for="linked_username">Linked account (optional)</label><input id="linked_username" name="linked_username" maxlength="32" placeholder="username with STUDENT role"></div>
+    </div>
+    {% endif %}
+    <div class="form-row">
+      <div class="field"><label for="full_name">Full name</label><input id="full_name" name="full_name" maxlength="100" required value="{{ student.full_name if student else '' }}"></div>
+      <div class="field"><label for="date_of_birth">Date of birth</label><input id="date_of_birth" name="date_of_birth" type="date" value="{{ student.date_of_birth if student and student.date_of_birth else '' }}"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label for="program">Program</label><input id="program" name="program" maxlength="100" value="{{ (student.program or '') if student else '' }}"></div>
+      <div class="field"><label for="email">Email</label><input id="email" name="email" maxlength="254" value="{{ (student.email or '') if student else '' }}"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" maxlength="20" value="{{ (student.phone or '') if student else '' }}"></div>
+      <div class="field"><label for="address">Address</label><input id="address" name="address" maxlength="200" value="{{ (student.address or '') if student else '' }}"></div>
+    </div>
+    <div class="actions"><button type="submit" class="btn">{{ ui.icon('save') }} Save record</button>
+      <a class="btn btn-ghost" href="{{ url_for('students.view_student', student_id=student.id) if student else url_for('students.list_students') }}">Cancel</a></div>
+  </form>
+  </div>
+</div>
+<div class="card"><div class="card-head"><h2>{{ ui.icon('shield') }} Validation rules</h2></div>
+  <div class="card-body"><p class="muted">All fields are validated on the server: allow-listed formats, length limits and no control characters. Every change is written to the audit log.</p></div></div>
+</div>
+{% endblock %}

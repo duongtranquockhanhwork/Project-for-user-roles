@@ -1,0 +1,15 @@
+Evidence for T44 - generated 2026-11-10 18:03:30
+Target: http://localhost:8000
+
+### Denied statements
+DELETE FROM grades WHERE id = 1                                -> 42501
+DELETE FROM students WHERE id = 6                              -> 42501
+UPDATE role_permissions SET scope = 'ALL' WHERE permission_c   -> 42501
+INSERT INTO role_permissions VALUES (5, 'grade.write', 'ALL'   -> 42501
+UPDATE users SET username = 'root' WHERE id = 1                -> 42501
+CREATE TABLE evil (id int)                                     -> 42501
+SELECT rolpassword FROM pg_authid                              -> 42501
+DROP TABLE audit_logs                                          -> 42501
+
+### Role attributes of uni_app
+RealDictRow([('rolsuper', False), ('rolcreaterole', False), ('rolcreatedb', False), ('rolbypassrls', False)]); tables owned: 0

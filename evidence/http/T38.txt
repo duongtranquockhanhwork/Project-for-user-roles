@@ -1,0 +1,37 @@
+Evidence for T38 - generated 2026-11-10 18:03:17
+Target: http://localhost:8000
+
+### contact={'email': 'not-an-email'}
+> POST /students/1/contact
+> body: email=not-an-email&csrf_token=[REDACTED]
+< HTTP 400
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My studies My profile My enrollments My grades Secure session · server-side RBAC UniRecords Error 400 NA Nguyen Van An student01 · Student Error 400 Invalid request The request was invalid. Email has an invalid format. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+
+### contact={'phone': '12;DROP'}
+> POST /students/1/contact
+> body: phone=12%3BDROP&csrf_token=[REDACTED]
+< HTTP 400
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My studies My profile My enrollments My grades Secure session · server-side RBAC UniRecords Error 400 NA Nguyen Van An student01 · Student Error 400 Invalid request The request was invalid. Phone has an invalid format. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+
+### contact={'address': 'abc\x00def'}
+> POST /students/1/contact
+> body: address=abc%00def&csrf_token=[REDACTED]
+< HTTP 400
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My studies My profile My enrollments My grades Secure session · server-side RBAC UniRecords Error 400 NA Nguyen Van An student01 · Student Error 400 Invalid request The request was invalid. Address contains invalid characters. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+
+### contact={'address': 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+> POST /students/1/contact
+> body: address=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&csrf_token=[REDACTED]
+< HTTP 400
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My studies My profile My enrollments My grades Secure session · server-side RBAC UniRecords Error 400 NA Nguyen Van An student01 · Student Error 400 Invalid request The request was invalid. Address must be 1-200 characters. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+
+### contact={'email': 'a@b.c<script>'}
+> POST /students/1/contact
+> body: email=a%40b.c%3Cscript%3E&csrf_token=[REDACTED]
+< HTTP 400
+< Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My studies My profile My enrollments My grades Secure session · server-side RBAC UniRecords Error 400 NA Nguyen Van An student01 · Student Error 400 Invalid request The request was invalid. Email has an invalid format. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026

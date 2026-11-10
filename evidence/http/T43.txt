@@ -1,0 +1,6 @@
+Evidence for T43 - generated 2026-11-10 18:03:30
+Target: http://localhost:8000
+
+### Direct database writes
+updated_by=registrar01: grade_guard: writer is not an assigned lecturer
+updated_by=lecturer02: grade_guard: writer is not an assigned lecturer
