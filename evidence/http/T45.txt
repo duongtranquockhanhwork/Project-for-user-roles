@@ -1,9 +1,9 @@
-Evidence for T45 - generated 2026-11-10 19:45:26
+Evidence for T45 - generated 2026-11-10 20:34:18
 Target: http://localhost:8000
 
 ### Registration with forged role fields
 > POST /register
-> body: full_name=Registered+Student&username=reg1ca3b2&email=reg1ca3b2%40student.example.edu&password=[REDACTED]&confirm_password=[REDACTED]&role=ADMIN&is_admin=1&roles=ADMIN%2CAUDITOR
+> body: full_name=Registered+Student&username=regac17fa&email=regac17fa%40student.example.edu&password=[REDACTED]&confirm_password=[REDACTED]&role=ADMIN&is_admin=1&roles=ADMIN%2CAUDITOR
 < HTTP 302
 < Location: /login?notice=account_created
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'

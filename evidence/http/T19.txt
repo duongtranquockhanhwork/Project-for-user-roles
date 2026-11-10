@@ -1,4 +1,4 @@
-Evidence for T19 - generated 2026-11-10 19:44:52
+Evidence for T19 - generated 2026-11-10 20:33:44
 Target: http://localhost:8000
 
 ### Profile viewed by student01
@@ -6,7 +6,7 @@ Target: http://localhost:8000
 < HTTP 200
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
 < raw HTML excerpt: id="address">&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;&lt;img src=x onerror=alert(1)&gt;</dd></div>
-    <div><dt>Last updated</dt><dd>10 Nov 2026, 12:44
+    <div><dt>Last updated</dt><dd>10 Nov 2026, 13:33
 < page text: Nguyen Van An · University Records System UniRecords University Records System Overview Dashboard My account My studies My profile My enrollments My grades Classes Class catalog Faculty of Information Technology UniRecords Student profile NA Nguyen Van An student01 · Student Student profile Nguyen Van An Official record S2026001 · Information Technology Enrollments Grades NA Nguyen Van An S2026001 · account student01 Student code S2026001 Date of birth 2005-03-14 Program Information Technology Login account student01 Email an.nguyen@student.example.edu Phone 0901000001 Address <script>alert('x
 
 ### Profile viewed by registrar01
@@ -14,5 +14,5 @@ Target: http://localhost:8000
 < HTTP 200
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
 < raw HTML excerpt: id="address">&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;&lt;img src=x onerror=alert(1)&gt;</dd></div>
-    <div><dt>Last updated</dt><dd>10 Nov 2026, 12:44
+    <div><dt>Last updated</dt><dd>10 Nov 2026, 13:33
 < page text: Nguyen Van An · University Records System UniRecords University Records System Overview Dashboard My account Academic Courses Students Enrollments Faculty of Information Technology UniRecords Student profile RR Rita Registrar registrar01 · Registrar Student profile Nguyen Van An Official record S2026001 · Information Technology Enrollments Grades Edit record NA Nguyen Van An S2026001 · account student01 Student code S2026001 Date of birth 2005-03-14 Program Information Technology Login account student01 Email an.nguyen@student.example.edu Phone 0901000001 Address <script>alert('xss')</script><

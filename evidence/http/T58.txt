@@ -1,16 +1,16 @@
-Evidence for T58 - generated 2026-11-10 19:48:40
+Evidence for T58 - generated 2026-11-10 20:37:32
 Target: http://localhost:8000
 
 ### Wrong reference code
 > POST /forgot-password/status
-> body: username=accd03d79&code=wrong-code
+> body: username=acca825bd&code=wrong-code
 < HTTP 404
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
 < page text: Request status · University Records System UniRecords University Records System Password request status Enter your username and the reference code you received. No request matches this username and code. Username Reference code Check status New request · Back to sign in
 
 ### Login with expired temporary password
 > POST /login
-> body: username=accd03d79&password=[REDACTED]
+> body: username=acca825bd&password=[REDACTED]
 < HTTP 401
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
 < page text: Sign in · University Records System UniRecords University Records System Your academic life, in one place. Follow your classes, see every grade component and your averages, and keep your contact details up to date. Grades & averages Process, midterm and final scores with your course totals. Class catalog Browse open classes and join them in one click. For the whole faculty Students, lecturers and the registrar's office. Faculty of Information Technology · Ton Duc Thang University Welcome back Sign in with your university account. Invalid username or password. Username Password Forgot password?

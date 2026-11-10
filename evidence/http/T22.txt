@@ -1,9 +1,9 @@
-Evidence for T22 - generated 2026-11-10 19:43:39
+Evidence for T22 - generated 2026-11-10 20:32:31
 Target: http://localhost:8000
 
 ### Correct password after 5 failures
 > POST /login
-> body: username=lock9243d0&password=[REDACTED]
+> body: username=lock6191f6&password=[REDACTED]
 < HTTP 401
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
 < page text: Sign in · University Records System UniRecords University Records System Your academic life, in one place. Follow your classes, see every grade component and your averages, and keep your contact details up to date. Grades & averages Process, midterm and final scores with your course totals. Class catalog Browse open classes and join them in one click. For the whole faculty Students, lecturers and the registrar's office. Faculty of Information Technology · Ton Duc Thang University Welcome back Sign in with your university account. Invalid username or password. Username Password Forgot password?

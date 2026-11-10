@@ -1,16 +1,16 @@
-Evidence for T46 - generated 2026-11-10 19:45:36
+Evidence for T46 - generated 2026-11-10 20:34:28
 Target: http://localhost:8000
 
 ### short password
 > POST /register
-> body: full_name=Registered+Student&username=reg81950c&email=reg81950c%40student.example.edu&password=[REDACTED]&confirm_password=[REDACTED]
+> body: full_name=Registered+Student&username=reg8a4950&email=reg8a4950%40student.example.edu&password=[REDACTED]&confirm_password=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
 < page text: Create account · University Records System UniRecords University Records System Your academic life, in one place. Follow your classes, see every grade component and your averages, and keep your contact details up to date. Grades & averages Process, midterm and final scores with your course totals. Class catalog Browse open classes and join them in one click. For the whole faculty Students, lecturers and the registrar's office. Faculty of Information Technology · Ton Duc Thang University Create your student account A new student profile with its own student code is created for you. Password mus
 
 ### confirmation mismatch
 > POST /register
-> body: full_name=Registered+Student&username=reg6697b7&email=reg6697b7%40student.example.edu&password=[REDACTED]&confirm_password=[REDACTED]
+> body: full_name=Registered+Student&username=regcf86d3&email=regcf86d3%40student.example.edu&password=[REDACTED]&confirm_password=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
 < page text: Create account · University Records System UniRecords University Records System Your academic life, in one place. Follow your classes, see every grade component and your averages, and keep your contact details up to date. Grades & averages Process, midterm and final scores with your course totals. Class catalog Browse open classes and join them in one click. For the whole faculty Students, lecturers and the registrar's office. Faculty of Information Technology · Ton Duc Thang University Create your student account A new student profile with its own student code is created for you. The two pass

@@ -1,4 +1,4 @@
-Evidence for T27 - generated 2026-11-10 19:44:24
+Evidence for T27 - generated 2026-11-10 20:33:16
 Target: http://localhost:8000
 
 ### TA grades own enrollment
@@ -10,7 +10,7 @@ Target: http://localhost:8000
 
 ### TA grades another student
 > POST /grades
-> body: enrollment_id=7&process1=2.43&process2=5.62&midterm=1.94&final_exam=1.33&csrf_token=[REDACTED]
+> body: enrollment_id=7&process1=9.53&process2=5.62&midterm=4.7&final_exam=3.74&csrf_token=[REDACTED]
 < HTTP 302
 < Location: /courses/4/roster?notice=grade_saved
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'

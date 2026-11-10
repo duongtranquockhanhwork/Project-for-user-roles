@@ -1,13 +1,13 @@
-Evidence for T10 - generated 2026-11-10 19:44:05
+Evidence for T10 - generated 2026-11-10 20:32:57
 Target: http://localhost:8000
 
 ### Update grade in assigned course
 > POST /grades
-> body: enrollment_id=1&process1=1.88&process2=3.09&midterm=3.9&final_exam=8.23&csrf_token=[REDACTED]
+> body: enrollment_id=1&process1=9.52&process2=2.69&midterm=0.86&final_exam=3.12&csrf_token=[REDACTED]
 < HTTP 302
 < Location: /courses/1/roster?notice=grade_saved
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
 < page text: Redirecting... Redirecting... You should be redirected automatically to the target URL: /courses/1/roster?notice=grade_saved . If not, click the link.
 
 ### Audit entry
-RealDictRow([('details', {'total': '5.70', 'course': 'IS101', 'midterm': '3.9', 'process1': '1.88', 'process2': '3.09', 'final_exam': '8.23', 'old_midterm': '8.00', 'old_process1': '9.00', 'old_process2': '8.50', 'student_code': 'S2026001', 'old_final_exam': '8.50'}), ('result', 'SUCCESS')])
+RealDictRow([('details', {'total': '3.22', 'course': 'IS101', 'midterm': '0.86', 'process1': '9.52', 'process2': '2.69', 'final_exam': '3.12', 'old_midterm': '8.00', 'old_process1': '9.00', 'old_process2': '8.50', 'student_code': 'S2026001', 'old_final_exam': '8.50'}), ('result', 'SUCCESS')])

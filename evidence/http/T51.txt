@@ -1,4 +1,4 @@
-Evidence for T51 - generated 2026-11-10 19:46:10
+Evidence for T51 - generated 2026-11-10 20:35:02
 Target: http://localhost:8000
 
 ### Join
@@ -14,7 +14,7 @@ Target: http://localhost:8000
 > body: csrf_token=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
-< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My account My studies My profile My enrollments My grades Classes Class catalog Faculty of Information Technology UniRecords Error 400 RS Registered Student reg0f1425 · Student Error 400 Invalid request The request was invalid. You are already enrolled in this class. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
+< page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My account My studies My profile My enrollments My grades Classes Class catalog Faculty of Information Technology UniRecords Error 400 RS Registered Student regd5601e · Student Error 400 Invalid request The request was invalid. You are already enrolled in this class. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
 
 ### Leave
 > POST /classes/9/leave

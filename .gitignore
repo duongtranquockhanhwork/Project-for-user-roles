@@ -21,3 +21,6 @@ Thumbs.db
 
 # Intermediate files of the report build
 docs/build/
+
+# Submission archives
+dist/

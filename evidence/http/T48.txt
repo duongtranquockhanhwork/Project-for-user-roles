@@ -1,9 +1,9 @@
-Evidence for T48 - generated 2026-11-10 19:45:51
+Evidence for T48 - generated 2026-11-10 20:34:43
 Target: http://localhost:8000
 
 ### Registrar creates a class
 > POST /courses
-> body: code=TDH1775&title=Test+Class+TDH1775&credits=3&semester=2026-1&capacity=30&lecturer=&csrf_token=[REDACTED]
+> body: code=TFL3078&title=Test+Class+TFL3078&credits=3&semester=2026-1&capacity=30&lecturer=&csrf_token=[REDACTED]
 < HTTP 302
 < Location: /courses/6/roster?notice=course_created
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
@@ -11,28 +11,28 @@ Target: http://localhost:8000
 
 ### Capacity 31
 > POST /courses
-> body: code=TOQ4469&title=Test+Class+TOQ4469&credits=3&semester=2026-1&capacity=31&lecturer=&csrf_token=[REDACTED]
+> body: code=TJE6201&title=Test+Class+TJE6201&credits=3&semester=2026-1&capacity=31&lecturer=&csrf_token=[REDACTED]
 < HTTP 400
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
 < page text: Error 400 · University Records System UniRecords University Records System Overview Dashboard My account Academic Courses Students Enrollments Faculty of Information Technology UniRecords Error 400 RR Rita Registrar registrar01 · Registrar Error 400 Invalid request The request was invalid. Capacity must be a whole number between 1 and 30. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
 
 ### admin01 creates a class
 > POST /courses
-> body: code=TMD2353&title=Test+Class+TMD2353&credits=3&semester=2026-1&capacity=30&lecturer=&csrf_token=[REDACTED]
+> body: code=THW8472&title=Test+Class+THW8472&credits=3&semester=2026-1&capacity=30&lecturer=&csrf_token=[REDACTED]
 < HTTP 403
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
 < page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My account Administration Users & roles Password requests Secure session · server-side RBAC UniRecords Error 403 AA Alice Admin admin01 · Admin Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
 
 ### lecturer01 creates a class
 > POST /courses
-> body: code=TID7849&title=Test+Class+TID7849&credits=3&semester=2026-1&capacity=30&lecturer=&csrf_token=[REDACTED]
+> body: code=TEY2142&title=Test+Class+TEY2142&credits=3&semester=2026-1&capacity=30&lecturer=&csrf_token=[REDACTED]
 < HTTP 403
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
 < page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My account Classes Class catalog Academic My courses Faculty of Information Technology UniRecords Error 403 DL Dr. Linh Lecturer lecturer01 · Lecturer Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026
 
 ### student01 creates a class
 > POST /courses
-> body: code=TTX2333&title=Test+Class+TTX2333&credits=3&semester=2026-1&capacity=30&lecturer=&csrf_token=[REDACTED]
+> body: code=TNW2399&title=Test+Class+TNW2399&credits=3&semester=2026-1&capacity=30&lecturer=&csrf_token=[REDACTED]
 < HTTP 403
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
 < page text: Error 403 · University Records System UniRecords University Records System Overview Dashboard My account My studies My profile My enrollments My grades Classes Class catalog Faculty of Information Technology UniRecords Error 403 NA Nguyen Van An student01 · Student Error 403 Access denied You are not authorized to perform this action. Back to dashboard UniRecords · University Records System · Faculty of Information Technology, Ton Duc Thang University · 2026

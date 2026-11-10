@@ -1,6 +1,6 @@
-"""Build report/report.docx and report/report.pdf in the faculty report format.
+"""Build report.pdf (and docs/report/report.docx) in the faculty report format.
 
-The faculty template (report/mẫu/Midterm_Report.docx) is used as the base
+The faculty template (docs/report/template/Midterm_Report.docx) is used as the base
 document, so the cover pages, header logo, fonts, margins, page numbering,
 acknowledgement / declaration pages and table of contents keep exactly the
 template's format. Only the content is replaced.
@@ -26,11 +26,10 @@ from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
 from docx.shared import Cm, Pt
 
-SRC = pathlib.Path(__file__).resolve().parent.parent          # src_code/
-PROJECT = SRC.parent                                           # submission root
-TEMPLATE = PROJECT / "report" / "mẫu" / "Midterm_Report.docx"
-OUT_DOCX = PROJECT / "report" / "report.docx"
-OUT_PDF = PROJECT / "report" / "report.pdf"
+SRC = pathlib.Path(__file__).resolve().parent.parent          # submission root
+TEMPLATE = SRC / "docs" / "report" / "template" / "Midterm_Report.docx"   # faculty template
+OUT_DOCX = SRC / "docs" / "report" / "report.docx"             # editable copy
+OUT_PDF = SRC / "report.pdf"                                   # submitted report
 SHOTS = SRC / "evidence" / "screenshots"
 BUILD = SRC / "docs" / "build"
 
@@ -888,6 +887,8 @@ def main():
     results = json.loads((SRC / "tests" / "results" / "results.json").read_text(encoding="utf-8"))
     group = json.loads((SRC / "docs" / "group.json").read_text(encoding="utf-8"))
     img = prepare_images()
+    if not TEMPLATE.exists():
+        raise SystemExit(f"Faculty template not found: {TEMPLATE.relative_to(SRC)} - copy Midterm_Report.docx there.")
     doc = Document(str(TEMPLATE))
     add_caption_styles(doc)
     front_matter(doc, group)

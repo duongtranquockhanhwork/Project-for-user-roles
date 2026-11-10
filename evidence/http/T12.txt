@@ -1,9 +1,9 @@
-Evidence for T12 - generated 2026-11-10 19:44:09
+Evidence for T12 - generated 2026-11-10 20:33:01
 Target: http://localhost:8000
 
 ### Create enrollment
 > POST /enrollments
-> body: student_code=T4A1FFC&course_code=IS101&csrf_token=[REDACTED]
+> body: student_code=T275584&course_code=IS101&csrf_token=[REDACTED]
 < HTTP 302
 < Location: /enrollments?notice=enrollment_created
 < Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
