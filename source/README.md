@@ -45,7 +45,7 @@ This is the technical documentation of the source code. For running the system a
 │       ├── templates/          Jinja2 templates + _macros.html (auto-escaped, no inline script or style)
 │       └── static/             style.css, app.js, favicon.svg
 ├── database/
-│   ├── init/00-create-roles.sh creates the application role uni_app from APP_DB_PASSWORD
+│   ├── init/00-create-roles.sql creates the application role uni_app from APP_DB_PASSWORD
 │   ├── schema.sql              tables, constraints, triggers, grants
 │   └── seed-data.sql           roles, permissions, role conflicts, demo data
 ├── tests/

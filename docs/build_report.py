@@ -578,7 +578,7 @@ def chapters(bld, results, img, group):
     bld.h1("DATABASE-SECURITY CONTROLS")
     bld.bullets([
         "**Separate accounts.** The DBA account `uni_dba` is used only for initialization. The application connects "
-        "as `uni_app` (password from the environment, created by `database/init/00-create-roles.sh`): no "
+        "as `uni_app` (password from the environment, created by `database/init/00-create-roles.sql`): no "
         "superuser, CREATEROLE, CREATEDB or BYPASSRLS, owns no table; CONNECT is revoked from PUBLIC.",
         "**Table and column grants.** No DELETE on users, students, enrollments or grades; UPDATE only on "
         "named columns (the four grade components, never the total; no username or class-code change); policy "

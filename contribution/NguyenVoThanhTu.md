@@ -14,7 +14,7 @@
 - **Database schema:** `database/schema.sql`, covering users, roles, sessions, student records, classes,
   enrollments, grades with four components and a generated total, password-reset requests and the audit log.
 - **Least privilege:** a separate application role `uni_app`, created from an environment password
-  (`database/init/00-create-roles.sh`), with table- and column-level grants, no DELETE on academic data and
+  (`database/init/00-create-roles.sql`), with table- and column-level grants, no DELETE on academic data and
   read-only policy tables.
 - **Guard triggers:** grade writes limited to the assigned lecturer and blocked for self-grading, role-conflict
   checks, the class capacity limit (30), one lecturer per class, and lecturer-only assignment.

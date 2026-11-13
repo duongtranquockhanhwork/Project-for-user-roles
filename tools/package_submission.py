@@ -27,7 +27,8 @@ import pathlib
 import zipfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-REQUIRED = ["README.md", "report/report.pdf", "source", "database/schema.sql", "database/seed-data.sql", "tests",
+REQUIRED = ["README.md", "report/report.pdf", "source", "database/schema.sql", "database/seed-data.sql",
+            "database/init/00-create-roles.sql", "docker-compose.yml", ".env.example", "tests",
             "evidence", "contribution/member-a.pdf", "contribution/member-b.pdf", "contribution/member-c.pdf",
             "demo-video-link.txt"]
 SKIP_DIRS = {".git", "__pycache__", ".pytest_cache", "dist", "build", "results", ".venv", "venv", "template"}

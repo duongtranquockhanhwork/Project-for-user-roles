@@ -12,7 +12,7 @@ services:
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./database/init/00-create-roles.sh:/docker-entrypoint-initdb.d/00-create-roles.sh:ro
+      - ./database/init/00-create-roles.sql:/docker-entrypoint-initdb.d/00-create-roles.sql:ro
       - ./database/schema.sql:/docker-entrypoint-initdb.d/10-schema.sql:ro
       - ./database/seed-data.sql:/docker-entrypoint-initdb.d/20-seed-data.sql:ro
     # Bound to localhost only: the database is never exposed to the network.

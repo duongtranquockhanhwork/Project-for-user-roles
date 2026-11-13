@@ -3,7 +3,7 @@
 --
 -- Run as the database owner (the DBA account used during container init).
 -- The low-privilege application role `uni_app` must already exist; it is
--- created by database/init/00-create-roles.sh so that its password comes from
+-- created by database/init/00-create-roles.sql so that its password comes from
 -- the environment and is never committed to the repository.
 --
 -- Security features implemented at the database layer:

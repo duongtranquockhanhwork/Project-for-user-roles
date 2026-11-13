@@ -74,6 +74,11 @@ docker compose up -d --build
 
 **Step 4.** Open **http://localhost:8000** in a browser.
 
+> **If the login page says the database is not ready or every login fails** (the log of `db` shows
+> `relation "users" does not exist`), the database volume was created by an earlier, failed start. Remove it
+> with `docker compose down -v` and run `docker compose up -d --build` again: the database is only initialised
+> when its volume is empty.
+
 To reset the system to the original seed data at any time (this deletes all changes):
 
 ```bash
