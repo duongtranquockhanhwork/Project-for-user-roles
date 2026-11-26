@@ -12,7 +12,7 @@
     <thead><tr><th>Course</th><th>Title</th><th class="num">Credits</th><th>Semester</th><th>Status</th></tr></thead>
     <tbody>
     {% for e in enrollments %}
-      <tr><td><span class="chip">{{ e.code }}</span></td><td><b>{{ e.title }}</b></td><td class="num">{{ e.credits }}</td><td>{{ e.semester }}</td><td>{{ ui.status_badge(e.status) }}</td></tr>
+      <tr><td><span class="stamp">{{ e.code }}</span></td><td><b>{{ e.title }}</b></td><td class="num">{{ e.credits }}</td><td>{{ e.semester }}</td><td>{{ ui.status_badge(e.status) }}</td></tr>
     {% else %}<tr><td colspan="5">{{ ui.empty('book', 'No enrollments.') }}</td></tr>{% endfor %}
     </tbody>
   </table>

@@ -4,9 +4,9 @@
 {% block crumb %}Dashboard{% endblock %}
 {% block content %}
 <section class="hero">
-  <div class="hero-art">{{ ui.icon('shield-check') }}</div>
-  <h1>Welcome back, {{ current_user.full_name }}</h1>
-  <p>Signed in as <b id="who">{{ current_user.username }}</b>.{% if current_user.has('user.read') or current_user.has('audit.read') %} Your access is limited to what your roles allow — everything else is denied by default.{% else %} Here is an overview of your work this semester.{% endif %}</p>
+  <div class="eyebrow">{{ ui.icon('home') }} Dashboard</div>
+  <h1>{{ current_user.full_name }}</h1>
+  <p>Signed in as <b id="who">{{ current_user.username }}</b>.{% if current_user.has('user.read') or current_user.has('audit.read') %} Your access is limited to what your roles allow; everything else is denied by default.{% else %} An overview of your work this semester.{% endif %}</p>
   <div class="role-list">{% for r in current_user.roles|sort %}<span class="chip">{{ r|title }}</span>{% endfor %}</div>
 </section>
 
@@ -53,7 +53,7 @@
 </div>
 {% endif %}
 
-<div class="section-title">{{ ui.icon('arrow-right') }} Quick actions</div>
+<div class="section-title">Quick actions</div>
 <div class="grid grid-3 stagger">
   {% if current_user.student_id and current_user.has('grade.read') %}
   <a class="card tile" href="{{ url_for('students.student_grades', student_id=current_user.student_id) }}"><span class="stat-icon">{{ ui.icon('graduation') }}</span><div><b>View my grades</b><span>Scores of all your courses</span></div>{{ ui.icon('arrow-right', 'go') }}</a>

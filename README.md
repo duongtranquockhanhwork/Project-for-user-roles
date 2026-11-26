@@ -72,7 +72,8 @@ python -c "import secrets; print(secrets.token_urlsafe(24))"
 docker compose up -d --build
 ```
 
-**Step 4.** Open **http://localhost:8000** in a browser.
+**Step 4.** Open **http://localhost:8000** in a browser. The sun/moon button (top right, and at the bottom of the sign-in page) switches
+between the light and dark theme; by default the theme follows the operating system.
 
 > **If the login page says the database is not ready or every login fails** (the log of `db` shows
 > `relation "users" does not exist`), the database volume was created by an earlier, failed start. Remove it
@@ -194,8 +195,8 @@ python -m pytest tests
 
 The suite has 62 tests (mandatory T01–T20 plus original T21–T62). The results are written to
 `evidence/test-results.html`, one request/response trace per test to `evidence/http/`, and the
-screenshots to `evidence/screenshots/`. To regenerate the screenshots (Microsoft Edge must be installed),
-run:
+screenshots to `evidence/screenshots/`. To regenerate the screenshots (Microsoft Edge or Google Chrome must be
+installed; run it on a freshly reset database), run:
 
 ```bash
 python tests/capture_screenshots.py

@@ -14,8 +14,8 @@
     <thead><tr><th>Course</th><th>Student</th><th>Status</th><th>Enrolled</th><th></th></tr></thead>
     <tbody>
     {% for e in enrollments %}
-      <tr><td><span class="chip">{{ e.course_code }}</span></td>
-        <td><div class="person"><span class="avatar">{{ e.full_name|initials }}</span><div><b>{{ e.full_name }}</b><span class="mono">{{ e.student_code }}</span></div></div></td>
+      <tr><td><span class="stamp">{{ e.course_code }}</span></td>
+        <td><div class="person"><span class="avatar">{{ e.full_name|initials }}</span><div><b>{{ e.full_name }}</b><span class="stamp">{{ e.student_code }}</span></div></div></td>
         <td>{{ ui.status_badge(e.status) }}</td>
         <td class="nowrap">{{ e.enrolled_at.strftime('%d %b %Y') }}</td>
         <td class="num">{% if e.status == 'ENROLLED' %}

@@ -18,7 +18,7 @@
     <thead><tr><th>Student</th><th>Program</th><th>Login account</th><th></th></tr></thead>
     <tbody>
     {% for s in students %}
-      <tr><td><div class="person"><span class="avatar">{{ s.full_name|initials }}</span><div><b>{{ s.full_name }}</b><span class="mono">{{ s.student_code }}</span></div></div></td>
+      <tr><td><div class="person"><span class="avatar">{{ s.full_name|initials }}</span><div><b>{{ s.full_name }}</b><span class="stamp">{{ s.student_code }}</span></div></div></td>
           <td>{{ s.program or '—' }}</td>
           <td>{% if s.username %}<span class="chip">{{ ui.icon('user') }}{{ s.username }}</span>{% else %}<span class="badge muted">No account</span>{% endif %}</td>
           <td class="num"><a class="btn btn-soft btn-sm" href="{{ url_for('students.view_student', student_id=s.id) }}">Open {{ ui.icon('arrow-right', 'icon-sm') }}</a></td></tr>

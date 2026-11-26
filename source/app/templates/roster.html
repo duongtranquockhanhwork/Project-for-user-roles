@@ -86,7 +86,7 @@
     <tbody>
     {% for r in rows %}
       {% set editable = can_grade and r.status == 'ENROLLED' and r.user_id != current_user.id %}
-      <tr><td><div class="person"><span class="avatar">{{ r.full_name|initials }}</span><div><b>{{ r.full_name }}</b><span class="mono">{{ r.student_code }}</span></div></div></td>
+      <tr><td><div class="person"><span class="avatar">{{ r.full_name|initials }}</span><div><b>{{ r.full_name }}</b><span class="stamp">{{ r.student_code }}</span></div></div></td>
         <td>{{ ui.status_badge(r.status) }}</td>
         {% if show_grades %}
           {% for name, label, weight in components %}<td class="num">

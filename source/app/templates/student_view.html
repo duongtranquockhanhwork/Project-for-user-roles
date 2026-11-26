@@ -14,7 +14,7 @@
 <div class="grid {{ 'grid-side' if can_edit_contact }}">
 <div class="card">
   <div class="profile-head"><span class="avatar avatar-lg">{{ student.full_name|initials }}</span>
-    <div><h2>{{ student.full_name }}</h2><p><span class="mono">{{ student.student_code }}</span>{% if student.username %} · account <b>{{ student.username }}</b>{% endif %}</p></div></div>
+    <div><h2>{{ student.full_name }}</h2><p><span class="stamp">{{ student.student_code }}</span>{% if student.username %} · account <b>{{ student.username }}</b>{% endif %}</p></div></div>
   <dl class="kv" id="profile">
     <div><dt>Student code</dt><dd>{{ student.student_code }}</dd></div>
     <div><dt>Date of birth</dt><dd>{{ student.date_of_birth or '—' }}</dd></div>

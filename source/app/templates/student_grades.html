@@ -26,7 +26,7 @@
       <th class="num">Midterm<br><span class="weight">20 %</span></th><th class="num">Final<br><span class="weight">50 %</span></th><th class="num">Total</th></tr></thead>
     <tbody>
     {% for gr in grades %}
-      <tr><td><span class="chip">{{ gr.code }}</span> <b>{{ gr.title }}</b><br><span class="muted small">{{ gr.credits }} credits · {{ gr.semester }}</span></td>
+      <tr><td><span class="stamp">{{ gr.code }}</span> <b>{{ gr.title }}</b><br><span class="muted small">{{ gr.credits }} credits · {{ gr.semester }}</span></td>
           <td>{{ ui.status_badge(gr.status) }}</td>
           {% for c in ['process1', 'process2', 'midterm', 'final_exam'] %}<td class="num">{{ '%.2f'|format(gr[c]) if gr[c] is not none else '—' }}</td>{% endfor %}
           <td class="num">{{ ui.score(gr.score) }}</td></tr>

@@ -5,7 +5,8 @@ results page exists):
     python tests/capture_screenshots.py
 
 Uses Playwright with the locally installed Microsoft Edge (channel "msedge"),
-or Chromium if Edge is unavailable (`python -m playwright install chromium`).
+then Google Chrome (channel "chrome"), or Playwright's Chromium if neither is
+installed (`python -m playwright install chromium`).
 Screenshots are written to evidence/screenshots/ together with index.json,
 which records the section, caption and related test of every image (used by
 docs/build_report.py for the demonstration chapter).
@@ -107,10 +108,16 @@ def main():
                    (sid[s], cid[c]))["id"]
 
     with sync_playwright() as p:
-        try:
-            browser = p.chromium.launch(channel="msedge", headless=True)
-        except Exception:
-            browser = p.chromium.launch(headless=True)
+        browser = None
+        for channel in ("msedge", "chrome", None):      # Edge, then Google Chrome, then Playwright's Chromium
+            try:
+                browser = p.chromium.launch(channel=channel, headless=True) if channel else p.chromium.launch(headless=True)
+                break
+            except Exception:
+                continue
+        if browser is None:
+            raise SystemExit("No browser found: install Microsoft Edge or Google Chrome, "
+                             "or run `python -m playwright install chromium`.")
         s = Shooter(browser)
 
         # ---------------------------------------------------------- authentication

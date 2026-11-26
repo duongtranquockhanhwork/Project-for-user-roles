@@ -1,24 +1,10 @@
 /* UniRecords - progressive enhancement only.
  * Every security decision is taken on the server; this script only improves
- * usability (page transitions, confirmations, loading states, toasts).
+ * usability (confirmations, loading states, toasts, theme switch, mobile navigation).
  * It is served from 'self', so the strict CSP (script-src 'self') still applies.
  */
 (function () {
   "use strict";
-  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  // Smooth page transition when following an internal link.
-  document.addEventListener("click", function (e) {
-    var a = e.target.closest("a[href]");
-    if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    if (a.target || a.hasAttribute("download") || a.origin !== location.origin || a.hash) return;
-    if (reduceMotion) return;
-    e.preventDefault();
-    document.body.classList.add("leaving");
-    setTimeout(function () { location.href = a.href; }, 150);
-  });
-  window.addEventListener("pageshow", function () { document.body.classList.remove("leaving"); });
-
   // Confirmation for destructive actions and loading state on submit.
   document.addEventListener("submit", function (e) {
     var btn = e.submitter || e.target.querySelector("button[type=submit], button:not([type])");
@@ -41,6 +27,17 @@
     });
   });
 
+  // Light / dark theme switch (see theme.js).
+  document.querySelectorAll("[data-theme-toggle]").forEach(function (btn) {
+    function label() {
+      var dark = document.documentElement.getAttribute("data-theme") === "dark";
+      btn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+      btn.setAttribute("title", dark ? "Light theme" : "Dark theme");
+    }
+    label();
+    btn.addEventListener("click", function () { if (window.UniTheme) { window.UniTheme.toggle(); label(); } });
+  });
+
   // Mobile navigation.
   var toggle = document.querySelector(".menu-toggle");
   if (toggle) toggle.addEventListener("click", function (e) {
@@ -59,18 +56,4 @@
     setTimeout(function () { t.remove(); }, 4900);
   });
 
-  // Count-up animation for dashboard figures.
-  document.querySelectorAll("[data-count]").forEach(function (el) {
-    var target = parseFloat(el.getAttribute("data-count"));
-    var decimals = parseInt(el.getAttribute("data-decimals") || "0", 10);
-    if (isNaN(target) || reduceMotion) return;
-    var start = performance.now(), duration = 700;
-    function step(now) {
-      var p = Math.min(1, (now - start) / duration), eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = (target * eased).toFixed(decimals);
-      if (p < 1) requestAnimationFrame(step);
-    }
-    el.textContent = (0).toFixed(decimals);
-    requestAnimationFrame(step);
-  });
 })();

@@ -12,7 +12,7 @@
   {% set full = c.enrolled >= c.capacity %}
   {% set mine_teach = c.lecturer_id == current_user.id %}
   <div class="card class-card">
-    <div class="class-top"><span class="chip">{{ c.code }}</span>
+    <div class="class-top"><span class="stamp">{{ c.code }}</span>
       {% if c.my_status == 'ENROLLED' %}<span class="badge ok">Enrolled</span>{% elif mine_teach %}<span class="badge info">You teach</span>{% elif c.is_locked %}<span class="badge bad">Closed</span>{% elif full %}<span class="badge bad">Full</span>{% else %}<span class="badge muted">Open</span>{% endif %}</div>
     <b class="class-title">{{ c.title }}</b>
     <span class="class-meta">{{ ui.icon('user', 'icon-sm') }} {{ c.lecturer_name or 'No lecturer yet' }} · {{ c.credits }} credits</span>

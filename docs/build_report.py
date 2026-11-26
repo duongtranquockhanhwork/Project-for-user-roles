@@ -687,20 +687,31 @@ def chapters(bld, results, img, group):
           "1440 × 900 viewport). The figure captions name the test case that the screen illustrates, so each "
           "image can be traced to Appendix B.")
     bld.h2("A.1 Interface Design")
-    bld.p("The interface, branded UniRecords, uses one layout for all roles. A dark sidebar lists only the "
-          "sections that the user's permissions allow, grouped as Overview, My studies, Academic, Administration "
-          "and Security. A top bar shows a breadcrumb, the signed-in user with role badges and a logout button. "
-          "Each page starts with a header and summary tiles, followed by cards holding tables or forms. Status is "
-          "colour-coded consistently: grades by band (excellent, good, pass, fail), enrollments and accounts by "
-          "badges, and audit results as Success, Denied or Failure.")
-    bld.p("Interaction is enhanced by the external script `static/app.js`: smooth page transitions, entrance "
-          "animations, count-up statistics, a loading state on buttons, confirmation dialogs before destructive "
-          "actions (drop, disable) and auto-hiding confirmation toasts. The script carries no security logic. "
-          "Animations are disabled for users who prefer reduced motion, and the layout adapts to mobile screens "
-          "with a slide-in menu. Because the icons are inline SVG and all styles and scripts are served from the "
-          "application itself, the strict Content Security Policy remains unchanged.")
+    bld.p("The interface, branded UniRecords, uses one calm, light layout for all roles, modelled on a "
+          "registrar's ledger: neutral grey surfaces, hairline borders and a single ink-blue accent reserved for "
+          "primary actions, the current page and key figures. A light sidebar lists only the sections that the "
+          "user's permissions allow, grouped as Overview, My studies, Classes, Academic, Administration and "
+          "Security. A top bar shows a breadcrumb, the signed-in user with their roles and a logout button. Each "
+          "page starts with a header and summary figures, followed by cards holding tables or forms. Record codes "
+          "(student codes such as S2026001 and course codes such as IS101) appear as small monospaced stamps, and "
+          "grade components and totals use tabular monospaced figures with the weight of each component shown "
+          "under its column. Status is shown by a small coloured dot with a label: green for enrolled, active "
+          "and success, red for disabled, denied and failing totals, amber for locked accounts and failures.")
+    bld.p("Interaction is enhanced by the external script `static/app.js`: a loading state on buttons, "
+          "confirmation dialogs before destructive actions (drop, disable), auto-hiding confirmation toasts, the "
+          "password visibility toggle, the mobile menu and a light/dark theme switch. The theme follows the "
+          "operating system until the user picks one with the sun/moon button; the choice is stored only in the "
+          "browser (localStorage) and a small script in the page head (`static/theme.js`) applies it before the "
+          "page is drawn. The script carries no security logic. Motion is kept "
+          "to one short fade when a page opens and quick colour changes on hover; it is disabled for users who "
+          "prefer reduced motion, and the layout adapts to mobile screens with a slide-in menu. Because the icons "
+          "are inline SVG and all styles and scripts are served from the application itself, the strict Content "
+          "Security Policy remains unchanged.")
     bld.h2("A.2 Authentication")
-    bld.p("The sign-in page (Figure A.1) combines a product panel with the login form. The password field can be "
+    bld.p("The sign-in page (Figure A.1) is a single centred form, following the sign-in pattern of large "
+          "services such as GitHub and Stripe: the mark, a short title, the username and password fields, and the "
+          "link to registration in a separate box below. The registration and password-reset pages use the same "
+          "layout. The password field can be "
           "revealed with the eye button, and a link leads new students to registration. Whatever the reason "
           "for a failure (wrong password, unknown user, disabled or locked account, or an injection payload), the "
           "page shows the same message, as Figures A.2–A.4 show.")
@@ -715,7 +726,7 @@ def chapters(bld, results, img, group):
     bld.p("A student's dashboard summarises their own studies (active courses, credits, published grades and the "
           "average) and offers quick actions. The profile page shows the official record next to a self-service "
           "form limited to email, phone and address. The grade page lists the four components of every course, "
-          "the colour-coded total and the credit-weighted overall average. The catalog shows enrolled, open and "
+          "the course total (failing totals in red) and the credit-weighted overall average. The catalog shows enrolled, open and "
           "full classes; a class cannot be left once grades exist.")
     gallery("student")
     bld.h2("A.5 Lecturer Workspace")

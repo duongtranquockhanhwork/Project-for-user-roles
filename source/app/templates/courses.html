@@ -12,7 +12,7 @@
 <div class="grid grid-3 stagger" id="courses">
   {% for c in courses %}
   <a class="card class-card" href="{{ url_for('courses.roster', course_id=c.id) }}">
-    <div class="class-top"><span class="chip">{{ c.code }}</span><span class="muted">{{ c.credits }} credits · {{ c.semester }}</span></div>
+    <div class="class-top"><span class="stamp">{{ c.code }}</span><span class="muted">{{ c.credits }} credits · {{ c.semester }}</span></div>
     <b class="class-title">{{ c.title }}</b>
     <span class="class-meta">{{ ui.icon('user', 'icon-sm') }} {{ c.lecturer_name or 'No lecturer yet' }}</span>
     <span class="status-row">{% if c.started_at %}<span class="badge info">Started</span>{% endif %}{% if c.is_locked %}<span class="badge bad">Closed</span>{% else %}<span class="badge ok">Open</span>{% endif %}</span>

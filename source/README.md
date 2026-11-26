@@ -12,7 +12,7 @@ This is the technical documentation of the source code. For running the system a
 | Password hashing | Argon2id via `argon2-cffi` (memory 64 MiB, 3 iterations, 4 lanes) |
 | Database | PostgreSQL 16 (psycopg2, parameterized queries only) |
 | Runtime | Docker Compose: container `db` (postgres:16-alpine) and container `app` (python:3.11-slim, non-root user) |
-| Tests | pytest + requests (HTTP black-box), psycopg2 (database inspection), Playwright with Edge (screenshots) |
+| Tests | pytest + requests (HTTP black-box), psycopg2 (database inspection), Playwright with Edge or Chrome (screenshots) |
 
 ## 2. Folder layout
 
@@ -43,7 +43,7 @@ This is the technical documentation of the source code. For running the system a
 │       │   ├── admin.py        users and role assignment (administrator)
 │       │   └── audit_views.py  audit log, integrity check, access-control configuration (auditor)
 │       ├── templates/          Jinja2 templates + _macros.html (auto-escaped, no inline script or style)
-│       └── static/             style.css, app.js, favicon.svg
+│       └── static/             style.css, theme.js, app.js, favicon.svg
 ├── database/
 │   ├── init/00-create-roles.sql creates the application role uni_app from APP_DB_PASSWORD
 │   ├── schema.sql              tables, constraints, triggers, grants
@@ -91,16 +91,26 @@ Every request goes through these steps:
 
 ## 4. User interface
 
+* **Visual style:** a calm, light "registrar's ledger" look: neutral grey surfaces, hairline borders and one
+  ink-blue accent for primary actions, the current page and key figures. Record codes (S2026001, IS101) are shown
+  as small monospaced stamps; grade components and totals use tabular monospaced figures. Status is a coloured dot
+  with a label. There are no gradients, glows or looping animations.
+* **Light and dark theme:** a sun/moon button in the top bar and on the sign-in pages. The theme follows the
+  operating system until the user chooses one; the choice is stored in `localStorage` only. `static/theme.js` is
+  loaded in `<head>` (from `'self'`, so the CSP is unchanged) to apply it before the first paint.
+* **Signed-out pages:** sign in, registration and password reset share one centred layout (`ui.auth_page` in
+  `_macros.html`), following the sign-in pattern of large services: mark, short title, form card, the
+  alternative action in its own box and a quiet footer.
 * **Layout:** a role-aware sidebar (only sections the user's permissions allow), a top bar with breadcrumb, user
-  chip and logout, page headers, summary tiles and cards. Each role has its own dashboard with figures computed
+  and logout, page headers, summary figures and cards. Each role has its own dashboard with figures computed
   only from data that the role may already see (`routes/auth.py::dashboard`).
 * **Feedback:** after an action the handler redirects with `?notice=<code>`. The text comes from the fixed
   dictionary `NOTICES` in `app/__init__.py`, so no request data is reflected, and it is shown as an auto-hiding
   toast.
-* **Motion and usability (`static/app.js`):** page transitions, entrance animations, count-up statistics, loading
-  state on buttons, confirmation dialogs (`data-confirm`) before Drop and Disable, a password reveal button and
-  a mobile slide-in menu. Everything is disabled under `prefers-reduced-motion`. The script contains no
-  security logic.
+* **Usability (`static/app.js`):** loading state on buttons, confirmation dialogs (`data-confirm`) before Drop and
+  Disable, a password reveal button, auto-hiding toasts and a mobile slide-in menu. Motion is limited to one short
+  fade when a page opens and quick colour changes on hover, and is disabled under `prefers-reduced-motion`. The
+  script contains no security logic.
 * **CSP compatibility:** there are no inline scripts and no `style=""` attributes; icons are inline SVG, so the policy
   `script-src 'self'; style-src 'self'` stays strict.
 

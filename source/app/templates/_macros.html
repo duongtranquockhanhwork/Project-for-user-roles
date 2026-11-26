@@ -25,3 +25,24 @@
 {%- endmacro %}
 
 {% macro csrf() -%}<input type="hidden" name="csrf_token" value="{{ csrf_token }}">{%- endmacro %}
+
+{% macro theme_toggle() -%}
+<button type="button" class="btn btn-icon theme-toggle" data-theme-toggle aria-label="Switch theme">{{ icon('moon', 'i-moon') }}{{ icon('sun', 'i-sun') }}</button>
+{%- endmacro %}
+
+{# Shell of the signed-out pages (sign in, register, password reset): a centred
+   column with the mark, a short title, the form card and a quiet footer. #}
+{% macro auth_page(title, sub='', wide=false) -%}
+<div class="auth">
+  <main class="auth-main{{ ' auth-wide' if wide }}">
+    <a class="auth-logo" href="{{ url_for('auth.login') }}" aria-label="UniRecords sign in"><span class="brand-mark">{{ icon('shield-check') }}</span></a>
+    <h1 class="auth-title">{{ title }}</h1>
+    {% if sub %}<p class="auth-sub">{{ sub }}</p>{% endif %}
+    {{ caller() }}
+  </main>
+  <footer class="auth-foot">
+    <span>UniRecords · Faculty of Information Technology, Ton Duc Thang University</span>
+    {{ theme_toggle() }}
+  </footer>
+</div>
+{%- endmacro %}
